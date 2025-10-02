@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .h1 { @apply font-display text-5xl md:text-6xl leading-[1.05] tracking-tight; }
+  .lead { @apply text-lg text-white/80; }
+  .btn { @apply inline-flex items-center justify-center rounded-2xl px-6 py-3 font-semibold shadow-soft transition active:scale-[.99]; }
+  .btn-gold { @apply btn bg-brand-gold text-black hover:bg-brand-goldDark shadow-glow; }
+  .section { @apply relative py-14 md:py-20; }
+  .card { @apply rounded-2xl bg-brand-gray/60 ring-1 ring-white/10 backdrop-blur shadow-soft; }
+}
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { width: 100%; min-width: 0; margin: 0; scroll-behavior: smooth;}
+}
