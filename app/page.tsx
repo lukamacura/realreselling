@@ -11,7 +11,7 @@ import ThreeSteps from "@/components/ThreeSteps";
 import GuaranteeSection from "@/components/GuaranteeSection";
 import OfferHero from "@/components/OfferHero";
 import Faq from "@/components/Faq";
-import SocialProofToast from "@/components/SocialProofToast";
+import SocialProofBuy from "@/components/SocialProofBuy";
 import QuizDiscountPopup from "@/components/QuizDiscountPopup";
 
 // gde koristiš toast
@@ -33,7 +33,7 @@ const [loading, setLoading] = useState(true);
       <Preloader active={loading} onDone={() => console.log("preloader done")} cycleMs={900} />
       <Navigation />
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-      <SocialProofToast />
+      <SocialProofBuy />
       <Hero />
       <BentoGrid />
       <SpecialOffer />

@@ -16,6 +16,7 @@ export default function UplatnicaPage() {
   const code = sp.get("code") ?? undefined;
 
   const fileInput = useRef<HTMLInputElement | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [agreed, setAgreed] = useState(false);

@@ -1,15 +1,30 @@
 // app/checkout-card/page.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { ArrowLeft, CheckCircle2, AlertTriangle, Sparkles } from "lucide-react";
 
+// 🔧 Recite Next-u da ne radi SSG za ovu stranu (sprečava prerender error)
+export const dynamic = "force-dynamic";
+// (alternativa je: export const revalidate = 0)
+
 type Status = "idle" | "processing" | "success" | "error";
 
-export default function CardCheckoutPage() {
+// 1) Ovo je mali wrapper koji dodaje <Suspense>
+//    Ostaje u ISTOM fajlu, bez novih fajlova.
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm opacity-70">Učitavanje…</div>}>
+      <CheckoutCardClient />
+    </Suspense>
+  );
+}
+
+// 2) Tvoja postojeća logika ostaje ista, samo je pomerena u unutrašnju komponentu
+function CheckoutCardClient() {
   const router = useRouter();
   const sp = useSearchParams();
   const code = sp.get("code") ?? undefined;
@@ -25,7 +40,6 @@ export default function CardCheckoutPage() {
 
   const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
-  // Ako nije setovan PayPal Client ID
   if (!clientId) {
     return (
       <section className="min-h-dvh bg-[#0B0F13] text-white">
@@ -36,7 +50,10 @@ export default function CardCheckoutPage() {
               Nije postavljen <code className="text-amber-300">NEXT_PUBLIC_PAYPAL_CLIENT_ID</code>.
               Dodaj ga u <code>.env</code>, pa pokreni app ponovo.
             </p>
-            <Link href="/discount" className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-white/80 hover:bg-white/5">
+            <Link
+              href="/discount"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-white/80 hover:bg-white/5"
+            >
               <ArrowLeft className="h-4 w-4" /> Nazad
             </Link>
           </div>
@@ -83,38 +100,34 @@ export default function CardCheckoutPage() {
             <PayPalScriptProvider options={{ clientId, currency: "EUR", intent: "CAPTURE" }}>
               <PayPalButtons
                 style={{ layout: "vertical", shape: "rect" }}
-                fundingSource={undefined} // prikaži sve relevantne izvore (kartice/PayPal)
-               createOrder={(_, actions) => {
-  setStatus("processing");
-  return actions.order.create({
-    intent: "CAPTURE", // ✅ obavezno po TS tipovima
-    purchase_units: [
-      {
-        amount: {
-          currency_code: "EUR",       // ✅ valuta
-          value: price.toFixed(2),
-        },
-        description: "RealReselling članarina",
-        custom_id: code ? `coupon:${code}` : undefined,
-      },
-    ],
-    application_context: {
-      shipping_preference: "NO_SHIPPING",
-      // user_action: "PAY_NOW",      // (opciono)
-    },
-  });
-}}
-
-
+                fundingSource={undefined}
+                createOrder={(_, actions) => {
+                  setStatus("processing");
+                  return actions.order.create({
+                    intent: "CAPTURE",
+                    purchase_units: [
+                      {
+                        amount: {
+                          currency_code: "EUR",
+                          value: price.toFixed(2),
+                        },
+                        description: "RealReselling članarina",
+                        custom_id: code ? `coupon:${code}` : undefined,
+                      },
+                    ],
+                    application_context: {
+                      shipping_preference: "NO_SHIPPING",
+                    },
+                  });
+                }}
                 onApprove={async (_data, actions) => {
                   try {
-                  const details = await actions.order?.capture();
-                  setOrderId(details?.id ?? null);
-                  setStatus("success");
-                } catch {
-                  setStatus("error"); // ✅ bez 'e'
-                }
-
+                    const details = await actions.order?.capture();
+                    setOrderId(details?.id ?? null);
+                    setStatus("success");
+                  } catch {
+                    setStatus("error");
+                  }
                 }}
                 onCancel={() => setStatus("idle")}
                 onError={() => setStatus("error")}

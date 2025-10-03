@@ -1,11 +1,12 @@
 // app/meet/page.tsx
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import SocialProofMeet from "@/components/SocialProofMeet";
+import MeetBento from "@/components/MeetBento";
 import {
-  Sparkles,
+  Ticket,
   Users,
   Phone,
   MessageCircle,
@@ -19,17 +20,11 @@ export default function MeetPage() {
   const [open, setOpen] = useState(false);
 
   return (
+    
     <main className="relative min-h-dvh overflow-hidden bg-[#0B0F13] text-white">
-      {/* Pozadinski glow */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-[-12%] top-[-20%] h-[160%] w-[70%] opacity-70"
-        style={{
-          background:
-            "radial-gradient(50% 50% at 50% 50%, rgba(212,160,32,0.40) 0%, rgba(212,160,32,0.12) 45%, rgba(11,15,19,0) 70%)",
-          filter: "blur(10px)",
-        }}
-      />
+    <SocialProofMeet />
+
+     
 
       <section className="container mx-auto max-w-[1300px] px-4 py-12 sm:py-16">
         {/* HERO CARD */}
@@ -80,10 +75,10 @@ export default function MeetPage() {
                 onClick={() => setOpen(true)}
                 className="group font-display font-bold text-2xl inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-12 py-6 text-center text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60 sm:w-auto"
               >
-                <Sparkles className="h-5 w-5" />
-                Obezbedi svoje free mesto
+                <Ticket className="h-7 w-7 mb-[2px]" />
+                Rezerviši svoje besplatno mesto
               </button>
-              <p className="mt-2 text-xs text-white">
+              <p className="mt-2 font-extrabold text-xs text-white">
                 Ostalo još 2 mesta
               </p>
               <p className="mt-2 text-xs text-white/60">
@@ -139,10 +134,13 @@ export default function MeetPage() {
       Poklon iznenađenje ako ostaneš do kraja meeta
     </p>
   </div>
+  
 </div>
 
-        
+                              
+<MeetBento/>
       </section>
+
 
       {/* Modal forma za prijavu (telefon umesto emaila) */}
       {open && <SignupModal onClose={() => setOpen(false)} />}
@@ -207,7 +205,7 @@ setTimeout(() => {
       <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-[520px] -translate-x-1/2 -translate-y-1/2">
         <div className="rounded-2xl border border-white/10 bg-[#12171E]/90 p-5 text-white shadow-[0_24px_90px_rgba(0,0,0,0.55)] backdrop-blur-xl animate-[popIn_.18s_ease-out]">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold">Rezerviši free mesto</h3>
+            <h3 className="text-3xl font-display font-medium">Rezerviši svoje besplatno mesto</h3>
             <button
               onClick={onClose}
               className="grid h-9 w-9 place-items-center rounded-xl hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60"
@@ -253,25 +251,26 @@ setTimeout(() => {
           <button
             onClick={submit}
             disabled={!valid || busy || done}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-3 font-semibold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 disabled:opacity-60"
+            className="mt-5 text-2xl inline-flex w-full font-display items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-3 font-semibold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 disabled:opacity-60"
           >
             {done ? (
               <>
-                <CheckCircle2 className="h-5 w-5" /> Sačuvano!
+                <CheckCircle2 className="h-7 w-7 mb-[2px]" /> Sačuvano!
               </>
             ) : (
               <>
-                <MessageCircle className="h-5 w-5" /> Pošalji broj
+                <Ticket className="h-7 w-7 mb-[2px]" /> Rezerviši svoje besplatno mesto
               </>
             )}
           </button>
 
           <p className="mt-3 text-center text-xs text-white/60">
-            Tvoj broj koristimo samo da te kontaktiramo za meetup i WhatsApp
+            Tvoj broj koristimo samo da te kontaktiramo za Meet i WhatsApp
             grupu.
           </p>
         </div>
       </div>
+      
 
       <style>{`
         @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }

@@ -39,7 +39,7 @@ export default function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="relative bg-[#0B0F13] py-16 mx-auto text-white">
+    <section id="faq" className="relative bg-[#0B0F13] py-16 mx-auto text-white">
       <div className="container mx-auto max-w-3xl px-4">
         <h2 className="mb-10 font-display text-center text-3xl font-bold md:text-6xl">
           Česta pitanja

@@ -81,7 +81,7 @@ export default function BentoGrid() {
               <h3 className="font-display text-3xl text-white">BONUSI</h3>
             </header>
             <Image src="/bonus.png" alt="Bonusi" width={120} height={120} />
-            <a href="#bonussection" className="mt-4 w-full rounded-2xl bg-[rgba(212,160,32,.95)] px-4 py-3 text-center text-lg font-semibold text-black shadow-[0_12px_30px_rgba(212,160,32,.35)] hover:brightness-95 active:scale-[.99]">
+            <a href="#bonussection" className="font-display mt-4 w-full rounded-2xl bg-[rgba(212,160,32,.95)] px-4 py-3 text-center text-2xl font-semibold text-black shadow-[0_12px_30px_rgba(212,160,32,.35)] hover:brightness-95 active:scale-[.99]">
               Koje bonuse?
             </a>
           </aside>

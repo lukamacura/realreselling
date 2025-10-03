@@ -51,7 +51,7 @@ export default function MeetSuccessPage() {
            
             <Link
               href="/meet"
-              className="rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-3 text-sm font-semibold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110"
+              className="rounded-xl font-display bg-gradient-to-b from-amber-400 to-amber-600 px-12 py-4 text-2xl font-semibold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110"
             >
               Nazad na Meet
             </Link>
