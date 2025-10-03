@@ -82,14 +82,15 @@ export default function Preloader({
           <Loader2 className="h-6 w-6 animate-spin text-amber-300" />
         </div>
 
-        <div className="mt-5 flex items-center justify-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-amber-400 text-black shadow-[0_8px_24px_rgba(212,160,32,0.45)]">
-            <Icon className="h-5 w-5" />
-          </span>
-          <p key={index} className="text-sm font-semibold text-white/90 animate-fade-in">
-            {text}
-          </p>
-        </div>
+       <div className="mt-5 flex items-center justify-center gap-3 flex-col sm:flex-row">
+        <span className="grid h-10 w-10 place-items-center rounded-full bg-amber-400 text-black shadow-[0_8px_24px_rgba(212,160,32,0.45)]">
+          <Icon className="h-5 w-5" />
+        </span>
+        <p key={index} className="text-xs font-semibold text-white/90 animate-fade-in">
+          {text}
+        </p>
+      </div>
+
 
         <div className="mt-6 h-1 w-full overflow-hidden rounded-full bg-white/10">
           <div

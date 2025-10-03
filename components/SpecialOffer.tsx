@@ -26,7 +26,7 @@ export default function SpecialOffer() {
   const tomorrow = useTomorrowDMY();
 
   return (
-    <section className="bg-brand-dark py-16 md:py-24 mx-auto">
+    <section className="bg-brand-dark py-0 md:py-8 mx-auto">
       <div className="container mx-auto max-w-[980px] px-4 text-center">
         <h2 className="font-display leading-tight text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
           Ovo bi ukupno platio

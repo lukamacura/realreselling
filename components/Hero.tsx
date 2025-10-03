@@ -2,11 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Banknote, Users, BadgeCheck } from "lucide-react";
+import { Banknote, Users, BadgeCheck, BadgeDollarSign } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-brand-dark py-10 sm:py-14 md:py-0">
+    <section className="relative mx-auto mt-10 md:mt-40 overflow-hidden bg-brand-dark py-10 sm:py-14 md:py-0">
       {/* Zlatni radijal desno */}
       <div
         aria-hidden
@@ -20,12 +20,11 @@ export default function Hero() {
       <div className="container mx-auto grid max-w-[1600px] items-center gap-10 px-4 md:grid-cols-2 md:gap-12">
         {/* LEFT */}
         <div className="relative z-10">
-          <h1 className="mb-6 font-display text-[36px] leading-[1.05] tracking-tight text-white md:text-[64px]">
-            <span className="m-0 block font-display text-[32px] leading-tight text-brand-gold md:text-[64px]">
-              💸 Prva online zarada <span className="ml-2 text-white">od</span>
+          <h1 className="mb-2 md:mb-6 font-display text-[36px] leading-[1.05] tracking-tight text-white md:text-[64px]">
+            <span className="m-0 block font-display text-[60px] leading-tight text-brand-gold md:text-[64px]">
+              💸 Prva online zarada <span className="ml-2 text-white">od resellinga u 30 dana ILI VRAĆAMO NOVAC</span>
             </span>
-            <span className="block">resellinga u 30 dana</span>
-            <span className="block mt-2">ILI VRAĆAMO NOVAC</span>
+
           </h1>
 
           <p className="mb-6 max-w-[680px] text-lg leading-relaxed text-white/85 md:text-xl">
@@ -51,9 +50,11 @@ export default function Hero() {
           {/* CTA */}
           <Link
             href="#sta-dobijam"
-            className="inline-flex w-full max-w-[640px] items-center justify-center rounded-[28px] bg-brand-gold px-6 py-8 font-display text-xl md:text-2xl font-light text-black shadow-[0_10px_30px_rgba(212,160,32,.35)] transition hover:bg-brand-goldDark active:scale-[.99]"
+            className="inline-flex w-full max-w-[640px] items-center justify-center rounded-[28px] bg-brand-gold px-6 py-8 font-medium font-display text-2xl md:text-2xl text-brand-dark shadow-[0_10px_30px_rgba(212,160,32,.35)] transition hover:bg-brand-goldDark active:scale-[.99]"
           >
-            💸 Hoću da zarađujem od resellinga
+                          <BadgeDollarSign className="h-9 w-9 mb-[3px] mr-[2px] text-brand-dark" aria-hidden />
+
+            Hoću da zarađujem od resellinga
           </Link>
         </div>
 

@@ -139,16 +139,8 @@ const router = useRouter();
 
   return (
     <section className="relative overflow-hidden bg-[#0B0F13] text-white">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute right-[-15%] top-[-20%] h-[160%] w-[70%] opacity-70"
-        style={{
-          background: "radial-gradient(50% 50% at 50% 50%, rgba(212,160,32,0.40) 0%, rgba(212,160,32,0.12) 45%, rgba(11,15,19,0) 70%)",
-          filter: "blur(10px)",
-        }}
-      />
-      <div className="container mx-auto max-w-[1200px] px-4 py-10 sm:py-14">
-        <div className="grid items-start">
+     
+      <div className="container mx-auto max-w-[1600px] px-4 py-10 sm:py-14">
           <div className="relative rounded-2xl border border-white/10 bg-[#12171E]/80 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)] sm:p-6 md:p-7">
             <div className="absolute inset-x-0 top-0 h-[10px] rounded-t-2xl bg-gradient-to-r from-amber-500 via-amber-300 to-amber-600" />
 
@@ -217,13 +209,13 @@ const router = useRouter();
                   className="rounded-xl border border-white/10 px-3 text-sm text-white/80 transition hover:bg-white/5"
                   title="Kopiraj RRS25 u polje"
                 >
-                  {copied ? "Kopirano" : "Kopiraj kod"}
+                  {copied ? "Zalepljen" : "Zalepi kod"}
                 </button>
               </div>
               {error && <p className="mt-2 text-sm text-rose-400">{error}</p>}
               {applied && (
                 <p className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-emerald-400">
-                  <CheckCircle2 className="h-4 w-4" /> Kod je prihvaćen — nova cena: {priceToPay}€
+                  <CheckCircle2 className="h-4 w-4" /> Kod je prihvaćen, nova cena je: {priceToPay}€
                 </p>
               )}
             </div>
@@ -247,15 +239,14 @@ const router = useRouter();
             {/* CTA */}
             <button
               onClick={handleContinue}
-              className="mt-6 w-full border rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-4 py-8 text-3xl shadow-[0_12px_36px_rgba(212,160,32,0.25)] text-black font-display font-bold transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-400/60"
+              className="mt-6 w-full border rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-4 py-8 text-xl shadow-[0_12px_36px_rgba(212,160,32,0.25)] text-black font-display font-bold transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-400/60"
             >
               <span className="inline-flex items-center gap-2">
                 <Sparkles className="h-5 w-5" />
-                Hoću da zarađujem od resellinga — {displayPrice}€
+                Hoću da dobijem program po specijalnoj ceni od {displayPrice}€
               </span>
             </button>
           </div>
-        </div>
       </div>
     </section>
   );

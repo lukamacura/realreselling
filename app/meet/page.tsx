@@ -1,6 +1,6 @@
 // app/meet/page.tsx
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import SocialProofMeet from "@/components/SocialProofMeet";
@@ -15,16 +15,22 @@ import {
   X,
   Lightbulb, 
 } from "lucide-react";
+import Preloader from "@/components/Preloader";
 
 export default function MeetPage() {
   const [open, setOpen] = useState(false);
+const [loading, setLoading] = useState(true);
 
+    useEffect(() => {
+    // Simulacija fetch-a / inicijalizacije
+    const t = setTimeout(() => setLoading(false), 2700);
+    return () => clearTimeout(t);
+  }, []);
   return (
-    
-    <main className="relative min-h-dvh overflow-hidden bg-[#0B0F13] text-white">
-    <SocialProofMeet />
+         <><Preloader active={loading} onDone={() => console.log("preloader done")} cycleMs={900} /><main className="relative min-h-dvh overflow-hidden bg-[#0B0F13] text-white">
+      <SocialProofMeet />
 
-     
+
 
       <section className="container mx-auto max-w-[1300px] px-4 py-12 sm:py-16">
         {/* HERO CARD */}
@@ -61,12 +67,12 @@ export default function MeetPage() {
               <li className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-amber-300" />
                 <span>Bonus: pristup <b className="text-white">Reselling Room</b> (naša
-                WhatsApp grupa), BESPLATNO</span>
-                
+                  WhatsApp grupa), BESPLATNO</span>
+
               </li>
               <li className="flex items-center gap-2">
                 <Gift className="h-4 w-4 text-amber-300" />
-                 <b className="text-white">Malo iznenađenje</b>  na kraju meeta
+                <b className="text-white">Malo iznenađenje</b>  na kraju meeta
               </li>
             </ul>
 
@@ -89,14 +95,13 @@ export default function MeetPage() {
 
           {/* Right: ilustracija / mockup */}
           <div className="relative">
-              <Image
-                src="/meet.png"
-                alt="RealReselling – besplatan uvod"
-                width={2780}
-                height={1200}
-                className="h-full w-full object-cover opacity-90"
-                priority
-              />
+            <Image
+              src="/meet.png"
+              alt="RealReselling – besplatan uvod"
+              width={2780}
+              height={1200}
+              className="h-full w-full object-cover opacity-90"
+              priority />
             <p className="mt-3 text-center text-xs text-white/60">
               Q&A na kraju pa možeš pitati sve što te zanima.
             </p>
@@ -105,46 +110,46 @@ export default function MeetPage() {
 
         {/* Trust strip / kratki bullets */}
         <div className="mt-6 grid gap-4 justify-items-center md:grid-cols-3">
-  {/* 1 */}
-  <div className="w-full max-w-[380px] rounded-2xl border border-white/10 bg-[#12171E]/60 p-4 text-center">
-    <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">
-      <Lightbulb className="h-7 w-7" aria-hidden />
-    </div>
-    <p className="mt-3 text-sm text-white/80">
-      Saznaješ da li je reselling uopšte za tebe
-    </p>
-  </div>
+          {/* 1 */}
+          <div className="w-full max-w-[380px] rounded-2xl border border-white/10 bg-[#12171E]/60 p-4 text-center">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">
+              <Lightbulb className="h-7 w-7" aria-hidden />
+            </div>
+            <p className="mt-3 text-sm text-white/80">
+              Saznaješ da li je reselling uopšte za tebe
+            </p>
+          </div>
 
-  {/* 2 */}
-  <div className="w-full max-w-[380px] rounded-2xl border border-white/10 bg-[#12171E]/60 p-4 text-center">
-    <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">
-      <MessageCircle className="h-7 w-7" aria-hidden />
-    </div>
-    <p className="mt-3 text-sm text-white/80">
-      Pristup WhatsApp grupi sa uspešnim resellerima
-    </p>
-  </div>
+          {/* 2 */}
+          <div className="w-full max-w-[380px] rounded-2xl border border-white/10 bg-[#12171E]/60 p-4 text-center">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">
+              <MessageCircle className="h-7 w-7" aria-hidden />
+            </div>
+            <p className="mt-3 text-sm text-white/80">
+              Pristup WhatsApp grupi sa uspešnim resellerima
+            </p>
+          </div>
 
-  {/* 3 */}
-  <div className="w-full max-w-[380px] rounded-2xl border border-white/10 bg-[#12171E]/60 p-4 text-center">
-    <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">
-      <Gift className="h-7 w-7" aria-hidden />
-    </div>
-    <p className="mt-3 text-sm text-white/80">
-      Poklon iznenađenje ako ostaneš do kraja meeta
-    </p>
-  </div>
-  
-</div>
+          {/* 3 */}
+          <div className="w-full max-w-[380px] rounded-2xl border border-white/10 bg-[#12171E]/60 p-4 text-center">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">
+              <Gift className="h-7 w-7" aria-hidden />
+            </div>
+            <p className="mt-3 text-sm text-white/80">
+              Poklon iznenađenje ako ostaneš do kraja meeta
+            </p>
+          </div>
 
-                              
-<MeetBento/>
+        </div>
+
+
+        <MeetBento />
       </section>
 
 
       {/* Modal forma za prijavu (telefon umesto emaila) */}
       {open && <SignupModal onClose={() => setOpen(false)} />}
-    </main>
+    </main></>
   );
 }
 

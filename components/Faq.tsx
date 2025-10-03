@@ -69,7 +69,7 @@ function FaqItem({ question, answer, isOpen, onClick }: FaqItemProps & { isOpen:
         onClick={onClick}
         className="flex w-full items-center justify-between px-10 py-4 text-left text-lg font-medium focus:outline-none"
       >
-        <span className="mr-12">{question}</span>
+        <span className="mr-2 text-sm md:text-lg">{question}</span>
         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-400 text-black">
           <ChevronDown
             className={`h-5 w-5 transition-transform ${isOpen ? "rotate-180" : "rotate-0"}`}

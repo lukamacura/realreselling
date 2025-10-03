@@ -131,10 +131,10 @@ export default function OfferHero({ onOpenQuiz }: { onOpenQuiz?: () => void }) {
         role="button"
         onClick={(e) => { e.preventDefault(); onOpenQuiz?.(); }}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenQuiz?.(); } }}
-        className="group font-display flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-8 text-center text-3xl font-semibold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
+        className="group font-display text-xl font-semibold flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-8 text-center text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
       >
-        <Sparkles className="h-5 w-5" />
-        Odgovori na 3 pitanja i osvoji JOŠ 10€ popusta
+        <Sparkles className="h-12 w-12" />
+        Odgovori na 3 pitanja i osvoji JOŠ 10€ popusta (cena: 50€)
       </a>
     </div>
 

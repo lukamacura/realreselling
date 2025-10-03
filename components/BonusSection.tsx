@@ -4,7 +4,7 @@ import { Gift, Zap, Notebook} from "lucide-react";
 
 export default function BonusSection() {
   return (
-    <section id="bonussection" className="bg-brand-dark py-16 md:py-24 mx-auto">
+    <section id="bonussection" className="bg-brand-dark py-0 md:py-8 mx-auto">
       <div className="container mx-auto max-w-[1100px] px-4">
                       
 <Gift className="mb-2 h-20 w-20 text-brand-gold mx-auto" />
