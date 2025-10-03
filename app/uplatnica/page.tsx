@@ -1,15 +1,27 @@
+/* eslint-disable @next/next/no-img-element */
 // app/uplatnica/page.tsx
 "use client";
 
+import { Suspense, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  Camera, Download, UploadCloud, CheckCircle2, ArrowLeft, Info
-} from "lucide-react";
+import { Camera, Download, UploadCloud, CheckCircle2, ArrowLeft, Info } from "lucide-react";
 
-export default function UplatnicaPage() {
+// 🔧 Sprečava prerender/SSG koji pravi problem sa useSearchParams
+export const dynamic = "force-dynamic"; // (alternativa: export const revalidate = 0)
+
+// 1) Page wrapper sa <Suspense> — sve je i dalje u istom fajlu
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm opacity-70">Učitavanje…</div>}>
+      <UplatnicaClient />
+    </Suspense>
+  );
+}
+
+// 2) Tvoja postojeća logika u unutrašnjoj komponenti
+function UplatnicaClient() {
   const sp = useSearchParams();
   const router = useRouter();
   const price = sp.get("price") ?? "60";
@@ -37,11 +49,9 @@ export default function UplatnicaPage() {
     }
   }
 
-  // Za sada samo “fake save” (slanje u mejl/bazu dodajemo kasnije)
+  // Za sada samo “fake save”
   async function handleConfirm() {
     if (!agreed) return;
-    // ovde će ići upload u bazu / slanje mejlom
-    // npr. await uploadSlip(file)
     setSaved(true);
     setTimeout(() => setSaved(false), 1600);
   }
@@ -140,11 +150,10 @@ export default function UplatnicaPage() {
                 </div>
               ) : (
                 <div className="grid gap-2">
-                  <Image
+                  {/* Za blob: URL koristimo <img>, ne next/image */}
+                  <img
                     src={preview}
                     alt="Fotografija uplatnice (preview)"
-                    width={1200}
-                    height={800}
                     className="h-auto w-full rounded-md"
                   />
                   <p className="text-xs text-white/60">Ako je slika nejasna, ponovi fotografisanje.</p>
