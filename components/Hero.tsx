@@ -79,7 +79,7 @@ export default function Hero() {
       <div className="container mx-auto max-w-[1600px] px-4">
         <div className="mt-10 grid grid-cols-1 gap-0 text-center sm:grid-cols-3">
           {/* 1 */}
-          <div className="flex flex-col items-center">
+          <div className="flex mb-6 flex-col items-center">
             <div className="mb-2 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10">
               <Banknote className="h-9 w-9 text-brand-gold" aria-hidden />
             </div>
@@ -89,7 +89,7 @@ export default function Hero() {
           </div>
 
           {/* 2 */}
-          <div className="flex flex-col items-center">
+          <div className="flex mb-6 flex-col items-center">
             <div className="mb-2 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10">
               <Users className="h-9 w-9 text-brand-gold" aria-hidden />
             </div>
@@ -99,7 +99,7 @@ export default function Hero() {
           </div>
 
           {/* 3 */}
-          <div className="flex flex-col items-center">
+          <div className="flex mb-6 flex-col items-center">
             <div className="mb-2 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10">
               <BadgeCheck className="h-9 w-9 text-brand-gold" aria-hidden />
             </div>

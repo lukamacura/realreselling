@@ -17,7 +17,7 @@ export default function BentoGrid() {
           <article className="card col-span-1 flex h-full flex-col rounded-3xl bg-brand-gray/70 p-6 sm:col-span-2 lg:col-span-8 lg:row-span-2 md:p-8">
             <header className="flex items-center gap-3">
               <GraduationCap className="h-6 w-6 text-brand-gold" />
-              <h3 className="font-display text-3xl md:text-4xl">Vodiči i edukacija</h3>
+              <h3 className="font-display font-bold text-3xl md:text-4xl">Vodiči i edukacija</h3>
               <Image src="/edu.png" alt="" width={56} height={56} className="ml-auto hidden md:block" />
             </header>
 
@@ -38,7 +38,7 @@ export default function BentoGrid() {
           <article className="col-span-1 flex h-full flex-col justify-between rounded-3xl bg-[radial-gradient(120%_120%_at_30%_20%,rgba(255,215,130,.6),rgba(212,160,32,.9)40%,rgba(179,133,22,.98)72%)] p-6 text-brand-dark sm:col-span-1 lg:col-span-4">
             <header className="flex items-center gap-3">
               <Users className="h-6 w-6 text-brand-dark" />
-              <h3 className="font-display text-3xl md:text-4xl text-brand-dark/90">Zajednica i podrška</h3>
+              <h3 className="font-display font-bold text-3xl md:text-4xl text-brand-dark/90">Zajednica i podrška</h3>
             </header>
             <div className="mt-4 flex items-start gap-3">
               <Image src="/feat-community.png" alt="" width={56} height={56} />
@@ -60,7 +60,7 @@ export default function BentoGrid() {
           <article className="col-span-1 flex h-full flex-col rounded-3xl bg-[radial-gradient(120%_120%_at_25%_20%,rgba(255,215,130,.55),rgba(212,160,32,1)46%,rgba(179,133,22,1)75%)] p-6 text-brand-dark sm:col-span-2 lg:col-span-8 md:p-8">
             <header className="flex items-center gap-3">
               <Wrench className="h-6 w-6 text-brand-dark" />
-              <h3 className="font-display text-3xl md:text-4xl">Alati za bržu prodaju</h3>
+              <h3 className="font-display font-bold text-3xl md:text-4xl">Alati za bržu prodaju</h3>
               <Image src="/tools.png" alt="" width={56} height={56} className="ml-auto hidden md:block" />
             </header>
 
@@ -78,7 +78,7 @@ export default function BentoGrid() {
           {/* 5) Bonusi — visoki tamni blok */}
           <aside className="card col-span-1 flex h-full flex-col items-center justify-between rounded-3xl bg-brand-gray/70 p-6 sm:col-span-2 lg:col-span-4 lg:row-span-2">
             <header className="flex items-center gap-3">
-              <h3 className="font-display text-3xl md:text-4xl text-white">BONUSI</h3>
+              <h3 className="font-display font-bold text-3xl md:text-4xl text-white">BONUSI</h3>
             </header>
             <Image src="/bonus.png" alt="Bonusi" width={120} height={120} />
             <a href="#bonussection" className="font-display mt-4 w-full rounded-2xl bg-[rgba(212,160,32,.95)] px-4 py-3 text-center text-2xl font-semibold text-black shadow-[0_12px_30px_rgba(212,160,32,.35)] hover:brightness-95 active:scale-[.99]">
