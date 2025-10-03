@@ -90,7 +90,7 @@ export default function OfferHero({ onOpenQuiz }: { onOpenQuiz?: () => void }) {
             </ul>
 
             {/* Bonuses */}
-            <div className="mt-6 space-y-3 rounded-xl bg-[#0E1319] p-4 ring-1 ring-white/5">
+            <div className="mt-6 space-y-3 rounded-xl text-sm sm:text-base bg-[#0E1319] p-4 ring-1 ring-white/5">
               <Bonus icon={Zap} text="La Digitale - Neko želi da kupi Netflix, ti ga kupiš po najnižoj ceni, i njemu prodaš po višoj." value="(vrednost: 40 €)" />
               <Bonus icon={Notebook} text="Contactless opcija - mi šaljemo proizvode direktno kupcima, ti samo ubaciš profiti" value="(vrednost: 40 €)" />
               <Bonus icon={ShieldCheck} text="Pravo na povraćaj novca ili zamenu proizvoda u bilo kojoj situaciji" />

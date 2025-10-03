@@ -21,7 +21,7 @@ export default function Hero() {
         {/* LEFT */}
         <div className="relative z-10">
           <h1 className="mb-2 md:mb-6 font-display text-[36px] leading-[1.05] tracking-tight text-white md:text-[64px]">
-            <span className="m-0 block font-display text-[60px] leading-tight text-brand-gold md:text-[64px]">
+            <span className="m-0 block font-display text-[40px] leading-tight text-brand-gold md:text-[64px]">
               💸 Prva online zarada <span className="ml-2 text-white">od resellinga u 30 dana ILI VRAĆAMO NOVAC</span>
             </span>
 
@@ -42,7 +42,7 @@ export default function Hero() {
                 3000+
               </span>
             </div>
-            <span className="text-sm md:text-base">
+            <span className="text-xs md:text-base">
               Pridruži se zajednici od preko 3000+ članova
             </span>
           </div>
@@ -50,7 +50,7 @@ export default function Hero() {
           {/* CTA */}
           <Link
             href="#sta-dobijam"
-            className="inline-flex w-full max-w-[640px] items-center justify-center rounded-[28px] bg-brand-gold px-6 py-8 font-medium font-display text-2xl md:text-2xl text-brand-dark shadow-[0_10px_30px_rgba(212,160,32,.35)] transition hover:bg-brand-goldDark active:scale-[.99]"
+            className="inline-flex w-full max-w-[640px] items-center justify-center rounded-[28px] bg-brand-gold px-6 py-8 font-bold font-display text-xl md:text-2xl text-brand-dark shadow-[0_10px_30px_rgba(212,160,32,.35)] transition hover:bg-brand-goldDark active:scale-[.99]"
           >
                           <BadgeDollarSign className="h-9 w-9 mb-[3px] mr-[2px] text-brand-dark" aria-hidden />
 
