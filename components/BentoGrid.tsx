@@ -30,7 +30,7 @@ export default function BentoGrid() {
             </ul>
 
             <footer className="mt-auto pt-6 text-center text-lg font-semibold text-white/90">
-              Normalna cena: <span className="text-brand-gold">60€</span>
+              Regularna cena: <span className="text-brand-gold">60€</span>
             </footer>
           </article>
 
@@ -47,7 +47,7 @@ export default function BentoGrid() {
               </p>
             </div>
             <p className="mt-4 font-semibold text-brand-dark/90">
-              Normalna cena: <span className="text-brand-dark">50€</span>
+              Regularna cena: <span className="text-brand-dark">50€</span>
             </p>
           </article>
 
@@ -71,7 +71,7 @@ export default function BentoGrid() {
             </ul>
 
             <p className="mt-auto pt-6 text-center text-lg font-semibold">
-              Normalna cena: <span className="text-brand-dark">40€</span>
+              Regularna cena: <span className="text-brand-dark">40€</span>
             </p>
           </article>
 
@@ -82,7 +82,7 @@ export default function BentoGrid() {
             </header>
             <Image src="/bonus.png" alt="Bonusi" width={120} height={120} />
             <a href="#bonussection" className="font-display mt-4 w-full rounded-2xl bg-[rgba(212,160,32,.95)] px-4 py-3 text-center text-2xl font-semibold text-black shadow-[0_12px_30px_rgba(212,160,32,.35)] hover:brightness-95 active:scale-[.99]">
-              Koje bonuse?
+              Pogledaj bonuse
             </a>
           </aside>
         </div>

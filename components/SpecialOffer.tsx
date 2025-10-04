@@ -48,13 +48,13 @@ export default function SpecialOffer() {
 
         <div className="mt-6 text-4xl sm:text-5xl">🤝🤝</div>
 
-        <div className="mt-10">
+        <div className="mt-10 ">
           <Link
             href="#cena"
-            className="inline-flex font-display w-full max-w-[640px] items-center justify-center rounded-[28px] bg-brand-gold px-6 py-8 text-xl font-bold text-black shadow-[0_10px_30px_rgba(212,160,32,.35)] transition hover:bg-brand-goldDark active:scale-[.99]"
+            className="flex items-center justify-center font-display w-full max-w-[640px] rounded-[28px] bg-brand-gold px-6 py-8 text-xl font-bold text-black shadow-[0_10px_30px_rgba(212,160,32,.35)] transition hover:bg-brand-goldDark active:scale-[.99]"
           >
             {/* može i emoji direktno */}
-           <Gift className="mb-2 h-9 w-9 text-brand-black mx-auto" />
+           <Gift className="mb-2 h-9 w-9 text-brand-black" />
 
             Želim da dobijem specijalnu ponudu
           </Link>

@@ -36,9 +36,9 @@ function CheckoutCardClient() {
   }, [sp]);
 
   const [status, setStatus] = useState<Status>("idle");
-  const [orderId, setOrderId] = useState<string | null>(null);
+const [orderId, setOrderId] = useState<string | null>(null);
 
-  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+const clientId = "sb";
 
   if (!clientId) {
     return (
@@ -97,42 +97,78 @@ function CheckoutCardClient() {
           </header>
 
           <div className="mt-6 rounded-xl bg-[#0E1319] p-4 ring-1 ring-white/5">
-            <PayPalScriptProvider options={{ clientId, currency: "EUR", intent: "CAPTURE" }}>
-              <PayPalButtons
-                style={{ layout: "vertical", shape: "rect" }}
-                fundingSource={undefined}
-                createOrder={(_, actions) => {
-                  setStatus("processing");
-                  return actions.order.create({
-                    intent: "CAPTURE",
-                    purchase_units: [
-                      {
-                        amount: {
-                          currency_code: "EUR",
-                          value: price.toFixed(2),
-                        },
-                        description: "RealReselling članarina",
-                        custom_id: code ? `coupon:${code}` : undefined,
-                      },
-                    ],
-                    application_context: {
-                      shipping_preference: "NO_SHIPPING",
-                    },
-                  });
-                }}
-                onApprove={async (_data, actions) => {
-                  try {
-                    const details = await actions.order?.capture();
-                    setOrderId(details?.id ?? null);
-                    setStatus("success");
-                  } catch {
-                    setStatus("error");
-                  }
-                }}
-                onCancel={() => setStatus("idle")}
-                onError={() => setStatus("error")}
-              />
-            </PayPalScriptProvider>
+            <PayPalScriptProvider
+  options={{
+    clientId,
+    currency: "EUR",
+    intent: "capture",
+    components: "buttons",
+    enableFunding: "card",
+  }}
+>
+  {/* zajednički handleri */}
+  <PayPalButtons
+  onClick={(data /*, actions*/) => {
+    setStatus("processing");
+    console.log("[PP] onClick funding:", data.fundingSource); // ✅ ispravno
+  }}
+    // KREIRANJE NALOGA
+    createOrder={(_, actions) => {
+      const p = actions.order.create({
+        intent: "CAPTURE", // traže TS tipovi
+        purchase_units: [
+          {
+            amount: { currency_code: "EUR", value: price.toFixed(2) },
+            description: "RealReselling članarina",
+            custom_id: code ? `coupon:${code}` : undefined,
+          },
+        ],
+        application_context: { shipping_preference: "NO_SHIPPING" },
+      });
+
+      // Watchdog: ako ništa ne dođe 90s, vrati UI iz processing
+      p.then((id) => {
+        console.log("[PP] order id:", id);
+        window.setTimeout(() => {
+          if (status === "processing") {
+            console.warn("[PP] watchdog: no approve/cancel/error in 90s -> reset");
+            setStatus("idle");
+          }
+        }, 90000);
+      });
+
+      return p;
+    }}
+    // ODOBRENO → CAPTURE
+    onApprove={async (_data, actions) => {
+      try {
+        console.log("[PP] onApprove");
+        const details = await actions.order?.capture();
+        console.log("[PP] CAPTURE:", details);
+        setOrderId(details?.id ?? null);
+        setStatus("success");
+      } catch (e) {
+        console.error("[PP] capture error:", e);
+        setStatus("error");
+      }
+    }}
+    // KORISNIK OTKAZAO
+    onCancel={() => {
+      console.log("[PP] onCancel");
+      setStatus("idle");
+    }}
+    // BILO KAKVA GREŠKA
+    onError={(err) => {
+      console.error("[PP] onError:", err);
+      setStatus("error");
+    }}
+  />
+
+  {/* Dodatno, zasebno card dugme (ako želiš da ga prikažeš posebno) */}
+  {/* <PayPalButtons fundingSource="card" ...isti handleri kao gore... /> */}
+</PayPalScriptProvider>
+
+
 
             {/* status zona */}
             {status === "processing" && (

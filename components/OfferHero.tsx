@@ -81,9 +81,9 @@ export default function OfferHero({ onOpenQuiz }: { onOpenQuiz?: () => void }) {
 
             {/* Feature list */}
             <ul className="mt-6 space-y-3 rounded-xl text-sm sm:text-base bg-[#0E1319] p-4 ring-1 ring-white/5">
-              <Feature icon={GraduationCap} text="Vodiči i edukacija" priceNote="(normalna cena: 60€)" />
-              <Feature icon={Users} text="Zajednica i podrška" priceNote="(normalna cena: 50€)" />
-              <Feature icon={Wrench} text="Alati za prodaju" priceNote="(normalna cena: 40€)" />
+              <Feature icon={GraduationCap} text="Vodiči i edukacija" priceNote="(Regularna cena: 60€)" />
+              <Feature icon={Users} text="Zajednica i podrška" priceNote="(Regularna cena: 50€)" />
+              <Feature icon={Wrench} text="Alati za prodaju" priceNote="(Regularna cena: 40€)" />
               <li className="pt-1 text-right text-sm text-zinc-300">
                 Ukupno: <span className="font-semibold text-white">150€</span>
               </li>
@@ -91,8 +91,8 @@ export default function OfferHero({ onOpenQuiz }: { onOpenQuiz?: () => void }) {
 
             {/* Bonuses */}
             <div className="mt-6 space-y-3 rounded-xl text-sm sm:text-base bg-[#0E1319] p-4 ring-1 ring-white/5">
-              <Bonus icon={Zap} text="La Digitale - Neko želi da kupi Netflix, ti ga kupiš po najnižoj ceni, i njemu prodaš po višoj." value="(normalna cena: 40 €)" />
-              <Bonus icon={Notebook} text="Contactless opcija - mi šaljemo proizvode direktno kupcima, ti samo ubaciš profiti" value="(normalna cena: 40 €)" />
+              <Bonus icon={Zap} text="La Digitale - Neko želi da kupi Netflix, ti ga kupiš po najnižoj ceni, i njemu prodaš po višoj." value="(Regularna cena: 40 €)" />
+              <Bonus icon={Notebook} text="Contactless opcija - mi šaljemo proizvode direktno kupcima, ti samo ubaciš profiti" value="(Regularna cena: 40 €)" />
               <Bonus icon={ShieldCheck} text="Pravo na povraćaj novca ili zamenu proizvoda u bilo kojoj situaciji" />
               <div className="pt-1 text-right text-sm text-zinc-300">
                 Ukupno: <span className="font-semibold text-white">80€</span>
@@ -102,7 +102,7 @@ export default function OfferHero({ onOpenQuiz }: { onOpenQuiz?: () => void }) {
             {/* Pricing */}
             <div className="mt-6 space-y-2 text-center">
               <p className="text-lg font-extrabold text-zinc-300 line-through decoration-rose-500/80 decoration-4">
-                Normalna: 230€
+                Regularna: 230€
               </p>
               <p className="text-2xl font-black tracking-tight text-amber-300 sm:text-3xl">
                 Specijalna ponuda: <span className="text-white">60€</span>
