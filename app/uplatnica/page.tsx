@@ -21,10 +21,12 @@ export default function Page() {
   );
 }
 
+
 // 2) Klijent komponenta
 function UplatnicaClient() {
   const sp = useSearchParams();
   const router = useRouter();
+
 
   // query parametri koje šaljemo i u webhook
   const price = sp.get("price") ?? "60";
@@ -52,26 +54,33 @@ function UplatnicaClient() {
       setPreview(null);
     }
   }
-
+const [busy, setBusy] = useState(false);
+const [sent, setSent] = useState(false);
   // klik na potvrdu → javi da je poslao dokaz (sa metapodacima fajla ako postoji)
-  async function handleConfirm() {
-  if (!agreed) return;
+async function handleConfirm() {
+  if (!agreed || busy || sent) return;   // ⬅️ spreči dupli klik
+  setBusy(true);
+  try {
+    const fd = new FormData();
+    fd.append("event", "bank_transfer_proof_submitted");
+    if (email) fd.append("email", email);
+    if (name) fd.append("name", name);
+    if (code) fd.append("code", code);
+    fd.append("price", String(price));
+    fd.append("method", "uplatnica");
+    fd.append("ts", new Date().toISOString());
+    if (file) fd.append("proof", file);
 
-  const fd = new FormData();
-  fd.append("event", "bank_transfer_proof_submitted");
-  if (email) fd.append("email", email);
-  if (name) fd.append("name", name);
-  if (code) fd.append("code", code);
-  fd.append("price", String(price));
-  fd.append("method", "uplatnica");
-  fd.append("ts", new Date().toISOString());
-  if (file) fd.append("proof", file); // ⬅️ fajl
+    await postRRSWebhook(fd);
 
-  await postRRSWebhook(fd);
-
-  setSaved(true);
-  setTimeout(() => setSaved(false), 1600);
+    setSaved(true);
+    setSent(true);                        // ⬅️ trajno zaključaj
+    setTimeout(() => setSaved(false), 1600);
+  } finally {
+    setBusy(false);
+  }
 }
+
 
   return (
     <section className="relative min-h-dvh overflow-hidden bg-[#0B0F13] text-white">
@@ -98,7 +107,7 @@ function UplatnicaClient() {
           <div className="absolute inset-x-0 top-0 h-[10px] rounded-t-2xl bg-gradient-to-r from-amber-500 via-amber-300 to-amber-600" />
 
           <h1 className="text-center text-2xl font-extrabold leading-tight sm:text-3xl">
-            REALRESELLING — Od nule do prve prodaje za mesec dana{" "}
+            REALRESELLING - Od nule do prve prodaje za mesec dana{" "}
             <span className="text-amber-300">ILI VRAĆAMO NOVAC</span>
           </h1>
 
@@ -191,13 +200,14 @@ function UplatnicaClient() {
             </span>
           </label>
 
-          <button
-            disabled={!agreed}
-            onClick={handleConfirm}
-            className="mt-4 w-full font-display rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-4 text-center text-xl font-bold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 disabled:opacity-60"
-          >
-            Potvrđujem kupovinu i slažem se sa uslovima
-          </button>
+                  <button
+          disabled={!agreed || busy || sent}
+          onClick={handleConfirm}
+          className="mt-4 w-full font-display rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-4 text-center text-xl font-bold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {sent ? "Poslato ✅" : busy ? "Šaljem…" : "Potvrđujem kupovinu i slažem se sa uslovima"}
+        </button>
+
 
           {saved && (
             <p className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-emerald-400">
