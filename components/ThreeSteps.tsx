@@ -40,7 +40,7 @@ const steps: Step[] = [
 
 export default function ThreeSteps() {
   return (
-    <section className="bg-brand-dark py-16 md:py-24 mx-auto">
+    <section className="bg-brand-dark pb-16 md:pb-24 mx-auto">
       <div className="container mx-auto max-w-[1100px] px-4 text-center">
         {/* Naslov u 3 reda kao na referenci */}
         <h2 className="font-display text-4xl leading-tight text-white sm:text-5xl md:text-6xl">

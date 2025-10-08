@@ -144,7 +144,7 @@ export default function Hero() {
       <LazyMotion features={domAnimation}>
         <section
           ref={sectionRef}
-          className="relative mx-auto mt-10 overflow-hidden bg-brand-dark py-10 sm:py-14 md:mt-40 md:py-0"
+          className="relative mx-auto overflow-hidden bg-brand-dark py-10 sm:py-14 md:py-0 mt-32 md:mt-40 "
         >
           {/* Zlatni radijal (loop) */}
           <motion.div

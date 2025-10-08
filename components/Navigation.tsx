@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Navigation() {
   const [open, setOpen] = useState(false);
@@ -86,11 +87,21 @@ useEffect(() => {
           aria-label="Glavna navigacija"
         >
           <Link
-            href="#pocetna"
-            className="select-none text-base font-semibold tracking-tight text-white/90 hover:text-white"
-          >
-            RealReselling
-          </Link>
+          href="#pocetna"
+          className="select-none inline-flex items-center gap-2 text-base font-semibold tracking-tight text-white/90 hover:text-white"
+          aria-label="Početna"
+        >
+          <Image
+            src="/favicon.ico"          // stavi fajl u /public/logo.svg
+            alt="RealReselling logo"
+            width={120}              // prilagodi dimenzije po želji
+            height={32}
+            priority                 // opcionalno: brže učitavanje hero logotipa
+            className="h-[80px] w-auto"   // drži proporcije, lako menjaj visinu
+          />
+          <span className="sr-only">Početna</span> {/* pristupačni tekst, ostaje “nevidljiv” */}
+        </Link>
+
 
           {/* Desktop */}
           <div className="hidden gap-1 md:flex">

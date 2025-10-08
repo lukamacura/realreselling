@@ -140,9 +140,14 @@ export default function OfferHero({ onOpenQuiz }: { onOpenQuiz?: () => void }) {
         <Sparkles className="h-12 w-12" />
         Odgovori na 3 pitanja i osvoji JOŠ 10€ popusta (cena: 50€)
       </a>
-    </div>
+      <p className="text-[13px] mx-auto block w-fit pt-4 text-zinc-400">
+                          👆 Klikni na link kako bi kupio program 👆
+              </p>
 
-                  </div>
+          </div>
+              
+
+      </div>
 
         </div>
       </div>

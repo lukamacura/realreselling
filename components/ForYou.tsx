@@ -4,7 +4,7 @@ export default function ForYou() {
   const left = [
     "Ako tražiš pasivni prihod",
     "Ako nećeš da radiš apsolutno ništa",
-    "Ako nemaš ni 20€ za prvu zalihu",
+    "Ako želiš da radiš za nekoga",
   ];
 
   const right = [
@@ -14,7 +14,7 @@ export default function ForYou() {
   ];
 
   return (
-    <section className="bg-brand-dark mx-auto py-16 md:py-24">
+    <section className="bg-brand-dark mx-auto pb-16 md:pb-24">
       <div className="container mx-auto max-w-[1100px] px-4">
         {/* Naslov */}
         <h2 className="mb-10 text-center font-display text-4xl leading-[1.1] text-white md:text-6xl">

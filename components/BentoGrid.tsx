@@ -32,6 +32,8 @@ export default function BentoGrid() {
             <footer className="mt-auto pt-6 text-center text-lg font-semibold text-white/90">
               Regularna cena: <span className="text-brand-gold">60€</span>
             </footer>
+
+          
           </article>
 
           {/* 2) Zajednica i podrška — mali zlatni blok */}
@@ -89,12 +91,20 @@ export default function BentoGrid() {
            
                 <Gift className="h-20 w-20 md:h-14 md:w-14" />
                 
-            <a href="#bonussection" className="font-display mt-4 w-full rounded-2xl bg-[rgba(212,160,32,.95)] px-4 py-3 text-center text-2xl font-semibold text-black shadow-[0_12px_30px_rgba(212,160,32,.35)] hover:brightness-95 active:scale-[.99]">
+            <a href="#bonussection" className="font-display mt-4 w-full rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 px-4 py-3 text-center text-2xl font-semibold text-amber-300 shadow-[0_12px_30px_rgba(212,160,32,.35)] hover:brightness-95 active:scale-[.99]">
               Pogledaj bonuse
             </a>
           </aside>
+          
         </div>
+        
       </div>
+
+
+      <a href="#cena" className=" mx-auto block font-display mt-4 w-[93%] rounded-2xl bg-[rgba(212,160,32,.95)] px-4 py-8 text-center text-2xl font-semibold text-black shadow-[0_12px_30px_rgba(212,160,32,.35)] hover:brightness-95 active:scale-[.99]">
+              Hoću pristup programu & popust 
+      </a>
     </section>
+    
   );
 }
