@@ -36,7 +36,7 @@ function CheckoutCardClient() {
   const [status, setStatus] = useState<Status>("idle");
   const [orderId, setOrderId] = useState<string | undefined>(undefined); // undefined, ne null
 
-  const clientId = "sb"; // ili process.env.PAYPAL_CLIENT_ID!
+  const clientId = "sb"; // ili process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!
 
   if (!clientId) {
     return (
@@ -45,7 +45,7 @@ function CheckoutCardClient() {
           <div className="rounded-2xl border border-white/10 bg-[#12171E]/80 p-6">
             <h1 className="text-2xl font-bold">Kartično plaćanje</h1>
             <p className="mt-3 text-white/80">
-              Nije postavljen <code className="text-amber-300">PAYPAL_CLIENT_ID</code>.
+              Nije postavljen <code className="text-amber-300">NEXT_PUBLIC_PAYPAL_CLIENT_ID</code>.
             </p>
             <Link
               href="/discount"
@@ -73,7 +73,7 @@ function CheckoutCardClient() {
       <div className="container mx-auto max-w-[900px] px-4 py-10 sm:py-14">
         <button
           onClick={() => router.back()}
-          className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-white/80 transition hover:bg:white/5"
+          className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-white/80 transition hover:bg-white/5"
         >
           <ArrowLeft className="h-4 w-4" /> Nazad
         </button>
