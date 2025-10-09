@@ -205,7 +205,7 @@ export default function MeetPage() {
                     Ostalo još 2 mesta
                   </motion.p>
                   <motion.p variants={item} className="mt-2 text-xs text-white/60">
-                    Brzo je, traje oko 45 min i nije obavezna kupovina.
+                    Brzo je, traje oko 45 min i sve je besplatno.
                   </motion.p>
                 </motion.div>
               </motion.div>

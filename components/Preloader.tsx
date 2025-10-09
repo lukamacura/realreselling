@@ -78,9 +78,7 @@ export default function Preloader({
       />
 
       <div className="relative mx-4 w-full max-w-[520px] rounded-2xl border border-white/10 bg-[#12171E]/80 p-6 text-center shadow-[0_24px_80px_rgba(0,0,0,0.5)] backdrop-blur">
-        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-amber-500/15 ring-1 ring-amber-400/30">
-          <Loader2 className="h-6 w-6 animate-spin text-amber-300" />
-        </div>
+        
 
        <div className="mt-5 flex items-center justify-center gap-3 flex-col sm:flex-row">
         <span className="grid h-10 w-10 place-items-center rounded-full bg-amber-400 text-black shadow-[0_8px_24px_rgba(212,160,32,0.45)]">
@@ -89,15 +87,20 @@ export default function Preloader({
         <p key={index} className="text-xs font-semibold text-white/90 animate-fade-in">
           {text}
         </p>
+       
       </div>
 
 
-        <div className="mt-6 h-1 w-full overflow-hidden rounded-full bg-white/10">
+        <div className="my-6 h-1 w-full overflow-hidden rounded-full bg-white/10">
           <div
             key={`bar-${index}`}
             className="h-full w-full origin-left animate-bar bg-amber-400"
             style={{ animationDuration: `${cycleMs}ms` }}
           />
+        </div>
+
+         <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-amber-500/15 ring-1 ring-amber-400/30">
+          <Loader2 className="h-6 w-6 animate-spin text-amber-300" />
         </div>
 
         <p className="mt-4 text-xs text-white/60">RealReselling</p>
