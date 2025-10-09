@@ -60,7 +60,7 @@ export default function MeetSuccessPage() {
            
             <Link
               href="/meet"
-              className="rounded-xl flex flex-row gap-2 font-display bg-gradient-to-b from-amber-400 to-amber-600 px-12 py-4 text-2xl font-semibold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110"
+              className="rounded-xl flex flex-row gap-2 text-center font-display bg-gradient-to-b from-amber-400 to-amber-600 px-12 py-4 text-2xl font-semibold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110"
             >
                           <ArrowLeftCircle className="h-8 w-8 text-black" />Vrati se nazad
 
