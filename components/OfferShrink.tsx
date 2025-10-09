@@ -25,7 +25,7 @@ export default function OfferShrink({
         aria-expanded={open}
         aria-controls={id}
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left"
+        className="flex w-full items-center justify-between gap-3 rounded-2xl text-sm px-4 py-3 text-left"
       >
         <span className="font-semibold text-white/90">{title}</span>
         <motion.span

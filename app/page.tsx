@@ -1,5 +1,6 @@
 "use client";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import Preloader from "@/components/Preloader";
 import { useEffect, useState } from "react";
 import Hero from "@/components/Hero";
@@ -79,6 +80,7 @@ const [loading, setLoading] = useState(true);
       <GuaranteeSection />
       <OfferHero onOpenQuiz={() => setQuizOpen(true)}/>
       <Faq />
+  
       <QuizDiscountPopup
         open={quizOpen}
         onClose={() => setQuizOpen(false)}
@@ -88,6 +90,8 @@ const [loading, setLoading] = useState(true);
         priceAfter={50}
         attachAnswersAsQuery
       />
+
+      <Footer />
       </main>
     </>
      

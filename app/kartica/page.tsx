@@ -325,7 +325,7 @@ const commonHandlers: {
             {status === "success" && (
               <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-300">
                 <p className="flex items-center gap-2 font-semibold">
-                  <CheckCircle2 className="h-5 w-5" /> Uplata uspešna!
+                  <CheckCircle2 className="h-5 w-5" /> Uplata uspešna! Pogledaj email.
                 </p>
                 {orderId && (
                   <p className="mt-1 text-emerald-200/80 text-sm">ID porudžbine: {orderId}</p>
