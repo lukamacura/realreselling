@@ -1,12 +1,22 @@
 // app/checkout-card/page.tsx
 "use client";
 
-import { useMemo, useState, Suspense } from "react";
+import { useMemo, useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import {
+  PayPalScriptProvider,
+  PayPalButtons,
+} from "@paypal/react-paypal-js";
 import { ArrowLeft, CheckCircle2, AlertTriangle, Sparkles } from "lucide-react";
 import { postRRSWebhook } from "@/lib/webhook";
+import type {
+  CreateOrderActions,
+  CreateOrderData,
+  OnApproveActions,
+  OnApproveData,
+} from "@paypal/paypal-js";
+
 
 export const dynamic = "force-dynamic";
 
@@ -33,10 +43,102 @@ function CheckoutCardClient() {
     return Number.isFinite(v) && v > 0 ? v : 60;
   }, [sp]);
 
-  const [status, setStatus] = useState<Status>("idle");
-  const [orderId, setOrderId] = useState<string | undefined>(undefined); // undefined, ne null
+  const fmt = useMemo(
+    () => new Intl.NumberFormat("sr-RS", { style: "currency", currency: "EUR" }),
+    []
+  );
 
-  const clientId = "sb"; // ili process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!
+  const [status, setStatus] = useState<Status>("idle");
+  const [orderId, setOrderId] = useState<string | undefined>(undefined);
+
+  // watchdog & abandon detection
+  const [watchdog, setWatchdog] = useState<number | null>(null);
+  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!;
+
+  // helper za slanje "abandoned" sa dodatnim kontekstom
+  function sendAbandoned(reason: string, extras?: Record<string, unknown>) {
+    postRRSWebhook({
+      event: "purchase_abandoned",
+      email,
+      name,
+      price,
+      code,
+      method: "kartica",
+      orderId,
+      status: "canceled",
+      reason,
+      ts: new Date().toISOString(),
+      ...extras,
+    });
+  }
+
+  function startWatchdog(ms = 120_000) {
+    stopWatchdog();
+    const id = window.setTimeout(() => {
+      if (status === "processing") {
+        sendAbandoned("inactivity_timeout");
+        setStatus("idle");
+      }
+    }, ms);
+    setWatchdog(id);
+  }
+
+  function stopWatchdog() {
+    if (watchdog) window.clearTimeout(watchdog);
+    setWatchdog(null);
+  }
+
+  function bumpWatchdog() {
+    if (watchdog) {
+      stopWatchdog();
+      startWatchdog();
+    }
+  }
+
+  // bump na user interakcije dok je checkout u toku
+  useEffect(() => {
+    if (status !== "processing") return;
+    const evts = ["pointerdown", "keydown", "touchstart"] as const;
+    const handler = () => bumpWatchdog();
+    evts.forEach((e) => window.addEventListener(e, handler, { passive: true }));
+    return () => evts.forEach((e) => window.removeEventListener(e, handler));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, watchdog]);
+
+  // visibility/pagehide – slučaj minimizovanja/odlaska iz aplikacije
+  useEffect(() => {
+    let hiddenAt: number | null = null;
+
+    function onVisibilityChange() {
+      if (document.hidden) {
+        hiddenAt = Date.now();
+      } else {
+        if (hiddenAt && Date.now() - hiddenAt > 90_000 && status === "processing") {
+          sendAbandoned("background_long");
+          setStatus("idle");
+          stopWatchdog();
+        }
+        hiddenAt = null;
+      }
+    }
+
+    function onPageHide() {
+      if (status === "processing") {
+        // iOS Safari često spali event kad user ode sa strane
+        sendAbandoned("pagehide");
+        stopWatchdog();
+      }
+    }
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("pagehide", onPageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("pagehide", onPageHide);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
 
   if (!clientId) {
     return (
@@ -58,6 +160,97 @@ function CheckoutCardClient() {
       </section>
     );
   }
+
+  // Shared handlers da oba dugmeta (paypal/card) rade isto
+  type OrderDetails = { id?: string };
+
+const commonHandlers: {
+  onClick: (data: unknown, actions: unknown) => void | Promise<void>;
+  createOrder: (data: CreateOrderData, actions: CreateOrderActions) => Promise<string>;
+  onApprove: (data: OnApproveData, actions: OnApproveActions) => Promise<void>;
+  onCancel: (data: unknown) => void;
+  onError: (err: unknown) => void;
+} = {
+  onClick: () => {
+    setStatus("processing");
+    startWatchdog();
+  },
+
+  createOrder: (_data, actions) => {
+    const p = actions.order.create({
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          amount: { currency_code: "EUR", value: price.toFixed(2) },
+          description: "RealReselling članarina",
+          custom_id: code ? `coupon:${code}` : undefined,
+        },
+      ],
+      application_context: { shipping_preference: "NO_SHIPPING" },
+    });
+
+    p.then((id) => {
+      setOrderId(id ?? undefined);
+    });
+
+    return p;
+  },
+
+  onApprove: async (_data, actions) => {
+    try {
+      const raw = await actions.order?.capture();
+      const details = raw as unknown as OrderDetails;
+      const id = details?.id ?? orderId;
+
+      setOrderId(id);
+      setStatus("success");
+      stopWatchdog();
+
+      postRRSWebhook({
+        event: "purchase_completed",
+        email,
+        name,
+        price,
+        code,
+        method: "kartica",
+        orderId: id,
+        status: "success",
+        ts: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("[PP] capture error:", err);
+      setStatus("error");
+      stopWatchdog();
+      postRRSWebhook({
+        event: "purchase_abandoned",
+        email,
+        name,
+        price,
+        code,
+        method: "kartica",
+        orderId,
+        status: "error",
+        reason: "capture_error",
+        ts: new Date().toISOString(),
+      });
+    }
+  },
+
+  onCancel: () => {
+    setStatus("idle");
+    stopWatchdog();
+    sendAbandoned("user_canceled");
+  },
+
+  onError: (err) => {
+    console.error("[PP] onError:", err);
+    setStatus("error");
+    stopWatchdog();
+    sendAbandoned("paypal_error", { err: String(err) });
+  },
+};
+
+
 
   return (
     <section className="relative min-h-dvh overflow-hidden bg-[#0B0F13] text-white">
@@ -86,8 +279,11 @@ function CheckoutCardClient() {
               Kartično plaćanje <span className="text-amber-300">/ PayPal</span>
             </h1>
             <p className="mt-2 text-white/80">
-              Iznos: <b className="text-white">{price.toFixed(2)} €</b>{" "}
+              Iznos: <b className="text-white">{fmt.format(price)}</b>{" "}
               {code && <span className="text-emerald-400">(kod: {code})</span>}
+            </p>
+            <p className="sr-only" aria-live="polite">
+              {status === "processing" ? "Obrađujemo vašu transakciju." : ""}
             </p>
           </header>
 
@@ -97,109 +293,34 @@ function CheckoutCardClient() {
                 clientId,
                 currency: "EUR",
                 intent: "capture",
-                components: "buttons",
+                components: "buttons,messages",
                 enableFunding: "card",
               }}
-            >
+            >             
+
+              {/* PayPal dugme */}
               <PayPalButtons
-                // samo lokalni UI status – uklonjen lead_checkout_started webhook
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                onClick={(_data) => {
-                  setStatus("processing");
-                }}
-                createOrder={(_, actions) => {
-                  const p = actions.order.create({
-                    intent: "CAPTURE",
-                    purchase_units: [
-                      {
-                        amount: { currency_code: "EUR", value: price.toFixed(2) },
-                        description: "RealReselling članarina",
-                        custom_id: code ? `coupon:${code}` : undefined,
-                      },
-                    ],
-                    application_context: { shipping_preference: "NO_SHIPPING" },
-                  });
-
-                  p.then((id) => {
-                    setOrderId(id ?? undefined);
-                    window.setTimeout(() => {
-                      if (status === "processing") setStatus("idle");
-                    }, 90000);
-                  });
-
-                  return p;
-                }}
-                onApprove={async (_data, actions) => {
-                  try {
-                    const details = await actions.order?.capture();
-                    const id = details?.id ?? orderId;
-                    setOrderId(id);
-                    setStatus("success");
-
-                    postRRSWebhook({
-                      event: "purchase_completed",
-                      email,
-                      name,
-                      price,
-                      code,
-                      method: "kartica",
-                      orderId: id,
-                      status: "success",
-                      ts: new Date().toISOString(),
-                    });
-                  } catch (err) {
-                    console.error("[PP] capture error:", err);
-                    setStatus("error");
-                    postRRSWebhook({
-                      event: "purchase_abandoned",
-                      email,
-                      name,
-                      price,
-                      code,
-                      method: "kartica",
-                      orderId,
-                      status: "error",
-                      reason: "capture_error",
-                      ts: new Date().toISOString(),
-                    });
-                  }
-                }}
-                onCancel={() => {
-                  setStatus("idle");
-                  postRRSWebhook({
-                    event: "purchase_abandoned",
-                    email,
-                    name,
-                    price,
-                    code,
-                    method: "kartica",
-                    orderId,
-                    status: "canceled",
-                    reason: "user_canceled",
-                    ts: new Date().toISOString(),
-                  });
-                }}
-                onError={(err) => {
-                  console.error("[PP] onError:", err);
-                  setStatus("error");
-                  postRRSWebhook({
-                    event: "purchase_abandoned",
-                    email,
-                    name,
-                    price,
-                    code,
-                    method: "kartica",
-                    orderId,
-                    status: "error",
-                    reason: "paypal_error",
-                    ts: new Date().toISOString(),
-                  });
-                }}
+                fundingSource="paypal"
+                style={{ layout: "vertical" }}
+                disabled={status === "processing"}
+                {...commonHandlers}
               />
+
+              {/* Kartice (ako je nalog/zemlja eligible) */}
+              <div className="mt-3">
+                <PayPalButtons
+                  fundingSource="card"
+                  style={{ layout: "vertical" }}
+                  disabled={status === "processing"}
+                  {...commonHandlers}
+                />
+              </div>
             </PayPalScriptProvider>
 
             {status === "processing" && (
-              <p className="mt-3 text-sm text-white/70">Obrađujemo vašu transakciju…</p>
+              <p className="mt-3 text-sm text-white/70">
+                Obrađujemo vašu transakciju… Ne zatvarajte prozor.
+              </p>
             )}
             {status === "success" && (
               <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-300">
@@ -222,6 +343,11 @@ function CheckoutCardClient() {
                 <p className="flex items-center gap-2 font-semibold">
                   <AlertTriangle className="h-5 w-5" /> Došlo je do greške. Pokušajte ponovo.
                 </p>
+                {orderId && (
+                  <p className="mt-1 text-rose-200/80 text-xs">
+                    Ako problem ostane, zapišite ID: {orderId}
+                  </p>
+                )}
               </div>
             )}
           </div>

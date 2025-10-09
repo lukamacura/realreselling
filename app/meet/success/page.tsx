@@ -1,7 +1,7 @@
 // app/meet/success/page.tsx
 "use client";
 
-import { CheckCircle2, MessageCircle, Phone, Users } from "lucide-react";
+import { CheckCircle2, MessageCircle, Phone, Users, ArrowLeftCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function MeetSuccessPage() {
@@ -34,27 +34,41 @@ export default function MeetSuccessPage() {
 
           <ul className="mt-6 grid gap-3 text-sm text-white/80">
             <li className="mx-auto flex max-w-[520px] items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-              <Phone className="h-4 w-4 text-amber-300" />
-              Držite telefon pri ruci (može stići poruka ili poziv).
+              <Phone className="h-8 w-8 text-amber-300" />
+              <span>
+              <b>Držite telefon pri ruci</b> (može stići poruka ili poziv).
+              </span>
             </li>
             <li className="mx-auto flex max-w-[520px] items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-              <MessageCircle className="h-4 w-4 text-amber-300" />
-              Ako imate pitanja – spremite ih za Q&amp;A na kraju meeta.
+              <MessageCircle className="h-8 w-8 text-amber-300" />
+              <span>
+                Ako imate pitanja spremite ih za <b>Q&amp;A na kraju meeta</b>.
+              </span>
+              
             </li>
             <li className="mx-auto flex max-w-[520px] items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-              <Users className="h-4 w-4 text-amber-300" />
-              Bonus: dobijate pristup našoj WhatsApp grupi <b>Reselling Room.</b>
+            <Users className="h-8 w-8 text-amber-300" />
+
+            <span>
+              Bonus: dobijate pristup našoj WhatsApp grupi - <b>Reselling Room.</b>
+            </span>
+              
             </li>
           </ul>
 
-          <div className="mt-8 flex justify-center gap-3">
+          <div className="mt-8 flex flex-col justify-center gap-3">
            
             <Link
               href="/meet"
-              className="rounded-xl font-display bg-gradient-to-b from-amber-400 to-amber-600 px-12 py-4 text-2xl font-semibold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110"
+              className="rounded-xl flex flex-row gap-2 font-display bg-gradient-to-b from-amber-400 to-amber-600 px-12 py-4 text-2xl font-semibold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110"
             >
-              Nazad na Meet
+                          <ArrowLeftCircle className="h-8 w-8 text-black" />Vrati se nazad
+
+                          
             </Link>
+            <span>
+             <b>BTW:</b>  Ovakvu priliku ne deli niko na Balkanu besplatno, tako da nemoj da propustiš ni slučajno.
+            </span>
           </div>
         </div>
       </section>
