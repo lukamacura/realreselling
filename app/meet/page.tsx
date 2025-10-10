@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   X,
   Lightbulb,
+  PlayCircle,
 } from "lucide-react";
 import Preloader from "@/components/Preloader";
 
@@ -200,6 +201,7 @@ export default function MeetPage() {
                       <span className="absolute -left-8 top-1/2 h-10 w-1 -translate-y-1/2 rotate-[18deg] bg-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     </span>
                   </button>
+                  
 
                   <motion.p variants={item} className="mt-2 font-extrabold text-xs text-white">
                     Ostalo još 2 mesta
@@ -207,6 +209,14 @@ export default function MeetPage() {
                   <motion.p variants={item} className="mt-2 text-xs text-white/60">
                     Brzo je, traje oko 45 min i sve je besplatno.
                   </motion.p>
+                  <a
+                  href="https://www.youtube.com/watch?v=qGZy5O4kI2k"
+                  className="group mt-4 font-display font-bold text-2xl inline-flex w-full items-center justify-center gap-2 rounded-xl px-8 py-4 text-center text-white border shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60 sm:w-auto"
+                  >
+                    <PlayCircle className="h-7 w-7 mb-[2px]" />
+                    Pogledaj video
+                    
+                  </a>
                 </motion.div>
               </motion.div>
 

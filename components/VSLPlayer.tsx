@@ -56,6 +56,7 @@ export default function SmartVideo({
       ref={wrapRef}
       className={`relative overflow-hidden rounded-2xl bg-black ${className}`}
       style={{ aspectRatio }}
+      id="vsl"
     >
       <video
         ref={ref}
