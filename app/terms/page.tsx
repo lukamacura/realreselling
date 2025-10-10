@@ -93,6 +93,12 @@ const TermsPage: React.FC = () => {
             navedenih na sajtu.
           </p>
         </section>
+        <section>
+          <h2>8. Garancija</h2>
+          <p>
+Garancija važi samo ako je dokazano da je ostvareno najmanje 90% programa i instrukcija. U suprotnom, garancija se poništava. Cilj ove odredbe je sprečavanje zloupotrebe usluga.          
+</p>
+        </section>
 
         <hr className="my-8" />
         <p className="text-sm text-neutral-500 dark:text-neutral-400">
