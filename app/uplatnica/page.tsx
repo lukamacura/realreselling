@@ -141,7 +141,7 @@ async function handleConfirm() {
                 download
                 className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-white/90 transition hover:bg:white/5"
               >
-                <Download className="h-4 w-4" /> Preuzmi uplatnicu
+                <Download className="h-4 w-4" /> Preuzmi primer uplatnice
               </Link>
 
               <button
