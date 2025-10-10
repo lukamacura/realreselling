@@ -1,18 +1,62 @@
 /* eslint-disable @next/next/no-img-element */
-// app/uplatnica/page.tsx
 "use client";
 
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Camera, Download, UploadCloud, CheckCircle2, ArrowLeft, Info } from "lucide-react";
+import { Camera, Download, UploadCloud, CheckCircle2, ArrowLeft, Info, AlertTriangle } from "lucide-react";
 import { postRRSWebhook } from "@/lib/webhook";
 
 // Sprečava prerender/SSG koji pravi problem sa useSearchParams
 export const dynamic = "force-dynamic";
 
-// 1) Page wrapper sa <Suspense> — sve je i dalje u istom fajlu
+// -----------------------------
+// LocalStorage helpers
+// -----------------------------
+const LEAD_KEY = "rrs_lead_v1";
+
+function readLeadFromStorage():
+  | { name?: string; email?: string; code?: string; price?: number; method?: "uplatnica" | "kartica" }
+  | null {
+  try {
+    const raw = localStorage.getItem(LEAD_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    if (typeof parsed.exp !== "number" || parsed.exp < Date.now()) {
+      localStorage.removeItem(LEAD_KEY);
+      return null;
+    }
+    return {
+      name: parsed.name,
+      email: parsed.email,
+      code: parsed.code,
+      price: typeof parsed.price === "number" ? parsed.price : undefined,
+      method: parsed.method,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function refreshLeadInStorage(partial: {
+  name?: string;
+  email?: string;
+  code?: string;
+  price?: number;
+  method?: "uplatnica" | "kartica";
+}) {
+  try {
+    const current = readLeadFromStorage() || {};
+    const next = { ...current, ...partial, exp: Date.now() + 72 * 60 * 60 * 1000 };
+    localStorage.setItem(LEAD_KEY, JSON.stringify(next));
+  } catch {}
+}
+
+// -----------------------------
+// Page wrapper
+// -----------------------------
 export default function Page() {
   return (
     <Suspense fallback={<div className="p-6 text-sm opacity-70">Učitavanje…</div>}>
@@ -21,25 +65,69 @@ export default function Page() {
   );
 }
 
-
-// 2) Klijent komponenta
+// -----------------------------
+// Klijent komponenta
+// -----------------------------
 function UplatnicaClient() {
   const sp = useSearchParams();
   const router = useRouter();
 
+  // Lead state učitan iz query-a ili localStorage
+  const [lead, setLead] = useState<{ price: number; code?: string; name?: string; email?: string }>(
+    { price: 60 }
+  );
 
-  // query parametri koje šaljemo i u webhook
-  const price = sp.get("price") ?? "60";
-  const code = sp.get("code") ?? undefined;
-  const name = sp.get("name") ?? undefined;
-  const email = sp.get("email") ?? undefined;
+  // Fallback polja ako user dođe direktno bez identiteta
+  const [fallbackName, setFallbackName] = useState("");
+  const [fallbackEmail, setFallbackEmail] = useState("");
+  const [fallbackErr, setFallbackErr] = useState<string>("");
 
+  // Upload state
   const fileInput = useRef<HTMLInputElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+
+  // UI state
   const [agreed, setAgreed] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
 
+  const priceText = useMemo(() => `${lead.price}€`, [lead.price]);
+
+  // Učitavanje lead-a na mount
+  useEffect(() => {
+    const qp = {
+      price: sp.get("price"),
+      code: sp.get("code") ?? undefined,
+      name: sp.get("name") ?? undefined,
+      email: sp.get("email") ?? undefined,
+    };
+
+    if (qp.price || qp.code || qp.name || qp.email) {
+      const p = Number(qp.price ?? "60");
+      const normalized = {
+        price: Number.isFinite(p) ? p : 60,
+        code: qp.code,
+        name: qp.name,
+        email: qp.email,
+      };
+      setLead(normalized);
+      refreshLeadInStorage(normalized);
+      if (qp.name) setFallbackName(qp.name);
+      if (qp.email) setFallbackEmail(qp.email);
+      return;
+    }
+
+    const stored = readLeadFromStorage();
+    if (stored) {
+      setLead({ price: stored.price ?? 60, code: stored.code, name: stored.name, email: stored.email });
+      if (stored.name) setFallbackName(stored.name);
+      if (stored.email) setFallbackEmail(stored.email);
+    }
+  }, [sp]);
+
+  // Handleri
   function openCamera() {
     fileInput.current?.click();
   }
@@ -54,33 +142,47 @@ function UplatnicaClient() {
       setPreview(null);
     }
   }
-const [busy, setBusy] = useState(false);
-const [sent, setSent] = useState(false);
-  // klik na potvrdu → javi da je poslao dokaz (sa metapodacima fajla ako postoji)
-async function handleConfirm() {
-  if (!agreed || busy || sent) return;   // ⬅️ spreči dupli klik
-  setBusy(true);
-  try {
-    const fd = new FormData();
-    fd.append("event", "bank_transfer_proof_submitted");
-    if (email) fd.append("email", email);
-    if (name) fd.append("name", name);
-    if (code) fd.append("code", code);
-    fd.append("price", String(price));
-    fd.append("method", "uplatnica");
-    fd.append("ts", new Date().toISOString());
-    if (file) fd.append("proof", file);
 
-    await postRRSWebhook(fd);
-
-    setSaved(true);
-    setSent(true);                        // ⬅️ trajno zaključaj
-    setTimeout(() => setSaved(false), 1600);
-  } finally {
-    setBusy(false);
+  function validateEmail(v: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   }
-}
 
+  async function handleConfirm() {
+    if (!agreed || busy || sent) return; // spreči dupli klik
+
+    // Osiguraj da imamo ime/email
+    const finalName = (lead.name ?? fallbackName).trim();
+    const finalEmail = (lead.email ?? fallbackEmail).trim();
+
+    if (!finalName || !validateEmail(finalEmail)) {
+      setFallbackErr("Unesi validno ime i email pre slanja dokaza.");
+      return;
+    }
+
+    // Osveži storage da sledeći put imamo podatke
+    refreshLeadInStorage({ name: finalName, email: finalEmail, code: lead.code, price: lead.price, method: "uplatnica" });
+
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append("event", "bank_transfer_proof_submitted");
+      fd.append("method", "uplatnica");
+      fd.append("price", String(lead.price));
+      fd.append("ts", new Date().toISOString());
+      fd.append("name", finalName);
+      fd.append("email", finalEmail);
+      if (lead.code) fd.append("code", lead.code);
+      if (file) fd.append("proof", file);
+
+      await postRRSWebhook(fd);
+
+      setSaved(true);
+      setSent(true); // trajno zaključaj
+      setTimeout(() => setSaved(false), 1600);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <section className="relative min-h-dvh overflow-hidden bg-[#0B0F13] text-white">
@@ -139,7 +241,7 @@ async function handleConfirm() {
               <Link
                 href="/uplatnica.png"
                 download
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-white/90 transition hover:bg:white/5"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-white/90 transition hover:bg-white/5"
               >
                 <Download className="h-4 w-4" /> Preuzmi primer uplatnice
               </Link>
@@ -154,8 +256,8 @@ async function handleConfirm() {
 
               <span className="inline-flex items-center gap-2 text-xs text-white/60">
                 <Info className="h-4 w-4" />
-                Ukupna cena: <b className="ml-1 text-white">{price}€</b>
-                {code && <span className="ml-2 text-emerald-400">(kod: {code})</span>}
+                Ukupna cena: <b className="ml-1 text-white">{priceText}</b>
+                {lead.code && <span className="ml-2 text-emerald-400">(kod: {lead.code})</span>}
               </span>
             </div>
 
@@ -176,16 +278,51 @@ async function handleConfirm() {
                 </div>
               ) : (
                 <div className="grid gap-2">
-                  <img
-                    src={preview}
-                    alt="Fotografija uplatnice (preview)"
-                    className="h-auto w-full rounded-md"
-                  />
+                  <img src={preview} alt="Fotografija uplatnice (preview)" className="h-auto w-full rounded-md" />
                   <p className="text-xs text-white/60">Ako je slika nejasna, ponovi fotografisanje.</p>
                 </div>
               )}
             </div>
           </div>
+
+          {/* Ako nemamo ime/email, traži ih ovde */}
+          {(!lead.name || !lead.email) && (
+            <div className="mt-6 rounded-xl border border-white/10 bg-[#0E1319] p-4">
+              <p className="font-semibold text-white mb-2">Unesi svoje podatke da bismo povezali uplatu:</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="block text-xs font-semibold text-white/70">Ime</label>
+                  <input
+                    value={fallbackName}
+                    onChange={(e) => {
+                      setFallbackName(e.target.value);
+                      setFallbackErr("");
+                    }}
+                    placeholder="npr. Luka"
+                    className="mt-1 w-full rounded-xl border bg-[#0E1319] px-3 py-3 text-white/90 placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-amber-400/60 border-white/10"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-white/70">Email</label>
+                  <input
+                    type="email"
+                    value={fallbackEmail}
+                    onChange={(e) => {
+                      setFallbackEmail(e.target.value);
+                      setFallbackErr("");
+                    }}
+                    placeholder="tvoj@email.com"
+                    className="mt-1 w-full rounded-xl border bg-[#0E1319] px-3 py-3 text-white/90 placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-amber-400/60 border-white/10"
+                  />
+                </div>
+              </div>
+              {fallbackErr && (
+                <p className="mt-2 inline-flex items-center gap-2 text-sm text-rose-400">
+                  <AlertTriangle className="h-4 w-4" /> {fallbackErr}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* potvrda i uslovi */}
           <label className="mt-6 flex cursor-pointer items-center gap-2">
@@ -195,19 +332,16 @@ async function handleConfirm() {
               onChange={(e) => setAgreed(e.target.checked)}
               className="h-4 w-4 accent-amber-400"
             />
-            <span className="text-sm text-white/80">
-              Slažem se sa uslovima i potvrđujem kupovinu
-            </span>
+            <span className="text-sm text-white/80">Slažem se sa uslovima i potvrđujem kupovinu</span>
           </label>
 
-                  <button
-          disabled={!agreed || busy || sent}
-          onClick={handleConfirm}
-          className="mt-4 w-full font-display rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-4 text-center text-xl font-bold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {sent ? "Poslato ✅" : busy ? "Šaljem…" : "Potvrđujem kupovinu i slažem se sa uslovima"}
-        </button>
-
+          <button
+            disabled={!agreed || busy || sent}
+            onClick={handleConfirm}
+            className="mt-4 w-full font-display rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-4 text-center text-xl font-bold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {sent ? "Poslato ✅" : busy ? "Šaljem…" : "Potvrđujem kupovinu i slažem se sa uslovima"}
+          </button>
 
           {saved && (
             <p className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-emerald-400">
@@ -215,9 +349,7 @@ async function handleConfirm() {
             </p>
           )}
 
-          <p className="mt-4 text-center text-xs text-white/60">
-            Članarina se plaća jednom i nema dodatnih troškova.
-          </p>
+          <p className="mt-4 text-center text-xs text-white/60">Članarina se plaća jednom i nema dodatnih troškova.</p>
         </div>
       </div>
     </section>

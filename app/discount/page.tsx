@@ -9,6 +9,28 @@ import type { LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { postRRSWebhook } from "@/lib/webhook";
 
+
+// utils za localStorage lead
+const LEAD_KEY = "rrs_lead_v1";
+
+function saveLeadToStorage(lead: {
+  name: string;
+  email: string;
+  code?: string;
+  price: number;
+  method: "uplatnica" | "kartica";
+}) {
+  const ttlMinutes = 72 * 60; // važi 72h
+  const payload = {
+    ...lead,
+    exp: Date.now() + ttlMinutes * 60 * 1000,
+  };
+  try {
+    localStorage.setItem(LEAD_KEY, JSON.stringify(payload));
+  } catch {}
+}
+
+
 type Props = {
   basePrice?: number;
   regularPrice?: number;
@@ -180,6 +202,16 @@ function handleContinue() {
   if (applied) qs.set("code", couponCode);
   qs.set("name", name);
   qs.set("email", email);
+
+  // 3.5) Sačuvaj lead u localStorage (fallback ako user dođe kasnije)
+  saveLeadToStorage({
+    name,
+    email,
+    code: applied ? couponCode : undefined,
+    price: priceToPay,
+    method,
+  });
+
 
   router.push(`${method === "uplatnica" ? "/uplatnica" : "/kartica"}?${qs.toString()}`);
 }
