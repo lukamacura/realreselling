@@ -17,10 +17,41 @@ import type {
   OnApproveData,
 } from "@paypal/paypal-js";
 
-
 export const dynamic = "force-dynamic";
 
 type Status = "idle" | "processing" | "success" | "error";
+
+/* -------------------------------------------
+   Shared lead/config kao na /uplatnica
+-------------------------------------------- */
+const LEAD_KEY = "rrs_lead_v1";
+const BASE_PRICE = 60;
+const COUPON_VALUE = 10;
+const VALID_CODES = ["RRS25"]; // dozvoljeni kuponi (UPPERCASE)
+
+function readLeadFromStorage():
+  | { name?: string; email?: string; code?: string; price?: number; method?: "uplatnica" | "kartica" }
+  | null {
+  try {
+    const raw = localStorage.getItem(LEAD_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    if (typeof parsed.exp !== "number" || parsed.exp < Date.now()) {
+      localStorage.removeItem(LEAD_KEY);
+      return null;
+    }
+    return {
+      name: parsed.name,
+      email: parsed.email,
+      code: parsed.code,
+      price: Number.isFinite(Number(parsed.price)) ? Number(parsed.price) : undefined,
+      method: parsed.method,
+    };
+  } catch {
+    return null;
+  }
+}
 
 export default function Page() {
   return (
@@ -34,13 +65,50 @@ function CheckoutCardClient() {
   const router = useRouter();
   const sp = useSearchParams();
 
-  const name = sp.get("name") ?? undefined;
-  const email = sp.get("email") ?? undefined;
-  const code = sp.get("code") ?? undefined;
+  // --- NEW: centralizovan lead state (ne oslanjamo se direktno na sp.get u renderu)
+  const [leadName, setLeadName] = useState<string | undefined>(undefined);
+  const [leadEmail, setLeadEmail] = useState<string | undefined>(undefined);
+  const [leadCode, setLeadCode] = useState<string | undefined>(undefined);
+  const [price, setPrice] = useState<number>(BASE_PRICE);
 
-  const price = useMemo(() => {
-    const v = Number(sp.get("price"));
-    return Number.isFinite(v) && v > 0 ? v : 60;
+  // Smart init: query > storage > fallback (kod => 50€)
+  useEffect(() => {
+    const qpName = sp.get("name") ?? undefined;
+    const qpEmail = sp.get("email") ?? undefined;
+    const qpCode = sp.get("code") ?? undefined;
+    const qpPriceRaw = sp.get("price");
+
+    // 1) Ako postoji nešto u query-ju, to ima prioritet
+    if (qpName || qpEmail || qpCode || qpPriceRaw) {
+      const qpPriceNum = Number(qpPriceRaw);
+      const resolvedPrice = Number.isFinite(qpPriceNum) && qpPriceNum > 0 ? qpPriceNum : BASE_PRICE;
+
+      setLeadName(qpName);
+      setLeadEmail(qpEmail);
+      setLeadCode(qpCode);
+      setPrice(resolvedPrice);
+      return;
+    }
+
+    // 2) Inače probaj localStorage
+    const stored = readLeadFromStorage();
+
+    let finalPrice = BASE_PRICE;
+    const finalCode = stored?.code;
+    const finalName = stored?.name;
+    const finalEmail = stored?.email;
+
+    if (Number.isFinite(stored?.price)) {
+      finalPrice = Number(stored!.price);
+    } else if (finalCode && VALID_CODES.includes(String(finalCode).toUpperCase())) {
+      // nema eksplicitne cene, ali postoji validan kod -> 50€
+      finalPrice = Math.max(0, BASE_PRICE - COUPON_VALUE);
+    }
+
+    setLeadName(finalName);
+    setLeadEmail(finalEmail);
+    setLeadCode(finalCode);
+    setPrice(finalPrice);
   }, [sp]);
 
   const fmt = useMemo(
@@ -59,10 +127,10 @@ function CheckoutCardClient() {
   function sendAbandoned(reason: string, extras?: Record<string, unknown>) {
     postRRSWebhook({
       event: "purchase_abandoned",
-      email,
-      name,
+      email: leadEmail,
+      name: leadName,
       price,
-      code,
+      code: leadCode,
       method: "kartica",
       orderId,
       status: "canceled",
@@ -164,93 +232,92 @@ function CheckoutCardClient() {
   // Shared handlers da oba dugmeta (paypal/card) rade isto
   type OrderDetails = { id?: string };
 
-const commonHandlers: {
-  onClick: (data: unknown, actions: unknown) => void | Promise<void>;
-  createOrder: (data: CreateOrderData, actions: CreateOrderActions) => Promise<string>;
-  onApprove: (data: OnApproveData, actions: OnApproveActions) => Promise<void>;
-  onCancel: (data: unknown) => void;
-  onError: (err: unknown) => void;
-} = {
-  onClick: () => {
-    setStatus("processing");
-    startWatchdog();
-  },
+  // >>> NISAM menjao PayPal logiku; samo koristim (leadEmail, leadName, leadCode, price) iz stanja
+  const commonHandlers: {
+    onClick: (data: unknown, actions: unknown) => void | Promise<void>;
+    createOrder: (data: CreateOrderData, actions: CreateOrderActions) => Promise<string>;
+    onApprove: (data: OnApproveData, actions: OnApproveActions) => Promise<void>;
+    onCancel: (data: unknown) => void;
+    onError: (err: unknown) => void;
+  } = {
+    onClick: () => {
+      setStatus("processing");
+      startWatchdog();
+    },
 
-  createOrder: (_data, actions) => {
-    const p = actions.order.create({
-      intent: "CAPTURE",
-      purchase_units: [
-        {
-          amount: { currency_code: "EUR", value: price.toFixed(2) },
-          description: "RealReselling članarina",
-          custom_id: code ? `coupon:${code}` : undefined,
-        },
-      ],
-      application_context: { shipping_preference: "NO_SHIPPING" },
-    });
-
-    p.then((id) => {
-      setOrderId(id ?? undefined);
-    });
-
-    return p;
-  },
-
-  onApprove: async (_data, actions) => {
-    try {
-      const raw = await actions.order?.capture();
-      const details = raw as unknown as OrderDetails;
-      const id = details?.id ?? orderId;
-
-      setOrderId(id);
-      setStatus("success");
-      stopWatchdog();
-
-      postRRSWebhook({
-        event: "purchase_completed",
-        email,
-        name,
-        price,
-        code,
-        method: "kartica",
-        orderId: id,
-        status: "success",
-        ts: new Date().toISOString(),
+    createOrder: (_data, actions) => {
+      const p = actions.order.create({
+        intent: "CAPTURE",
+        purchase_units: [
+          {
+            amount: { currency_code: "EUR", value: price.toFixed(2) },
+            description: "RealReselling članarina",
+            custom_id: leadCode ? `coupon:${leadCode}` : undefined,
+          },
+        ],
+        application_context: { shipping_preference: "NO_SHIPPING" },
       });
-    } catch (err) {
-      console.error("[PP] capture error:", err);
+
+      p.then((id) => {
+        setOrderId(id ?? undefined);
+      });
+
+      return p;
+    },
+
+    onApprove: async (_data, actions) => {
+      try {
+        const raw = await actions.order?.capture();
+        const details = raw as unknown as OrderDetails;
+        const id = details?.id ?? orderId;
+
+        setOrderId(id);
+        setStatus("success");
+        stopWatchdog();
+
+        postRRSWebhook({
+          event: "purchase_completed",
+          email: leadEmail,
+          name: leadName,
+          price,
+          code: leadCode,
+          method: "kartica",
+          orderId: id,
+          status: "success",
+          ts: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error("[PP] capture error:", err);
+        setStatus("error");
+        stopWatchdog();
+        postRRSWebhook({
+          event: "purchase_abandoned",
+          email: leadEmail,
+          name: leadName,
+          price,
+          code: leadCode,
+          method: "kartica",
+          orderId,
+          status: "error",
+          reason: "capture_error",
+          ts: new Date().toISOString(),
+        });
+      }
+    },
+
+    onCancel: () => {
+      setStatus("idle");
+      stopWatchdog();
+      sendAbandoned("user_canceled");
+    },
+
+    onError: (err) => {
+      console.error("[PP] onError:", err);
       setStatus("error");
       stopWatchdog();
-      postRRSWebhook({
-        event: "purchase_abandoned",
-        email,
-        name,
-        price,
-        code,
-        method: "kartica",
-        orderId,
-        status: "error",
-        reason: "capture_error",
-        ts: new Date().toISOString(),
-      });
-    }
-  },
-
-  onCancel: () => {
-    setStatus("idle");
-    stopWatchdog();
-    sendAbandoned("user_canceled");
-  },
-
-  onError: (err) => {
-    console.error("[PP] onError:", err);
-    setStatus("error");
-    stopWatchdog();
-    sendAbandoned("paypal_error", { err: String(err) });
-  },
-};
-
-
+      sendAbandoned("paypal_error", { err: String(err) });
+    },
+  };
 
   return (
     <section className="relative min-h-dvh overflow-hidden bg-[#0B0F13] text-white">
@@ -280,7 +347,7 @@ const commonHandlers: {
             </h1>
             <p className="mt-2 text-white/80">
               Iznos: <b className="text-white">{fmt.format(price)}</b>{" "}
-              {code && <span className="text-emerald-400">(kod: {code})</span>}
+              {leadCode && <span className="text-emerald-400">(kod: {leadCode})</span>}
             </p>
             <p className="sr-only" aria-live="polite">
               {status === "processing" ? "Obrađujemo vašu transakciju." : ""}
@@ -296,8 +363,7 @@ const commonHandlers: {
                 components: "buttons,messages",
                 enableFunding: "card",
               }}
-            >             
-
+            >
               {/* PayPal dugme */}
               <PayPalButtons
                 fundingSource="paypal"

@@ -5,16 +5,29 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Camera, Download, UploadCloud, CheckCircle2, ArrowLeft, Info, AlertTriangle } from "lucide-react";
+import {
+  Camera,
+  Download,
+  UploadCloud,
+  CheckCircle2,
+  ArrowLeft,
+  Info,
+  AlertTriangle,
+} from "lucide-react";
 import { postRRSWebhook } from "@/lib/webhook";
 
 // Sprečava prerender/SSG koji pravi problem sa useSearchParams
 export const dynamic = "force-dynamic";
 
 // -----------------------------
-// LocalStorage helpers
+// LocalStorage helpers / konstante
 // -----------------------------
 const LEAD_KEY = "rrs_lead_v1";
+
+// Globalni defaultovi za fallback obračun na /uplatnica
+const BASE_PRICE = 60;
+const COUPON_VALUE = 10;
+const VALID_CODES = ["RRS25"]; // ovde dodaj sve dozvoljene kodove (UPPERCASE)
 
 function readLeadFromStorage():
   | { name?: string; email?: string; code?: string; price?: number; method?: "uplatnica" | "kartica" }
@@ -32,7 +45,7 @@ function readLeadFromStorage():
       name: parsed.name,
       email: parsed.email,
       code: parsed.code,
-      price: typeof parsed.price === "number" ? parsed.price : undefined,
+      price: Number.isFinite(Number(parsed.price)) ? Number(parsed.price) : undefined,
       method: parsed.method,
     };
   } catch {
@@ -74,7 +87,7 @@ function UplatnicaClient() {
 
   // Lead state učitan iz query-a ili localStorage
   const [lead, setLead] = useState<{ price: number; code?: string; name?: string; email?: string }>(
-    { price: 60 }
+    { price: BASE_PRICE }
   );
 
   // Fallback polja ako user dođe direktno bez identiteta
@@ -95,37 +108,52 @@ function UplatnicaClient() {
 
   const priceText = useMemo(() => `${lead.price}€`, [lead.price]);
 
-  // Učitavanje lead-a na mount
+  // Učitavanje lead-a na mount (sa pametnim fallbackom)
   useEffect(() => {
-    const qp = {
-      price: sp.get("price"),
-      code: sp.get("code") ?? undefined,
-      name: sp.get("name") ?? undefined,
-      email: sp.get("email") ?? undefined,
+  const qp = {
+    price: sp.get("price"),
+    code: sp.get("code") ?? undefined,
+    name: sp.get("name") ?? undefined,
+    email: sp.get("email") ?? undefined,
+  };
+
+  // 1) Query ima prioritet
+  if (qp.price || qp.code || qp.name || qp.email) {
+    const pNum = Number(qp.price);
+    const normalized = {
+      price: Number.isFinite(pNum) ? pNum : BASE_PRICE,
+      code: qp.code,
+      name: qp.name,
+      email: qp.email,
     };
+    setLead(normalized);
+    refreshLeadInStorage(normalized);
+    if (qp.name) setFallbackName(qp.name);
+    if (qp.email) setFallbackEmail(qp.email);
+    return;
+  }
 
-    if (qp.price || qp.code || qp.name || qp.email) {
-      const p = Number(qp.price ?? "60");
-      const normalized = {
-        price: Number.isFinite(p) ? p : 60,
-        code: qp.code,
-        name: qp.name,
-        email: qp.email,
-      };
-      setLead(normalized);
-      refreshLeadInStorage(normalized);
-      if (qp.name) setFallbackName(qp.name);
-      if (qp.email) setFallbackEmail(qp.email);
-      return;
-    }
+  // 2) Nema query → probaj localStorage
+  const stored = readLeadFromStorage();
 
-    const stored = readLeadFromStorage();
-    if (stored) {
-      setLead({ price: stored.price ?? 60, code: stored.code, name: stored.name, email: stored.email });
-      if (stored.name) setFallbackName(stored.name);
-      if (stored.email) setFallbackEmail(stored.email);
-    }
-  }, [sp]);
+  // Prefer-const fix: samo finalPrice može da se menja
+  let finalPrice = BASE_PRICE;
+  const finalCode = stored?.code;
+  const finalName = stored?.name;
+  const finalEmail = stored?.email;
+
+  if (Number.isFinite(stored?.price)) {
+    finalPrice = Number(stored!.price);
+  } else if (finalCode && VALID_CODES.includes(String(finalCode).toUpperCase())) {
+    finalPrice = Math.max(0, BASE_PRICE - COUPON_VALUE); // 50€
+  }
+
+  setLead({ price: finalPrice, code: finalCode, name: finalName, email: finalEmail });
+
+  if (finalName) setFallbackName(finalName);
+  if (finalEmail) setFallbackEmail(finalEmail);
+}, [sp]);
+
 
   // Handleri
   function openCamera() {
@@ -160,7 +188,13 @@ function UplatnicaClient() {
     }
 
     // Osveži storage da sledeći put imamo podatke
-    refreshLeadInStorage({ name: finalName, email: finalEmail, code: lead.code, price: lead.price, method: "uplatnica" });
+    refreshLeadInStorage({
+      name: finalName,
+      email: finalEmail,
+      code: lead.code,
+      price: lead.price,
+      method: "uplatnica",
+    });
 
     setBusy(true);
     try {
@@ -349,7 +383,9 @@ function UplatnicaClient() {
             </p>
           )}
 
-          <p className="mt-4 text-center text-xs text-white/60">Članarina se plaća jednom i nema dodatnih troškova.</p>
+          <p className="mt-4 text-center text-xs text-white/60">
+            Članarina se plaća jednom i nema dodatnih troškova.
+          </p>
         </div>
       </div>
     </section>
