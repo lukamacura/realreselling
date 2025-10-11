@@ -9,7 +9,6 @@ import type { LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { postRRSWebhook } from "@/lib/webhook";
 
-
 // utils za localStorage lead
 const LEAD_KEY = "rrs_lead_v1";
 
@@ -30,6 +29,25 @@ function saveLeadToStorage(lead: {
   } catch {}
 }
 
+// ✅ Partial upsert (koristi se kad se samo kupon primeni)
+function upsertLead(partial: {
+  name?: string;
+  email?: string;
+  code?: string;
+  price?: number;
+  method?: "uplatnica" | "kartica";
+}) {
+  try {
+    const raw = localStorage.getItem(LEAD_KEY);
+    const cur = raw ? JSON.parse(raw) : {};
+    const next = {
+      ...cur,
+      ...partial,
+      exp: Date.now() + 72 * 60 * 60 * 1000, // produži važenje 72h
+    };
+    localStorage.setItem(LEAD_KEY, JSON.stringify(next));
+  } catch {}
+}
 
 type Props = {
   basePrice?: number;
@@ -45,7 +63,6 @@ type Props = {
     email: string;
   }) => void;
 };
-
 
 export default function DiscountSection({
   basePrice = 60,
@@ -73,49 +90,48 @@ export default function DiscountSection({
   const nameInputRef = useRef<HTMLInputElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
 
-function validateEmail(v: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-}
+  const normCode = (c?: string) => (c ? String(c).trim().toUpperCase() : undefined);
 
+  function validateEmail(v: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }
 
   useEffect(() => setDisplayPrice(basePrice), [basePrice]);
 
   useEffect(() => {
-  const target = applied ? Math.max(0, basePrice - couponValue) : basePrice;
+    const target = applied ? Math.max(0, basePrice - couponValue) : basePrice;
 
-  // prekini staru animaciju
-  if (animRef.current) {
-    clearInterval(animRef.current);
-    animRef.current = null;
-  }
-  if (displayPrice === target) return;
-
-  const TICK_MS = 35;
-  animRef.current = setInterval(() => {
-    setDisplayPrice((prev) => {
-      if (prev === target) {
-        if (animRef.current) {
-          clearInterval(animRef.current);
-          animRef.current = null;
-        }
-        return prev;
-      }
-      const dir = prev < target ? 1 : -1;
-      const next = prev + dir;
-      return (dir > 0 && next > target) || (dir < 0 && next < target) ? target : next;
-    });
-  }, TICK_MS);
-
-  // ✅ uvek vraća funkciju koja vraća void
-  return () => {
+    // prekini staru animaciju
     if (animRef.current) {
       clearInterval(animRef.current);
       animRef.current = null;
     }
-  };
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [applied, basePrice, couponValue]);
+    if (displayPrice === target) return;
 
+    const TICK_MS = 35;
+    animRef.current = setInterval(() => {
+      setDisplayPrice((prev) => {
+        if (prev === target) {
+          if (animRef.current) {
+            clearInterval(animRef.current);
+            animRef.current = null;
+          }
+          return prev;
+        }
+        const dir = prev < target ? 1 : -1;
+        const next = prev + dir;
+        return (dir > 0 && next > target) || (dir < 0 && next < target) ? target : next;
+      });
+    }, TICK_MS);
+
+    return () => {
+      if (animRef.current) {
+        clearInterval(animRef.current);
+        animRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [applied, basePrice, couponValue]);
 
   const priceToPay = useMemo(
     () => (applied ? Math.max(0, basePrice - couponValue) : basePrice),
@@ -123,14 +139,27 @@ function validateEmail(v: string) {
   );
 
   function applyCode() {
-    const ok = code.trim().toUpperCase() === couponCode.toUpperCase();
+    const normalized = normCode(code);
+    const ok = normalized === normCode(couponCode);
+
     setApplied(ok);
     setError(ok ? "" : "Netačan kod. Pokušaj ponovo.");
+
     if (!ok) {
       inputRef.current?.focus();
-    } else {
-      setMissingCodeWarn(false);
+      return;
     }
+
+    setMissingCodeWarn(false);
+
+    // ✅ ODMAH zapiši u LS da /uplatnica i /kartica znaju za kupon i cenu
+    upsertLead({
+      code: normalized,                              // npr. "RRS25"
+      price: Math.max(0, basePrice - couponValue),   // 50€
+      name: name?.trim() || undefined,               // ako je već upisao
+      email: email?.trim() || undefined,
+      method,                                        // trenutna metoda
+    });
   }
 
   async function copyCodeToInput() {
@@ -147,75 +176,74 @@ function validateEmail(v: string) {
 
   const router = useRouter();
 
-function handleContinue() {
-  // 1) Kod (ako hoćeš da ostane obavezan)
-  if (!applied) {
-    setMissingCodeWarn(true);
-    setError("");
-    inputRef.current?.focus();
-    couponPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    return;
-  }
+  function handleContinue() {
+    // 1) Kod obavezan
+    if (!applied) {
+      setMissingCodeWarn(true);
+      setError("");
+      inputRef.current?.focus();
+      couponPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
 
-  // 2) Ime/Email obavezni
-  let ok = true;
-  if (name.trim().length < 3) {
-    setNameErr("Unesi ime.");
-    nameInputRef.current?.focus();
-    ok = false;
-  }
-  if (!validateEmail(email)) {
-    setEmailErr("Unesi validan email.");
-    if (ok) emailInputRef.current?.focus();
-    ok = false;
-  }
-  if (!ok) return;
+    // 2) Ime/Email obavezni
+    let ok = true;
+    if (name.trim().length < 3) {
+      setNameErr("Unesi ime.");
+      nameInputRef.current?.focus();
+      ok = false;
+    }
+    if (!validateEmail(email)) {
+      setEmailErr("Unesi validan email.");
+      if (ok) emailInputRef.current?.focus();
+      ok = false;
+    }
+    if (!ok) return;
 
-  // 3) Emituj payload
-  const payload = {
-    method,
-    codeApplied: applied,
-    code: applied ? couponCode : undefined,
-    priceToPay,
-    name,
-    email,
-  };
-  onContinue?.(payload);
+    // 3) Emituj payload
+    const payload = {
+      method,
+      codeApplied: applied,
+      code: applied ? normCode(couponCode) : undefined,
+      priceToPay,
+      name,
+      email,
+    };
+    onContinue?.(payload);
 
-   postRRSWebhook({
-    event: "lead_checkout_started",
-    email,
-    name,
-    price: priceToPay,
-    code: applied ? couponCode : undefined,
-    method,
-    ts: new Date().toISOString(),
-    utm: {
-      utm_source: new URLSearchParams(window.location.search).get("utm_source"),
-      utm_medium: new URLSearchParams(window.location.search).get("utm_medium"),
-      utm_campaign: new URLSearchParams(window.location.search).get("utm_campaign"),
-    },
-  });
-  // 4) Prosledi kroz query (ili localStorage ako ne želiš da stoji u URL-u)
+    postRRSWebhook({
+      event: "lead_checkout_started",
+      email,
+      name,
+      price: priceToPay,
+      code: applied ? normCode(couponCode) : undefined,
+      method,
+      ts: new Date().toISOString(),
+      utm: {
+        utm_source: new URLSearchParams(window.location.search).get("utm_source"),
+        utm_medium: new URLSearchParams(window.location.search).get("utm_medium"),
+        utm_campaign: new URLSearchParams(window.location.search).get("utm_campaign"),
+      },
+    });
+
+    // 4) Prosledi kroz query
     const qs = new URLSearchParams();
-  qs.set("price", String(priceToPay));
-  if (applied) qs.set("code", couponCode);
-  qs.set("name", name);
-  qs.set("email", email);
+    qs.set("price", String(priceToPay));
+    if (applied) qs.set("code", normCode(couponCode)!);
+    qs.set("name", name);
+    qs.set("email", email);
 
-  // 3.5) Sačuvaj lead u localStorage (fallback ako user dođe kasnije)
-  saveLeadToStorage({
-    name,
-    email,
-    code: applied ? couponCode : undefined,
-    price: priceToPay,
-    method,
-  });
+    // 3.5) Sačuvaj lead u localStorage (fallback ako user dođe kasnije)
+    saveLeadToStorage({
+      name,
+      email,
+      code: applied ? normCode(couponCode) : undefined,
+      price: priceToPay,
+      method,
+    });
 
-
-  router.push(`${method === "uplatnica" ? "/uplatnica" : "/kartica"}?${qs.toString()}`);
-}
-
+    router.push(`${method === "uplatnica" ? "/uplatnica" : "/kartica"}?${qs.toString()}`);
+  }
 
   return (
     <section className="relative overflow-hidden bg-[#0B0F13] text-white">
@@ -223,7 +251,7 @@ function handleContinue() {
         <div className="relative rounded-2xl border border-white/10 bg-[#12171E]/80 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)] sm:p-6 md:p-7">
           <div className="absolute inset-x-0 top-0 h-[10px] rounded-t-2xl bg-gradient-to-r from-amber-500 via-amber-300 to-amber-600" />
 
-          {/* 1) KUPO N PANEL – NA VRHU, UPEČATLJIV */}
+          {/* 1) KUPON PANEL */}
           <div
             ref={couponPanelRef}
             className={`rounded-xl border p-4 sm:p-5 transition ${
@@ -232,7 +260,7 @@ function handleContinue() {
           >
             <div className="flex items-center justify-between gap-3">
               <p className="text-lg font-semibold text-amber-200">
-                 <span className="text-white">Unesi kod i odmah ostvari</span> 10€
+                <span className="text-white">Unesi kod i odmah ostvari</span> 10€
               </p>
               <button
                 onClick={copyCodeToInput}
@@ -278,40 +306,40 @@ function handleContinue() {
               </div>
             )}
           </div>
+
           {/* PODACI KUPCA */}
-<div className="mt-5 grid gap-3 sm:grid-cols-2">
-  <div>
-    <label className="block text-xs font-semibold text-white/70">Ime</label>
-    <input
-      ref={nameInputRef}
-      value={name}
-      onChange={(e) => { setFullName(e.target.value); setNameErr(""); }}
-      placeholder="npr. Luka"
-      className={`mt-1 w-full rounded-xl border bg-[#0E1319] px-3 py-3 text-white/90 placeholder:text-white/40 focus:outline-none focus:ring-2 ${
-        nameErr ? "border-rose-400/50 focus:ring-rose-400/60" : "border-white/10 focus:ring-amber-400/60"
-      }`}
-    />
-    {nameErr && <p className="mt-1 text-xs text-rose-400">{nameErr}</p>}
-  </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-semibold text-white/70">Ime</label>
+              <input
+                ref={nameInputRef}
+                value={name}
+                onChange={(e) => { setFullName(e.target.value); setNameErr(""); }}
+                placeholder="npr. Luka"
+                className={`mt-1 w-full rounded-xl border bg-[#0E1319] px-3 py-3 text-white/90 placeholder:text-white/40 focus:outline-none focus:ring-2 ${
+                  nameErr ? "border-rose-400/50 focus:ring-rose-400/60" : "border-white/10 focus:ring-amber-400/60"
+                }`}
+              />
+              {nameErr && <p className="mt-1 text-xs text-rose-400">{nameErr}</p>}
+            </div>
 
-  <div>
-    <label className="block text-xs font-semibold text-white/70">Email</label>
-    <input
-      ref={emailInputRef}
-      type="email"
-      value={email}
-      onChange={(e) => { setEmail(e.target.value); setEmailErr(""); }}
-      placeholder="tvoj@email.com"
-      className={`mt-1 w-full rounded-xl border bg-[#0E1319] px-3 py-3 text-white/90 placeholder:text-white/40 focus:outline-none focus:ring-2 ${
-        emailErr ? "border-rose-400/50 focus:ring-rose-400/60" : "border-white/10 focus:ring-amber-400/60"
-      }`}
-    />
-    {emailErr && <p className="mt-1 text-xs text-rose-400">{emailErr}</p>}
-  </div>
-</div>
+            <div>
+              <label className="block text-xs font-semibold text-white/70">Email</label>
+              <input
+                ref={emailInputRef}
+                type="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setEmailErr(""); }}
+                placeholder="tvoj@email.com"
+                className={`mt-1 w-full rounded-xl border bg-[#0E1319] px-3 py-3 text-white/90 placeholder:text-white/40 focus:outline-none focus:ring-2 ${
+                  emailErr ? "border-rose-400/50 focus:ring-rose-400/60" : "border-white/10 focus:ring-amber-400/60"
+                }`}
+              />
+              {emailErr && <p className="mt-1 text-xs text-rose-400">{emailErr}</p>}
+            </div>
+          </div>
 
-
-          {/* 2) CENA – odmah ispod kupona */}
+          {/* 2) CENA */}
           <div className="mt-5 text-center">
             <p className="text-sm font-extrabold text-zinc-300 line-through decoration-rose-500/80 decoration-4">
               Redovna: {regularPrice}€
@@ -321,7 +349,7 @@ function handleContinue() {
             </p>
           </div>
 
-          {/* 3) KRATKA ILUSTRACIJA / BEZ DUGIH OBJAŠNJENJA */}
+          {/* 3) ILUSTRACIJA */}
           <div className="mt-5 rounded-xl bg-[#0E1319] p-4 ring-1 ring-white/5">
             <Image
               src="/hero.png"
@@ -341,13 +369,13 @@ function handleContinue() {
               icon={Landmark}
               label="Uplatnica (bez kartice)"
               active={method === "uplatnica"}
-              onSelect={() => setMethod("uplatnica")}
+              onSelect={() => { setMethod("uplatnica"); upsertLead({ method: "uplatnica" }); }}
             />
             <PaymentOption
               icon={CreditCard}
               label="Kartica"
               active={method === "kartica"}
-              onSelect={() => setMethod("kartica")}
+              onSelect={() => { setMethod("kartica"); upsertLead({ method: "kartica" }); }}
             />
           </div>
 
