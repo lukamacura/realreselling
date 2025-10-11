@@ -22,15 +22,13 @@ export const dynamic = "force-dynamic";
 type Status = "idle" | "processing" | "success" | "error";
 
 /* -------------------------------------------
-   Shared lead/config kao na /uplatnica
+   Fiksna cena: uvek 50€
 -------------------------------------------- */
 const LEAD_KEY = "rrs_lead_v1";
-const BASE_PRICE = 60;
-const COUPON_VALUE = 10;
-const VALID_CODES = ["RRS25"]; // dozvoljeni kuponi (UPPERCASE)
+const FIXED_PRICE = 50;
 
 function readLeadFromStorage():
-  | { name?: string; email?: string; code?: string; price?: number; method?: "uplatnica" | "kartica" }
+  | { name?: string; email?: string; code?: string; method?: "uplatnica" | "kartica" }
   | null {
   try {
     const raw = localStorage.getItem(LEAD_KEY);
@@ -45,7 +43,6 @@ function readLeadFromStorage():
       name: parsed.name,
       email: parsed.email,
       code: parsed.code,
-      price: Number.isFinite(Number(parsed.price)) ? Number(parsed.price) : undefined,
       method: parsed.method,
     };
   } catch {
@@ -65,57 +62,30 @@ function CheckoutCardClient() {
   const router = useRouter();
   const sp = useSearchParams();
 
-  // --- NEW: centralizovan lead state (ne oslanjamo se direktno na sp.get u renderu)
+  // Lead state: identitet/kupon čitamo (ako postoji), ali CENA JE UVEK 50€
   const [leadName, setLeadName] = useState<string | undefined>(undefined);
   const [leadEmail, setLeadEmail] = useState<string | undefined>(undefined);
   const [leadCode, setLeadCode] = useState<string | undefined>(undefined);
-  const [price, setPrice] = useState<number>(BASE_PRICE);
 
-  // Smart init: query > storage > fallback (kod => 50€)
+  // Smart init: query > storage > nothing (uvek price=50)
   useEffect(() => {
     const qpName = sp.get("name") ?? undefined;
     const qpEmail = sp.get("email") ?? undefined;
     const qpCode = sp.get("code") ?? undefined;
-    const qpPriceRaw = sp.get("price");
 
-   if (qpName || qpEmail || qpCode || qpPriceRaw) {
-  const qpPriceNum = Number(qpPriceRaw);
-  const hasExplicitPrice = Number.isFinite(qpPriceNum) && qpPriceNum > 0;
-  const hasValidCode = qpCode && VALID_CODES.includes(String(qpCode).toUpperCase());
-
-  const resolvedPrice = hasExplicitPrice
-    ? qpPriceNum
-    : hasValidCode
-    ? Math.max(0, BASE_PRICE - COUPON_VALUE) // 50€
-    : BASE_PRICE;
-
-  setLeadName(qpName ?? undefined);
-  setLeadEmail(qpEmail ?? undefined);
-  setLeadCode(qpCode ?? undefined);
-  setPrice(resolvedPrice);
-  return;
-}
-
-
-    // 2) Inače probaj localStorage
-    const stored = readLeadFromStorage();
-
-    let finalPrice = BASE_PRICE;
-    const finalCode = stored?.code;
-    const finalName = stored?.name;
-    const finalEmail = stored?.email;
-
-    if (Number.isFinite(stored?.price)) {
-      finalPrice = Number(stored!.price);
-    } else if (finalCode && VALID_CODES.includes(String(finalCode).toUpperCase())) {
-      // nema eksplicitne cene, ali postoji validan kod -> 50€
-      finalPrice = Math.max(0, BASE_PRICE - COUPON_VALUE);
+    if (qpName || qpEmail || qpCode) {
+      setLeadName(qpName);
+      setLeadEmail(qpEmail);
+      setLeadCode(qpCode);
+      return;
     }
 
-    setLeadName(finalName);
-    setLeadEmail(finalEmail);
-    setLeadCode(finalCode);
-    setPrice(finalPrice);
+    const stored = readLeadFromStorage();
+    if (stored) {
+      setLeadName(stored.name);
+      setLeadEmail(stored.email);
+      setLeadCode(stored.code);
+    }
   }, [sp]);
 
   const fmt = useMemo(
@@ -130,13 +100,13 @@ function CheckoutCardClient() {
   const [watchdog, setWatchdog] = useState<number | null>(null);
   const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!;
 
-  // helper za slanje "abandoned" sa dodatnim kontekstom
+  // helper za slanje "abandoned"
   function sendAbandoned(reason: string, extras?: Record<string, unknown>) {
     postRRSWebhook({
       event: "purchase_abandoned",
       email: leadEmail,
       name: leadName,
-      price,
+      price: FIXED_PRICE, // ✅ uvek 50
       code: leadCode,
       method: "kartica",
       orderId,
@@ -170,7 +140,6 @@ function CheckoutCardClient() {
     }
   }
 
-  // bump na user interakcije dok je checkout u toku
   useEffect(() => {
     if (status !== "processing") return;
     const evts = ["pointerdown", "keydown", "touchstart"] as const;
@@ -180,7 +149,6 @@ function CheckoutCardClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, watchdog]);
 
-  // visibility/pagehide – slučaj minimizovanja/odlaska iz aplikacije
   useEffect(() => {
     let hiddenAt: number | null = null;
 
@@ -199,7 +167,6 @@ function CheckoutCardClient() {
 
     function onPageHide() {
       if (status === "processing") {
-        // iOS Safari često spali event kad user ode sa strane
         sendAbandoned("pagehide");
         stopWatchdog();
       }
@@ -236,10 +203,9 @@ function CheckoutCardClient() {
     );
   }
 
-  // Shared handlers da oba dugmeta (paypal/card) rade isto
+  // Shared handlers: PayPal logika ostaje ista — amount uzima iz FIXED_PRICE
   type OrderDetails = { id?: string };
 
-  // >>> NISAM menjao PayPal logiku; samo koristim (leadEmail, leadName, leadCode, price) iz stanja
   const commonHandlers: {
     onClick: (data: unknown, actions: unknown) => void | Promise<void>;
     createOrder: (data: CreateOrderData, actions: CreateOrderActions) => Promise<string>;
@@ -257,7 +223,7 @@ function CheckoutCardClient() {
         intent: "CAPTURE",
         purchase_units: [
           {
-            amount: { currency_code: "EUR", value: price.toFixed(2) },
+            amount: { currency_code: "EUR", value: FIXED_PRICE.toFixed(2) }, // ✅ uvek 50.00
             description: "RealReselling članarina",
             custom_id: leadCode ? `coupon:${leadCode}` : undefined,
           },
@@ -286,7 +252,7 @@ function CheckoutCardClient() {
           event: "purchase_completed",
           email: leadEmail,
           name: leadName,
-          price,
+          price: FIXED_PRICE, // ✅ uvek 50
           code: leadCode,
           method: "kartica",
           orderId: id,
@@ -301,7 +267,7 @@ function CheckoutCardClient() {
           event: "purchase_abandoned",
           email: leadEmail,
           name: leadName,
-          price,
+          price: FIXED_PRICE, // ✅ uvek 50
           code: leadCode,
           method: "kartica",
           orderId,
@@ -340,8 +306,7 @@ function CheckoutCardClient() {
       <div className="container mx-auto max-w-[900px] px-4 py-10 sm:py-14">
         <button
           onClick={() => router.back()}
-          className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-white/80 transition hover:bg-white/5"
-        >
+          className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-white/80 transition hover:bg-white/5">
           <ArrowLeft className="h-4 w-4" /> Nazad
         </button>
 
@@ -353,7 +318,7 @@ function CheckoutCardClient() {
               Kartično plaćanje <span className="text-amber-300">/ PayPal</span>
             </h1>
             <p className="mt-2 text-white/80">
-              Iznos: <b className="text-white">{fmt.format(price)}</b>{" "}
+              Iznos: <b className="text-white">{fmt.format(FIXED_PRICE)}</b>{" "}
               {leadCode && <span className="text-emerald-400">(kod: {leadCode})</span>}
             </p>
             <p className="sr-only" aria-live="polite">

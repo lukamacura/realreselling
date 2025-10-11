@@ -20,15 +20,14 @@ import { postRRSWebhook } from "@/lib/webhook";
 export const dynamic = "force-dynamic";
 
 // -----------------------------
-// LocalStorage helpers / konstante
+// Konstante
 // -----------------------------
 const LEAD_KEY = "rrs_lead_v1";
+const FIXED_PRICE = 50; // ✅ UVEK 50€
 
-// Globalni defaultovi za fallback obračun na /uplatnica
-const BASE_PRICE = 60;
-const COUPON_VALUE = 10;
-const VALID_CODES = ["RRS25"]; // ovde dodaj sve dozvoljene kodove (UPPERCASE)
-
+// -----------------------------
+// LocalStorage helpers
+// -----------------------------
 function readLeadFromStorage():
   | { name?: string; email?: string; code?: string; price?: number; method?: "uplatnica" | "kartica" }
   | null {
@@ -45,7 +44,7 @@ function readLeadFromStorage():
       name: parsed.name,
       email: parsed.email,
       code: parsed.code,
-      price: Number.isFinite(Number(parsed.price)) ? Number(parsed.price) : undefined,
+      price: FIXED_PRICE, // ✅ čak i ako postoji stara vrednost, forsiramo 50
       method: parsed.method,
     };
   } catch {
@@ -62,7 +61,8 @@ function refreshLeadInStorage(partial: {
 }) {
   try {
     const current = readLeadFromStorage() || {};
-    const next = { ...current, ...partial, exp: Date.now() + 72 * 60 * 60 * 1000 };
+    // ✅ uvek upisujemo 50
+    const next = { ...current, ...partial, price: FIXED_PRICE, exp: Date.now() + 72 * 60 * 60 * 1000 };
     localStorage.setItem(LEAD_KEY, JSON.stringify(next));
   } catch {}
 }
@@ -85,9 +85,9 @@ function UplatnicaClient() {
   const sp = useSearchParams();
   const router = useRouter();
 
-  // Lead state učitan iz query-a ili localStorage
+  // Lead state (uvek će imati price=50)
   const [lead, setLead] = useState<{ price: number; code?: string; name?: string; email?: string }>(
-    { price: BASE_PRICE }
+    { price: FIXED_PRICE }
   );
 
   // Fallback polja ako user dođe direktno bez identiteta
@@ -108,66 +108,46 @@ function UplatnicaClient() {
 
   const priceText = useMemo(() => `${lead.price}€`, [lead.price]);
 
-  // Učitavanje lead-a na mount (sa pametnim fallbackom)
+  // Učitavanje lead-a na mount (ali UVEK fiksiramo cenu na 50€)
   useEffect(() => {
-  const qp = {
-    price: sp.get("price"),
-    code: sp.get("code") ?? undefined,
-    name: sp.get("name") ?? undefined,
-    email: sp.get("email") ?? undefined,
-  };
+    const qp = {
+      code: sp.get("code") ?? undefined,
+      name: sp.get("name") ?? undefined,
+      email: sp.get("email") ?? undefined,
+    };
 
- // 1) Query ima prioritet
-// 1) Query ima prioritet
-if (qp.price || qp.code || qp.name || qp.email) {
-  const pNum = Number(qp.price);
-  const hasExplicitPrice = Number.isFinite(pNum) && pNum > 0;
+    // Query ima prednost za identitet/kod (ne za cenu)
+    if (qp.code || qp.name || qp.email) {
+      const normalized = {
+        price: FIXED_PRICE, // ✅ fiksno
+        code: qp.code?.trim() || undefined,
+        name: qp.name?.trim() || undefined,
+        email: qp.email?.trim() || undefined,
+      };
+      setLead(normalized);
+      refreshLeadInStorage(normalized); // ✅ upiši 50 u LS
+      if (qp.name) setFallbackName(qp.name);
+      if (qp.email) setFallbackEmail(qp.email);
+      return;
+    }
 
-  // NOVO: ako nema price u query-ju ali postoji VALIDAN kupon -> 50€
-  const hasValidCode = qp.code && VALID_CODES.includes(String(qp.code).toUpperCase());
+    // Inače probaj localStorage (ali i tu je cena 50€)
+    const stored = readLeadFromStorage();
+    if (stored) {
+      setLead({
+        price: FIXED_PRICE,
+        code: stored.code,
+        name: stored.name,
+        email: stored.email,
+      });
+      if (stored.name) setFallbackName(stored.name);
+      if (stored.email) setFallbackEmail(stored.email);
+      return;
+    }
 
-  const resolvedPrice = hasExplicitPrice
-    ? pNum
-    : hasValidCode
-    ? Math.max(0, BASE_PRICE - COUPON_VALUE) // 50€
-    : BASE_PRICE;
-
-  const normalized = {
-    price: resolvedPrice,
-    code: qp.code,
-    name: qp.name,
-    email: qp.email,
-  };
-
-  setLead(normalized);
-  refreshLeadInStorage(normalized);
-  if (qp.name) setFallbackName(qp.name);
-  if (qp.email) setFallbackEmail(qp.email);
-  return;
-}
-
-
-  // 2) Nema query → probaj localStorage
-  const stored = readLeadFromStorage();
-
-  // Prefer-const fix: samo finalPrice može da se menja
-  let finalPrice = BASE_PRICE;
-  const finalCode = stored?.code;
-  const finalName = stored?.name;
-  const finalEmail = stored?.email;
-
-  if (Number.isFinite(stored?.price)) {
-    finalPrice = Number(stored!.price);
-  } else if (finalCode && VALID_CODES.includes(String(finalCode).toUpperCase())) {
-    finalPrice = Math.max(0, BASE_PRICE - COUPON_VALUE); // 50€
-  }
-
-  setLead({ price: finalPrice, code: finalCode, name: finalName, email: finalEmail });
-
-  if (finalName) setFallbackName(finalName);
-  if (finalEmail) setFallbackEmail(finalEmail);
-}, [sp]);
-
+    // Ako nema ničega, ostaje default sa 50€
+    setLead((prev) => ({ ...prev, price: FIXED_PRICE }));
+  }, [sp]);
 
   // Handleri
   function openCamera() {
@@ -201,12 +181,12 @@ if (qp.price || qp.code || qp.name || qp.email) {
       return;
     }
 
-    // Osveži storage da sledeći put imamo podatke
+    // Osveži storage (uvek 50€)
     refreshLeadInStorage({
       name: finalName,
       email: finalEmail,
       code: lead.code,
-      price: lead.price,
+      price: FIXED_PRICE,
       method: "uplatnica",
     });
 
@@ -215,7 +195,7 @@ if (qp.price || qp.code || qp.name || qp.email) {
       const fd = new FormData();
       fd.append("event", "bank_transfer_proof_submitted");
       fd.append("method", "uplatnica");
-      fd.append("price", String(lead.price));
+      fd.append("price", String(FIXED_PRICE)); // ✅ uvek šaljemo 50
       fd.append("ts", new Date().toISOString());
       fd.append("name", finalName);
       fd.append("email", finalEmail);
