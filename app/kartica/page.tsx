@@ -78,17 +78,24 @@ function CheckoutCardClient() {
     const qpCode = sp.get("code") ?? undefined;
     const qpPriceRaw = sp.get("price");
 
-    // 1) Ako postoji nešto u query-ju, to ima prioritet
-    if (qpName || qpEmail || qpCode || qpPriceRaw) {
-      const qpPriceNum = Number(qpPriceRaw);
-      const resolvedPrice = Number.isFinite(qpPriceNum) && qpPriceNum > 0 ? qpPriceNum : BASE_PRICE;
+   if (qpName || qpEmail || qpCode || qpPriceRaw) {
+  const qpPriceNum = Number(qpPriceRaw);
+  const hasExplicitPrice = Number.isFinite(qpPriceNum) && qpPriceNum > 0;
+  const hasValidCode = qpCode && VALID_CODES.includes(String(qpCode).toUpperCase());
 
-      setLeadName(qpName);
-      setLeadEmail(qpEmail);
-      setLeadCode(qpCode);
-      setPrice(resolvedPrice);
-      return;
-    }
+  const resolvedPrice = hasExplicitPrice
+    ? qpPriceNum
+    : hasValidCode
+    ? Math.max(0, BASE_PRICE - COUPON_VALUE) // 50€
+    : BASE_PRICE;
+
+  setLeadName(qpName ?? undefined);
+  setLeadEmail(qpEmail ?? undefined);
+  setLeadCode(qpCode ?? undefined);
+  setPrice(resolvedPrice);
+  return;
+}
+
 
     // 2) Inače probaj localStorage
     const stored = readLeadFromStorage();

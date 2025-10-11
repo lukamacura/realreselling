@@ -117,21 +117,35 @@ function UplatnicaClient() {
     email: sp.get("email") ?? undefined,
   };
 
-  // 1) Query ima prioritet
-  if (qp.price || qp.code || qp.name || qp.email) {
-    const pNum = Number(qp.price);
-    const normalized = {
-      price: Number.isFinite(pNum) ? pNum : BASE_PRICE,
-      code: qp.code,
-      name: qp.name,
-      email: qp.email,
-    };
-    setLead(normalized);
-    refreshLeadInStorage(normalized);
-    if (qp.name) setFallbackName(qp.name);
-    if (qp.email) setFallbackEmail(qp.email);
-    return;
-  }
+ // 1) Query ima prioritet
+// 1) Query ima prioritet
+if (qp.price || qp.code || qp.name || qp.email) {
+  const pNum = Number(qp.price);
+  const hasExplicitPrice = Number.isFinite(pNum) && pNum > 0;
+
+  // NOVO: ako nema price u query-ju ali postoji VALIDAN kupon -> 50€
+  const hasValidCode = qp.code && VALID_CODES.includes(String(qp.code).toUpperCase());
+
+  const resolvedPrice = hasExplicitPrice
+    ? pNum
+    : hasValidCode
+    ? Math.max(0, BASE_PRICE - COUPON_VALUE) // 50€
+    : BASE_PRICE;
+
+  const normalized = {
+    price: resolvedPrice,
+    code: qp.code,
+    name: qp.name,
+    email: qp.email,
+  };
+
+  setLead(normalized);
+  refreshLeadInStorage(normalized);
+  if (qp.name) setFallbackName(qp.name);
+  if (qp.email) setFallbackEmail(qp.email);
+  return;
+}
+
 
   // 2) Nema query → probaj localStorage
   const stored = readLeadFromStorage();
