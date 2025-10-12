@@ -9,7 +9,7 @@ import type { LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { postRRSWebhook } from "@/lib/webhook";
 
-// utils za localStorage lead
+
 const LEAD_KEY = "rrs_lead_v1";
 
 function saveLeadToStorage(lead: {
