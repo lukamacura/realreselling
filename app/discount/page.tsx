@@ -8,6 +8,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { postRRSWebhook } from "@/lib/webhook";
+import { track, trackCustom } from "@/lib/pixel";
 
 
 const LEAD_KEY = "rrs_lead_v1";
@@ -211,6 +212,24 @@ export default function DiscountSection({
     };
     onContinue?.(payload);
 
+ void trackCustom("CTA_Clicked", {
+    location: "discount_section",
+    variant: "primary",
+    method,
+    codeApplied: applied,
+    code: applied ? normCode(couponCode) : undefined,
+    price: priceToPay,
+  });
+
+  void track("InitiateCheckout", {
+    value: priceToPay,
+    currency: "EUR",
+    num_items: 1,
+    contents: [{ id: "RRS_PROGRAM", quantity: 1, item_price: priceToPay }],
+    content_type: "product",
+    coupon: applied ? normCode(couponCode) : undefined,
+    payment_method: method,
+  });
     postRRSWebhook({
       event: "lead_checkout_started",
       email,
