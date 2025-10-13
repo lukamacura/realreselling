@@ -15,6 +15,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { postRRSWebhook } from "@/lib/webhook";
+import { trackCustom } from "@/lib/pixel";
 
 // Sprečava prerender/SSG koji pravi problem sa useSearchParams
 export const dynamic = "force-dynamic";
@@ -84,6 +85,8 @@ export default function Page() {
 function UplatnicaClient() {
   const sp = useSearchParams();
   const router = useRouter();
+  const firedRef = useRef(false);
+
 
   // Lead state (uvek će imati price=50)
   const [lead, setLead] = useState<{ price: number; code?: string; name?: string; email?: string }>(
@@ -203,6 +206,16 @@ function UplatnicaClient() {
       if (file) fd.append("proof", file);
 
       await postRRSWebhook(fd);
+      if (!firedRef.current) {
+      firedRef.current = true;
+      void trackCustom("Closed - kupio uplatnicom", {
+        value: FIXED_PRICE,
+        currency: "EUR",
+        method: "uplatnica",
+        code: lead.code,
+      });
+      }
+
 
       setSaved(true);
       setSent(true); // trajno zaključaj

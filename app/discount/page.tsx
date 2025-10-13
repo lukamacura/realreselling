@@ -8,7 +8,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { postRRSWebhook } from "@/lib/webhook";
-import { track, trackCustom } from "@/lib/pixel";
+import { track } from "@/lib/pixel";
 
 
 const LEAD_KEY = "rrs_lead_v1";
@@ -212,16 +212,9 @@ export default function DiscountSection({
     };
     onContinue?.(payload);
 
- void trackCustom("CTA_Clicked", {
-    location: "discount_section",
-    variant: "primary",
-    method,
-    codeApplied: applied,
-    code: applied ? normCode(couponCode) : undefined,
-    price: priceToPay,
-  });
 
-  void track("InitiateCheckout", {
+
+  void track("Lead - prosao discount", {
     value: priceToPay,
     currency: "EUR",
     num_items: 1,
