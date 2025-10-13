@@ -14,9 +14,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  // optional:
-  // maximumScale: 1,
-  // viewportFit: "cover",
 };
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -26,8 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="sr" className="dark">
       <body className={`${inter.variable} ${bebas.variable} font-sans bg-brand-dark text-white overflow-x-hidden`}>
-          <PixelTracker />
-
+        <PixelTracker />
         {children}
       </body>
     </html>
