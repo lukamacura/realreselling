@@ -42,7 +42,7 @@ export default function GuaranteeSection() {
         }}
       />
 
-      <div className="container mx-auto max-w-[1100px] px-4 py-16 md:py-24">
+      <div className="container mx-auto max-w-[1100px] px-4 py-0 md:py-24">
         {/* TOP COPY */}
         <header className="text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-zinc-300">

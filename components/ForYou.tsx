@@ -2,19 +2,20 @@
 
 export default function ForYou() {
   const left = [
+    "Ako imaš preko 12 godina",
+    "Ako si spreman da prošetaš do pošte",
+    "Ako imaš telefon",
+
+  ];
+
+  const right = [
     "Ako tražiš pasivni prihod",
     "Ako nećeš da radiš apsolutno ništa",
     "Ako želiš da radiš za nekoga",
   ];
 
-  const right = [
-    "Ako imaš preko 12 godina",
-    "Ako si spreman da prošetaš do pošte",
-    "Ako imaš telefon",
-  ];
-
   return (
-    <section className="bg-brand-dark mx-auto pb-16 md:pb-24">
+    <section className="bg-brand-dark mx-automd:pb-24">
       <div className="container mx-auto max-w-[1100px] px-4">
         {/* Naslov */}
         <h2 className="mb-10 text-center font-display text-4xl leading-[1.1] text-white md:text-6xl">
@@ -33,7 +34,7 @@ export default function ForYou() {
               {left.map((t) => (
                 <div
                   key={t}
-                  className="rounded-[2.2rem] bg-red-500/90 px-6 py-8 text-center text-lg font-semibold text-brand-dark shadow-soft md:text-2xl"
+                  className="rounded-[2.2rem] bg-red-500/90 px-2 py-4 text-center text-md font-semibold text-brand-dark shadow-soft md:text-2xl"
                 >
                   {t}
                 </div>
@@ -51,7 +52,7 @@ export default function ForYou() {
               {right.map((t) => (
                 <div
                   key={t}
-                  className="rounded-[2.2rem] bg-green-500/90 px-6 py-8 text-center text-lg font-semibold text-brand-dark shadow-soft md:text-2xl"
+                  className="rounded-[2.2rem] bg-green-500/90 px-2 py-4 text-center text-md font-semibold text-brand-dark shadow-soft md:text-2xl"
                 >
                   {t}
                 </div>

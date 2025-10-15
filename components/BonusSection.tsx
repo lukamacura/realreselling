@@ -45,9 +45,9 @@ export default function BonusSection() {
               className="object-cover"
             />
           </div>
-            <ul className="list-disc space-y-3 pl-5 leading-relaxed text-white/90">
+            <ul className="list-disc text-sm md:text-md space-y-3 pl-5 leading-relaxed text-white/90">
               <li>
-                Trguješ digitalnim proizvodima – nema kupovine unapred, nema
+                <b>Trguješ digitalnim proizvodima</b> – nema kupovine unapred, nema
                 skladištenja i slanja proizvoda.
               </li>
               <li>
@@ -78,7 +78,7 @@ export default function BonusSection() {
               className="object-cover"
             />
           </div>
-            <ul className="list-disc space-y-3 pl-5 leading-relaxed text-white/90">
+            <ul className="list-disc text-sm md:text-md space-y-3 pl-5 leading-relaxed text-white/90">
               <li>
                 Ranije se dobijao u ekskluzivnom programu, sada ga dobijaš u okviru
                 RealReselling-a.
