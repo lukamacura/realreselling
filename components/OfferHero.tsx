@@ -85,6 +85,28 @@ export default function OfferHeroOptimizedFullMobile({ onOpenQuiz }: { onOpenQui
             {/* LEFT content */}
             <div className="mt-3 md:mt-0">
               <PriceBlock tomorrow={tomorrow} countdown={countdown} />
+               <div className="mt-6 md:mt-10">
+            <div className="flex flex-col items-center gap-2 md:items-start">
+              <div className=" w-full rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-center"><p className="text-xs font-bold text-amber-300">Odgovori na 3 pitanja <span className="whitespace-nowrap">(15 sekundi)</span><span className="ml-1 text-white"> i osvoji JOŠ 10€ popusta (cena je u tom slučaju 50€)!!!</span></p></div>
+              <button
+                id="start-quiz"
+                onClick={handleCTA}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleCTA(e); }}
+                className="group inline-flex w-full md:w-full items-center justify-center font-display text-xl gap-3 rounded-2xl bg-gradient-to-b from-amber-400 to-amber-600 px-6 py-8 font-extrabold text-black transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
+                aria-describedby="cta-desc"
+                data-rr-action="start-quiz"
+              >
+                <Sparkles className="h-6 w-6" />
+                Počni kviz i uzmi 10€ popusta
+              </button>
+
+              <p id="cta-desc" className="text-xs text-white">
+                3 pitanja • 15 sekundi • odmah dobijaš popust
+              </p>
+
+              
+            </div>
+          </div>
 
               {/* Tvoj COLLAPSIBLE: Šta dobijaš */}
               <Collapsible title="Šta sve dobijaš (regularna cena: 150€)" defaultOpen={false} > <ul className="mt-2 space-y-3 rounded-xl text-sm sm:text-base bg-[#0E1319] p-4 ring-1 ring-white/5"> <Feature icon={GraduationCap} text="Vodiči i edukacija" priceNote="(Regularna cena: 60€)" /> <Feature icon={Users} text="Zajednica i podrška" priceNote="(Regularna cena: 50€)" /> <Feature icon={Wrench} text="Alati za prodaju" priceNote="(Regularna cena: 40€)" /> <li className="pt-1 text-right text-sm text-zinc-300"> Ukupno: <span className="font-semibold text-white">150€</span> </li> </ul> </Collapsible> {/* Bonusi */} <Collapsible title="Bonusi (regularna cena: 80€)" defaultOpen={false}> <div className="mt-2 space-y-3 rounded-xl text-sm sm:text-base bg-[#0E1319] p-4 ring-1 ring-white/5"> <Bonus icon={Zap} text="La Digitale - Neko želi da kupi Netflix, ti ga kupiš po najnižoj ceni, i njemu prodaš po višoj." value="(Regularna cena: 40 €)" /> <Bonus icon={Notebook} text="Contactless opcija - mi šaljemo proizvode direktno kupcima, ti samo ubaciš profiti" value="(Regularna cena: 40 €)" /> <Bonus icon={ShieldCheck} text="Pravo na povraćaj novca ili zamenu proizvoda u bilo kojoj situaciji" /> <div className="pt-1 text-right text-sm text-zinc-300"> Ukupno: <span className="font-semibold text-white">80€</span> </div> </div> </Collapsible>
@@ -104,28 +126,7 @@ export default function OfferHeroOptimizedFullMobile({ onOpenQuiz }: { onOpenQui
             </figure>
             
                     {/* GLOBAL CTA — odmah ispod SVEGA */}
-          <div className="mt-6 md:mt-10">
-            <div className="flex flex-col items-center gap-2 md:items-start">
-              <div className="mt-5 w-full rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-center"><p className="text-xs font-bold text-amber-300">Odgovori na 3 pitanja <span className="whitespace-nowrap">(15 sekundi)</span><span className="ml-1 text-white"> i osvoji JOŠ 10€ popusta (cena je u tom slučaju 50€)!!!</span></p></div>
-              <button
-                id="start-quiz"
-                onClick={handleCTA}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleCTA(e); }}
-                className="group inline-flex w-full md:w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-b from-amber-400 to-amber-600 px-6 py-8 text-lg font-extrabold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
-                aria-describedby="cta-desc"
-                data-rr-action="start-quiz"
-              >
-                <Sparkles className="h-6 w-6" />
-                Počni kviz i uzmi +10€ popusta
-              </button>
-
-              <p id="cta-desc" className="text-xs text-white">
-                3 pitanja • 15 sekundi • odmah dobijaš popust
-              </p>
-
-              
-            </div>
-          </div>
+         
 
           </div>
 

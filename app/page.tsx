@@ -80,6 +80,7 @@ const [loading, setLoading] = useState(true);
       <GuaranteeSection />
       <OfferHero onOpenQuiz={() => setQuizOpen(true)}/>
       <Faq />
+
   
       <QuizDiscountPopup
         open={quizOpen}

@@ -101,7 +101,7 @@ export default function BentoGrid() {
       </div>
 
 
-      <a href="#cena" className=" mx-auto block font-display mt-4 w-[93%] rounded-2xl bg-[rgba(212,160,32,.95)] px-4 py-8 text-center text-2xl font-semibold text-black shadow-[0_12px_30px_rgba(212,160,32,.35)] hover:brightness-95 active:scale-[.99]">
+      <a href="#cena" className=" mx-auto block font-display mt-4 w-[93%] rounded-2xl bg-gradient-to-b from-amber-400 to-amber-600 px-4 py-8 text-center text-2xl font-semibold text-black shadow-[0_12px_30px_rgba(212,160,32,.35)] hover:brightness-95 active:scale-[.99]">
               Hoću pristup programu & popust 
       </a>
     </section>

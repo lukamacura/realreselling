@@ -114,6 +114,7 @@ function FaqItem({
           <ChevronDown className="h-5 w-5" />
         </motion.span>
       </button>
+      
 
       <AnimatePresence initial={false}>
         {isOpen && (
@@ -134,9 +135,15 @@ function FaqItem({
                 {answer}
               </motion.p>
             </div>
+            
           </motion.div>
+          
         )}
+        
       </AnimatePresence>
+        
     </motion.div>
+    
+    
   );
 }

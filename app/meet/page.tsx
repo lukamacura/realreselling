@@ -193,9 +193,9 @@ export default function MeetPage() {
                 <motion.div variants={item} className="mt-6">
                   <button
                     onClick={() => setOpen(true)}
-                    className="group font-display font-bold text-2xl inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-12 py-6 text-center text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60 sm:w-auto"
+                    className="group font-display font-bold text-xl inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-4 py-6 text-center text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60 sm:w-auto"
                   >
-                    <CalendarCheck2 className="h-7 w-7 mb-[2px]" />
+                    <CalendarCheck2 className="h-6 w-6 mb-[2px]" />
                     Rezerviši svoje besplatno mesto
                     <span className="pointer-events-none relative -ml-2 inline-block h-0 w-0 overflow-visible">
                       <span className="absolute -left-8 top-1/2 h-10 w-1 -translate-y-1/2 rotate-[18deg] bg-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -211,9 +211,9 @@ export default function MeetPage() {
                   </motion.p>
                   <a
                   href="https://www.youtube.com/watch?v=qGZy5O4kI2k"
-                  className="group mt-4 font-display font-bold text-2xl inline-flex w-full items-center justify-center gap-2 rounded-xl px-8 py-4 text-center text-white border shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60 sm:w-auto"
+                  className="group mt-4 font-display font-bold text-xl inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-4 text-center text-white border shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60 sm:w-auto"
                   >
-                    <PlayCircle className="h-7 w-7 mb-[2px]" />
+                    <PlayCircle className="h-6 w-6 mb-[2px]" />
                     Pogledaj video
                     
                   </a>
