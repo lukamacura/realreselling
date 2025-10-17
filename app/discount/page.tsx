@@ -383,12 +383,22 @@ export default function DiscountSection({
               active={method === "uplatnica"}
               onSelect={() => { setMethod("uplatnica"); upsertLead({ method: "uplatnica" }); }}
             />
-            <PaymentOption
-              icon={CreditCard}
-              label="Kartica"
-              active={method === "kartica"}
-              onSelect={() => { setMethod("kartica"); upsertLead({ method: "kartica" }); }}
-            />
+          {/* Kartica - trenutno nefunkcionalna (crveno), klik ne radi ništa */}
+  <button
+    type="button"
+    aria-pressed="false"
+    aria-disabled="true"
+    onClick={(e) => { e.preventDefault(); /* no-op */ }}
+    className="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition
+               border-rose-400/70 bg-rose-500/10 ring-1 ring-rose-500/30
+               focus:outline-none focus:ring-2 focus:ring-rose-400/60"
+    title="Kartično plaćanje je trenutno nefunkcionalno"
+  >
+    <span className="grid h-9 w-9 place-items-center rounded-lg bg-rose-500/15 text-rose-300 ring-1 ring-rose-500/30">
+      <CreditCard className="h-4 w-4" />
+    </span>
+    <span className="text-rose-300 font-semibold">Kartica (trenutno nefunkcionalna)</span>
+  </button>
           </div>
 
           {/* 5) CTA */}

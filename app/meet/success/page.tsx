@@ -28,7 +28,7 @@ export default function MeetSuccessPage() {
 
           <h1 className="mt-4 text-3xl font-extrabold">Primljeni ste!</h1>
           <p className="mt-2 text-white/80">
-            Mentor će vas kontaktirati putem <b className="text-white">WhatsApp-a</b> u
+            Mentor će vas kontaktirati putem <b className="text-white">WhatsApp, Viber ili SMS-a</b> u
             najkraćem roku da potvrdi termin za besplatni meetup.
           </p>
 
