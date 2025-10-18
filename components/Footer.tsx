@@ -31,7 +31,7 @@ const Footer: React.FC<FooterProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 py-6">
           {/* Left: Copyright */}
           <div className="text-sm text-neutral-600 dark:text-neutral-400">
-            © {year} {brandName}. Sva prava zadržana.
+            © {year} {brandName}. Operated by RR Team Consulting LLC
           </div>
 
           {/* Middle: /terms link */}
