@@ -15,7 +15,7 @@ export default function ForYou() {
   ];
 
   return (
-    <section className="bg-brand-dark mx-automd:pb-24">
+    <section className="bg-brand-dark mx-auto md:pb-24">
       <div className="container mx-auto max-w-[1100px] px-4">
         {/* Naslov */}
         <h2 className="mb-10 text-center font-display text-4xl leading-[1.1] text-white md:text-6xl">
