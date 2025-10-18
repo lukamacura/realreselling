@@ -34,8 +34,9 @@ const TermsPage: React.FC = () => {
         <section>
           <h2>1. Opšte informacije</h2>
           <p>
+            Real Reselling is operated by RR Team Consulting LLC, a registered company in Wyoming, USA
             Real Reselling je online platforma koja posreduje u prodaji i
-            preprodaji proizvoda. Real Reselling <strong>nije registrovana firma</strong> i
+            preprodaji proizvoda. Real Reselling <strong>je registrovana firma</strong> i
             deluje kao posrednik između kupaca i prodavaca, bez pravnog statusa
             preduzeća.
           </p>

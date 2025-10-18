@@ -30,8 +30,8 @@ const Footer: React.FC<FooterProps> = ({
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 py-6">
           {/* Left: Copyright */}
-          <div className="text-sm text-neutral-600 dark:text-neutral-400">
-            © {year} {brandName}. Operated by RR Team Consulting LLC
+          <div className="text-md text-neutral-600 dark:text-neutral-400">
+            © {year} {brandName}. Real Reselling is operated by RR Team Consulting LLC, a registered company in Wyoming, USA
           </div>
 
           {/* Middle: /terms link */}
