@@ -16,6 +16,7 @@ import SocialProofBuy from "@/components/SocialProofBuy";
 import QuizDiscountPopup from "@/components/QuizDiscountPopup";
 import VSLPlayer from "@/components/VSLPlayer";
 import TestimonialsYTVideos, { ResultsImagesSection } from "@/components/Testimonials";
+import { redirect } from "next/navigation";
 
 // gde koristiš toast
 
@@ -31,8 +32,12 @@ const [loading, setLoading] = useState(true);
 
     const [quizOpen, setQuizOpen] = useState(false);
 
+      redirect("/odrzavanje");
+
+
   return (
     <>
+    
      <Preloader active={loading} onDone={() => console.log("preloader done")} cycleMs={1100} />
       <Navigation />
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
