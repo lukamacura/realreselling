@@ -16,7 +16,7 @@ import SocialProofBuy from "@/components/SocialProofBuy";
 import QuizDiscountPopup from "@/components/QuizDiscountPopup";
 import VSLPlayer from "@/components/VSLPlayer";
 import TestimonialsYTVideos, { ResultsImagesSection } from "@/components/Testimonials";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 
 // gde koristiš toast
 
@@ -32,7 +32,7 @@ const [loading, setLoading] = useState(true);
 
     const [quizOpen, setQuizOpen] = useState(false);
 
-      redirect("/odrzavanje");
+      // redirect("/odrzavanje");
 
 
   return (

@@ -37,9 +37,15 @@ const Footer: React.FC<FooterProps> = ({
           {/* Middle: /terms link */}
           <a
             href="/terms"
-            className="text-sm font-medium text-neutral-700 hover:text-black dark:text-neutral-300 dark:hover:text-white underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 rounded"
+            className="text-xs font-medium text-neutral-700 hover:text-black dark:text-neutral-300 dark:hover:text-white underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 rounded"
           >
-            Uslovi i politika
+            Terms of Service
+          </a>
+          <a
+            href="/privacy"
+            className="text-xs font-medium text-neutral-700 hover:text-black dark:text-neutral-300 dark:hover:text-white underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 rounded"
+          >
+            Privacy Policy
           </a>
 
           {/* Right: Instagram */}

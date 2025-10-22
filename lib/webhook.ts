@@ -1,4 +1,3 @@
-// lib/webhook.ts
 export type RRSEvent =
   | "lead_checkout_started"
   | "purchase_completed"
@@ -22,13 +21,21 @@ export type BasePayload = {
 
 export async function postRRSWebhook(payload: BasePayload | FormData) {
   try {
-    const isFD = typeof FormData !== "undefined" && payload instanceof FormData;
-    const res = await fetch("/api/leads", {
+    const isFormData = typeof FormData !== "undefined" && payload instanceof FormData;
+    const isServer = typeof window === "undefined";
+
+    const base = isServer
+      ? (process.env.NEXT_PUBLIC_BASE_URL
+          || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"))
+      : "";
+
+    const res = await fetch(`${base}/api/leads`, {
       method: "POST",
-      headers: isFD ? undefined : { "content-type": "application/json" }, // ⚠️
-      body: isFD ? payload : JSON.stringify(payload),
-      keepalive: true,
+      headers: isFormData ? undefined : { "content-type": "application/json" },
+      body: isFormData ? payload : JSON.stringify(payload),
+      ...(isServer ? {} : { keepalive: true }),
     });
+
     if (!res.ok) console.warn("[RRS] /api/leads status:", res.status);
   } catch (e) {
     console.warn("[RRS] proxy error", e);

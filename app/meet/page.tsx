@@ -27,7 +27,7 @@ import {
   type Variants,
 } from "framer-motion";
 import VSLPlayer from "@/components/VSLPlayer";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 
 const easeStandard = cubicBezier(0.22, 1, 0.36, 1);
 
@@ -56,7 +56,7 @@ const listItem: Variants = {
 };
 
 export default function MeetPage() {
-        redirect("/odrzavanje");
+        // redirect("/odrzavanje");
 
   const pathname = usePathname();
 

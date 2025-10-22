@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { postRRSWebhook } from "@/lib/webhook";
 import { track } from "@/lib/pixel";
 
-
 const LEAD_KEY = "rrs_lead_v1";
 
 function saveLeadToStorage(lead: {
@@ -20,17 +19,11 @@ function saveLeadToStorage(lead: {
   price: number;
   method: "uplatnica" | "kartica";
 }) {
-  const ttlMinutes = 72 * 60; // važi 72h
-  const payload = {
-    ...lead,
-    exp: Date.now() + ttlMinutes * 60 * 1000,
-  };
-  try {
-    localStorage.setItem(LEAD_KEY, JSON.stringify(payload));
-  } catch {}
+  const ttlMinutes = 72 * 60;
+  const payload = { ...lead, exp: Date.now() + ttlMinutes * 60 * 1000 };
+  try { localStorage.setItem(LEAD_KEY, JSON.stringify(payload)); } catch {}
 }
 
-// ✅ Partial upsert (koristi se kad se samo kupon primeni)
 function upsertLead(partial: {
   name?: string;
   email?: string;
@@ -41,11 +34,7 @@ function upsertLead(partial: {
   try {
     const raw = localStorage.getItem(LEAD_KEY);
     const cur = raw ? JSON.parse(raw) : {};
-    const next = {
-      ...cur,
-      ...partial,
-      exp: Date.now() + 72 * 60 * 60 * 1000, // produži važenje 72h
-    };
+    const next = { ...cur, ...partial, exp: Date.now() + 72 * 60 * 60 * 1000 };
     localStorage.setItem(LEAD_KEY, JSON.stringify(next));
   } catch {}
 }
@@ -78,8 +67,8 @@ export default function DiscountSection({
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
   const [missingCodeWarn, setMissingCodeWarn] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // animirana cena
   const [displayPrice, setDisplayPrice] = useState(basePrice);
   const animRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -90,47 +79,29 @@ export default function DiscountSection({
   const [emailErr, setEmailErr] = useState("");
   const nameInputRef = useRef<HTMLInputElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const submittingRef = useRef(false); // anti-double-click
+
+  const router = useRouter();
 
   const normCode = (c?: string) => (c ? String(c).trim().toUpperCase() : undefined);
-
-  function validateEmail(v: string) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-  }
+  const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
   useEffect(() => setDisplayPrice(basePrice), [basePrice]);
 
   useEffect(() => {
     const target = applied ? Math.max(0, basePrice - couponValue) : basePrice;
-
-    // prekini staru animaciju
-    if (animRef.current) {
-      clearInterval(animRef.current);
-      animRef.current = null;
-    }
+    if (animRef.current) { clearInterval(animRef.current); animRef.current = null; }
     if (displayPrice === target) return;
-
     const TICK_MS = 35;
     animRef.current = setInterval(() => {
       setDisplayPrice((prev) => {
-        if (prev === target) {
-          if (animRef.current) {
-            clearInterval(animRef.current);
-            animRef.current = null;
-          }
-          return prev;
-        }
+        if (prev === target) { if (animRef.current) { clearInterval(animRef.current); animRef.current = null; } return prev; }
         const dir = prev < target ? 1 : -1;
         const next = prev + dir;
         return (dir > 0 && next > target) || (dir < 0 && next < target) ? target : next;
       });
     }, TICK_MS);
-
-    return () => {
-      if (animRef.current) {
-        clearInterval(animRef.current);
-        animRef.current = null;
-      }
-    };
+    return () => { if (animRef.current) { clearInterval(animRef.current); animRef.current = null; } };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applied, basePrice, couponValue]);
 
@@ -142,66 +113,39 @@ export default function DiscountSection({
   function applyCode() {
     const normalized = normCode(code);
     const ok = normalized === normCode(couponCode);
-
     setApplied(ok);
     setError(ok ? "" : "Netačan kod. Pokušaj ponovo.");
-
-    if (!ok) {
-      inputRef.current?.focus();
-      return;
-    }
-
+    if (!ok) { inputRef.current?.focus(); return; }
     setMissingCodeWarn(false);
-
-    // ✅ ODMAH zapiši u LS da /uplatnica i /kartica znaju za kupon i cenu
     upsertLead({
-      code: normalized,                              // npr. "RRS25"
-      price: Math.max(0, basePrice - couponValue),   // 50€
-      name: name?.trim() || undefined,               // ako je već upisao
+      code: normalized,
+      price: Math.max(0, basePrice - couponValue),
+      name: name?.trim() || undefined,
       email: email?.trim() || undefined,
-      method,                                        // trenutna metoda
+      method,
     });
   }
 
   async function copyCodeToInput() {
     setCode(couponCode);
-    try {
-      await navigator.clipboard.writeText(couponCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1200);
-    } catch {
-      /* no-op */
-    }
+    try { await navigator.clipboard.writeText(couponCode); setCopied(true); setTimeout(() => setCopied(false), 1200); } catch {}
     inputRef.current?.focus();
   }
 
-  const router = useRouter();
-
-  function handleContinue() {
-    // 1) Kod obavezan
+  // Validacija i side-effects (lead + tracking + LS). Vraća payload ili null.
+  function validateAndPrepare() {
     if (!applied) {
       setMissingCodeWarn(true);
       setError("");
       inputRef.current?.focus();
       couponPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
+      return null;
     }
-
-    // 2) Ime/Email obavezni
     let ok = true;
-    if (name.trim().length < 3) {
-      setNameErr("Unesi ime.");
-      nameInputRef.current?.focus();
-      ok = false;
-    }
-    if (!validateEmail(email)) {
-      setEmailErr("Unesi validan email.");
-      if (ok) emailInputRef.current?.focus();
-      ok = false;
-    }
-    if (!ok) return;
+    if (name.trim().length < 3) { setNameErr("Unesi ime."); nameInputRef.current?.focus(); ok = false; }
+    if (!validateEmail(email)) { setEmailErr("Unesi validan email."); if (ok) emailInputRef.current?.focus(); ok = false; }
+    if (!ok) return null;
 
-    // 3) Emituj payload
     const payload = {
       method,
       codeApplied: applied,
@@ -210,19 +154,19 @@ export default function DiscountSection({
       name,
       email,
     };
+
     onContinue?.(payload);
+    void track("Lead - prosao discount", {
+      value: priceToPay,
+      currency: "EUR",
+      num_items: 1,
+      contents: [{ id: "RRS_PROGRAM", quantity: 1, item_price: priceToPay }],
+      content_type: "product",
+      coupon: applied ? normCode(couponCode) : undefined,
+      payment_method: method,
+    });
 
-
-
-  void track("Lead - prosao discount", {
-    value: priceToPay,
-    currency: "EUR",
-    num_items: 1,
-    contents: [{ id: "RRS_PROGRAM", quantity: 1, item_price: priceToPay }],
-    content_type: "product",
-    coupon: applied ? normCode(couponCode) : undefined,
-    payment_method: method,
-  });
+    // lead_checkout_started – šaljemo SAMO ovde (CTA), jednom
     postRRSWebhook({
       event: "lead_checkout_started",
       email,
@@ -238,14 +182,6 @@ export default function DiscountSection({
       },
     });
 
-    // 4) Prosledi kroz query
-    const qs = new URLSearchParams();
-    qs.set("price", String(priceToPay));
-    if (applied) qs.set("code", normCode(couponCode)!);
-    qs.set("name", name);
-    qs.set("email", email);
-
-    // 3.5) Sačuvaj lead u localStorage (fallback ako user dođe kasnije)
     saveLeadToStorage({
       name,
       email,
@@ -254,7 +190,54 @@ export default function DiscountSection({
       method,
     });
 
-    router.push(`${method === "uplatnica" ? "/uplatnica" : "/kartica"}?${qs.toString()}`);
+    return payload;
+  }
+
+  async function startStripeCheckout(prepared?: ReturnType<typeof validateAndPrepare>) {
+    const payload = prepared ?? validateAndPrepare();
+    if (!payload || loading) return;
+    try {
+      setLoading(true);
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ price: payload.priceToPay, email: payload.email }),
+      });
+      const data = await res.json();
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        setError("Došlo je do greške pri povezivanju sa Stripe-om.");
+      }
+    } catch {
+      setError("Došlo je do greške pri povezivanju sa Stripe-om.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleContinue() {
+    if (submittingRef.current) return; // anti-double-click
+    submittingRef.current = true;
+    try {
+      const prepared = validateAndPrepare();
+      if (!prepared) return;
+
+      if (prepared.method === "kartica") {
+        await startStripeCheckout(prepared);
+        return;
+      }
+
+      // uplatnica → vodi na /uplatnica
+      const qs = new URLSearchParams();
+      qs.set("price", String(prepared.priceToPay));
+      if (prepared.code) qs.set("code", prepared.code);
+      qs.set("name", prepared.name);
+      qs.set("email", prepared.email);
+      router.push(`/uplatnica?${qs.toString()}`);
+    } finally {
+      submittingRef.current = false;
+    }
   }
 
   return (
@@ -383,28 +366,22 @@ export default function DiscountSection({
               active={method === "uplatnica"}
               onSelect={() => { setMethod("uplatnica"); upsertLead({ method: "uplatnica" }); }}
             />
-          {/* Kartica - trenutno nefunkcionalna (crveno), klik ne radi ništa */}
-  <button
-    type="button"
-    aria-pressed="false"
-    aria-disabled="true"
-    onClick={(e) => { e.preventDefault(); /* no-op */ }}
-    className="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition
-               border-rose-400/70 bg-rose-500/10 ring-1 ring-rose-500/30
-               focus:outline-none focus:ring-2 focus:ring-rose-400/60"
-    title="Kartično plaćanje je trenutno nefunkcionalno"
-  >
-    <span className="grid h-9 w-9 place-items-center rounded-lg bg-rose-500/15 text-rose-300 ring-1 ring-rose-500/30">
-      <CreditCard className="h-4 w-4" />
-    </span>
-    <span className="text-rose-300 font-semibold">Kartica (trenutno nefunkcionalna)</span>
-  </button>
+            <PaymentOption
+              icon={CreditCard}
+              label="Kartica (Stripe)"
+              active={method === "kartica"}
+              onSelect={() => { setMethod("kartica"); upsertLead({ method: "kartica" }); }}
+            />
+            <p className="text-xs text-white/40">
+                Kartica je nefunkcionalna: trenutno je test faza jer smo uveli stripe
+            </p>
           </div>
 
           {/* 5) CTA */}
           <button
             onClick={handleContinue}
-            className="mt-6 w-full border rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-4 py-8 text-xl shadow-[0_12px_36px_rgba(212,160,32,0.25)] text-black font-display font-bold transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-400/60"
+            disabled={loading}
+            className="mt-6 w-full border rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-4 py-8 text-xl shadow-[0_12px_36px_rgba(212,160,32,0.25)] text-black font-display font-bold transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-400/60 disabled:opacity-60"
           >
             <span className="inline-flex items-center gap-2">
               <Sparkles className="h-5 w-5" />
@@ -435,14 +412,21 @@ function PaymentOption({
       type="button"
       onClick={onSelect}
       aria-pressed={active}
-      className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-amber-400/60 ${
-        active ? "border-amber-400 bg-amber-400/10" : "border-white/10 hover:bg-white/5"
-      }`}
+      className={[
+        "flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition",
+        "focus:outline-none focus:ring-2 focus:ring-amber-400/60",
+        active ? "border border-amber-400 bg-amber-400/10" : "border-0 bg-transparent hover:bg-white/5"
+      ].join(" ")}
     >
-      <span className="grid h-9 w-9 place-items-center rounded-lg bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">
+      <span
+        className={[
+          "grid h-9 w-9 place-items-center rounded-lg ring-1",
+          active ? "bg-amber-500/15 text-amber-300 ring-amber-500/30" : "bg-white/5 text-white/60 ring-white/10"
+        ].join(" ")}
+      >
         <Icon className="h-4 w-4" />
       </span>
-      <span className="text-white/90">{label}</span>
+      <span className={active ? "text-amber-300 font-semibold" : "text-white/70"}>{label}</span>
     </button>
   );
 }

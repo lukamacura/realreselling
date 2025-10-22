@@ -29,7 +29,7 @@ export default function TermsPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 sm:px-6 py-10 prose prose-neutral dark:prose-invert">
-      <h1 className="mb-2">Uslovi i politika</h1>
+      <h1 className="mb-2">Terms of Service</h1>
       <p className="text-sm text-neutral-500 dark:text-neutral-400">
         Poslednje ažuriranje: {lastUpdated}
       </p>
@@ -95,7 +95,7 @@ export default function TermsPage() {
         <h2>7. Kontakt</h2>
         <p>
           Za pitanja ili informacije pišite na{" "}
-          <a href="mailto:support@realreselling.com">support@realreselling.com</a>{" "}
+          <a href="mailto:realresellingmentor@gmail.com">realresellingmentor@gmail.com</a>{" "}
           ili nam se obratite putem kanala navedenih na sajtu.
         </p>
       </section>
@@ -122,6 +122,21 @@ export default function TermsPage() {
       <hr className="my-8" />
       <p className="text-sm text-neutral-500 dark:text-neutral-400">
         Napomena: Ovaj tekst je informativnog karaktera i ne predstavlja pravni savet.
+      </p>
+      <p className="text-sm text-neutral-500 dark:text-neutral-400">
+        By purchasing access to our consulting or educational programs, you agree to the following terms: <br />
+
+        1. Upon purchase, you receive lifetime access to our private educational group, materials, and community resources.
+      <br />  2. All digital materials, videos, and group content are intended for educational and informational purposes only.
+       <br /> 3. Because access is granted immediately after payment, all sales are final and non-refundable, except in cases covered by our satisfaction guarantee (see below).
+       <br /> 4. Our guarantee applies only if the client has completed at least 90% of the provided program and followed all given instructions. 
+          If less than 90% of the program was completed, the guarantee becomes void. This policy exists to prevent misuse of our services.
+     <br />   5. You agree not to share, resell, or distribute any of the provided materials or group access.
+     <br />   6. We may update or improve the content over time to keep it relevant, but your access will remain active.
+     <br />   7. For any questions or concerns, feel free to contact us at rrteamconsultingllc@gmail.com.
+
+        RR Team Consulting LLC  
+        33 N Gould St, Sheridan, WY 82801
       </p>
 
       <div className="mt-8">
