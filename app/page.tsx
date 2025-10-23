@@ -1,8 +1,7 @@
 "use client";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import Preloader from "@/components/Preloader";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Hero from "@/components/Hero";
 import BentoGrid from "@/components/BentoGrid";
 import SpecialOffer from "@/components/SpecialOffer";
@@ -22,13 +21,7 @@ import TestimonialsYTVideos, { ResultsImagesSection } from "@/components/Testimo
 
 
 export default function Home() {
-const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-    // Simulacija fetch-a / inicijalizacije
-    const t = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(t);
-  }, []);
 
     const [quizOpen, setQuizOpen] = useState(false);
 
@@ -38,7 +31,6 @@ const [loading, setLoading] = useState(true);
   return (
     <>
     
-     <Preloader active={loading} onDone={() => console.log("preloader done")} cycleMs={1100} />
       <Navigation />
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
       <SocialProofBuy />

@@ -18,7 +18,6 @@ import {
   Lightbulb,
   PlayCircle,
 } from "lucide-react";
-import Preloader from "@/components/Preloader";
 
 import {
   motion,
@@ -108,11 +107,7 @@ export default function MeetPage() {
 
   return (
     <>
-      <Preloader
-        active={loading}
-        onDone={() => {}}
-        cycleMs={900}
-      />
+   
 
       {/* Ako želiš da poštuješ sistemske postavke, promeni na reducedMotion="user" */}
       <MotionConfig reducedMotion="never">

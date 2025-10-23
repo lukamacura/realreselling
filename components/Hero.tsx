@@ -218,13 +218,11 @@ export default function Hero() {
                 <motion.div variants={fadeUp} className="relative w-full max-w-[640px]">
                   <Link
                     href="#sta-dobijam"
-                    className="group relative inline-flex w-full items-center justify-center rounded-[28px] bg-brand-gold px-4 py-6 font-display text-xl font-bold text-brand-dark shadow-[0_10px_30px_rgba(212,160,32,.35)] transition md:text-2xl hover:bg-brand-goldDark"
+                    className="group relative inline-flex w-full items-center justify-center rounded-[28px] bg-brand-gold px-4 py-6 font-display text-xl font-bold text-brand-dark transition md:text-2xl hover:bg-brand-goldDark"
                   >
                     <Rocket className="mb-[3px] mr-[4px] h-9 w-9 text-brand-dark transition-transform group-hover:scale-110" aria-hidden />
                     Hoću da zarađujem od resellinga
-                    <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
-                      <span className="absolute -inset-y-1 -left-1 h-[200%] w-1 rotate-[20deg] bg-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    </span>
+                 
                   </Link>
                 </motion.div>
 
@@ -235,9 +233,7 @@ export default function Hero() {
                   >
                     <PlayCircle className="mb-[3px] mr-[4px] h-9 w-9 text-white transition-transform group-hover:scale-110" aria-hidden />
                     Pogledaj video
-                    <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
-                      <span className="absolute -inset-y-1 -left-1 h-[200%] w-1 rotate-[20deg] bg-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    </span>
+
                   </Link>
                 </motion.div>
               </motion.div>
