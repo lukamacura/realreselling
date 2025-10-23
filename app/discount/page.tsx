@@ -372,9 +372,7 @@ export default function DiscountSection({
               active={method === "kartica"}
               onSelect={() => { setMethod("kartica"); upsertLead({ method: "kartica" }); }}
             />
-            <p className="text-xs text-white/40">
-                Kartica je nefunkcionalna: trenutno je test faza jer smo uveli stripe
-            </p>
+            
           </div>
 
           {/* 5) CTA */}
