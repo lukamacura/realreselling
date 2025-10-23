@@ -221,7 +221,7 @@ function UplatnicaClient() {
       setSaved(true);
       setSent(true); // trajno zaključaj
 
-      router.replace("/success");
+      router.replace("/uplatnica/success");
 
       setTimeout(() => setSaved(false), 1600);
     } finally {
