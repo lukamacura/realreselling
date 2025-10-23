@@ -3,19 +3,46 @@
 
 import { useEffect } from "react";
 import { PackageCheck } from "lucide-react";
+import { trackCustom } from "@/lib/pixel";
+
+const FIXED_PRICE = 50; // paritet sa uplatnicom
 
 export default function SuccessPage() {
   useEffect(() => {
     const sid = new URLSearchParams(window.location.search).get("session_id");
     if (!sid) return;
 
-    // Fire-and-forget; keepalive pomaže ako user brzo navigira dalje
-    fetch("/api/checkout/confirm", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ session_id: sid }),
-      keepalive: true,
-    }).catch(() => {});
+    (async () => {
+      try {
+        // Fire-and-forget ponašanje ostaje, ali sačekamo odgovor da znamo da je potvrđeno
+        const res = await fetch("/api/checkout/confirm", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ session_id: sid }),
+          keepalive: true,
+        });
+
+        // Ako tvoj API vraća { ok: true } — uzmi to u obzir; u suprotnom, koristi res.ok
+        let ok = res.ok;
+        try {
+          const data = await res.json();
+          if (typeof data?.ok === "boolean") ok = data.ok;
+        } catch {
+          // ako nema JSON-a, samo ostavi ok = res.ok
+        }
+
+        if (!ok) return;
+
+        // ✅ Pixel event (isto kao za uplatnicu, samo method i naziv)
+        trackCustom("Closed - kupio karticom", {
+          value: FIXED_PRICE,
+          currency: "EUR",
+          method: "kartica",
+        });
+      } catch {
+        // tiho — ne rušimo UX na success stranici
+      }
+    })();
   }, []);
 
   return (
