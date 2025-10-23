@@ -214,11 +214,15 @@ function UplatnicaClient() {
         method: "uplatnica",
         code: lead.code,
       });
+
       }
 
 
       setSaved(true);
       setSent(true); // trajno zaključaj
+
+      router.replace("/success");
+
       setTimeout(() => setSaved(false), 1600);
     } finally {
       setBusy(false);

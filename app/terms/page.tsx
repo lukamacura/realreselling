@@ -112,8 +112,7 @@ export default function TermsPage() {
       <section>
         <h2>9. Odricanje od odgovornosti (Disclaimer)</h2>
         <p>
-          RR Team Consulting pruža edukativne i konsultantske usluge za preduzetnike i mala
-          preduzeća. Obuke, strategijske smernice i digitalni resursi služe isključivo u
+          RR Team Consulting pruža edukativne i konsultantske usluge. Obuke, strategijske smernice i digitalni resursi služe isključivo u
           edukativne svrhe. Ne garantujemo specifične rezultate ili zaradu, jer ishodi zavise od
           individualnog angažovanja i okolnosti svakog korisnika.
         </p>
