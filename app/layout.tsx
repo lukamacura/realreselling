@@ -4,7 +4,7 @@ import { Inter, Bebas_Neue } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import PixelTracker from "../components/PixelTracker"; // ⬅ direktan import klijentske komponente
-
+import { Analytics } from "@vercel/analytics/next"
 export const metadata: Metadata = {
   title: "Real Reselling",
   description: "Prva online zarada od resellinga u 30 dana ili vraćamo novac.",
@@ -20,6 +20,7 @@ const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
+    
     <html lang="sr" className="dark">
       <head>
         <Script id="fb-pixel" strategy="afterInteractive">
@@ -47,8 +48,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </noscript>
       </head>
       <body className={`${inter.variable} ${bebas.variable} font-sans bg-brand-dark text-white overflow-x-hidden`}>
-        <PixelTracker /> {/* klijentska komponenta, bez dynamic/ssr:false */}
         {children}
+        <Analytics />
+        <PixelTracker />
       </body>
     </html>
   );
