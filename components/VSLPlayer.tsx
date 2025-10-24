@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useRef, useState } from "react";
@@ -30,14 +31,49 @@ export default function SmartVideo({
   const [current, setCurrent] = useState(0);
   const [isFs, setIsFs] = useState(false);
 
+  // NEW: simple UI visibility with auto-hide
+  const [uiVisible, setUiVisible] = useState(true);
+  const hideTimeoutRef = useRef<number | null>(null);
+
+  const clearHideTimer = () => {
+    if (hideTimeoutRef.current) {
+      window.clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+  };
+
+  const scheduleAutoHide = () => {
+    clearHideTimer();
+    if (!isPlaying) return; // don't auto-hide while paused
+    hideTimeoutRef.current = window.setTimeout(() => setUiVisible(false), 1000);
+  };
+
+  const showUI = (persist = false) => {
+    setUiVisible(true);
+    if (persist) {
+      clearHideTimer();
+    } else {
+      scheduleAutoHide();
+    }
+  };
+
   // Wire basic video events (bez init zvuka ovde, da deps budu čisti)
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
 
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    const onEnded = () => setIsPlaying(false);
+    const onPlay = () => {
+      setIsPlaying(true);
+      scheduleAutoHide();
+    };
+    const onPause = () => {
+      setIsPlaying(false);
+      showUI(true); // keep controls visible while paused
+    };
+    const onEnded = () => {
+      setIsPlaying(false);
+      showUI(true);
+    };
     const onLoaded = () => setDuration(v.duration || 0);
     const onTime = () => setCurrent(v.currentTime || 0);
 
@@ -57,6 +93,7 @@ export default function SmartVideo({
       v.removeEventListener("ended", onEnded);
       v.removeEventListener("loadedmetadata", onLoaded);
       v.removeEventListener("timeupdate", onTime);
+      clearHideTimer();
     };
   }, []);
 
@@ -77,6 +114,7 @@ export default function SmartVideo({
         docAny?.webkitFullscreenElement ||
         docAny?.msFullscreenElement;
       setIsFs(!!fsEl);
+      showUI(true); // show controls when FS toggles
     };
     document.addEventListener("fullscreenchange", onFsChange);
     (document as any).addEventListener?.("webkitfullscreenchange", onFsChange);
@@ -151,11 +189,23 @@ export default function SmartVideo({
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
+  // Handlers for UI visibility
+  const onVideoClick = () => {
+    // toggle only UI; playing state stays as-is
+    setUiVisible((v) => {
+      const next = !v;
+      if (next) scheduleAutoHide(); else clearHideTimer();
+      return next;
+    });
+  };
+  const onMouseMove = () => showUI();
+
   return (
     <div
       ref={wrapRef}
-      className={`relative mx-auto md:w-[80%] overflow-hidden rounded-2xl bg-black ${className}`}
+      className={`relative mx-auto md:w-[80%] overflow-hidden rounded-2xl bg-black ${className} ${uiVisible ? "cursor-default" : "cursor-none"}`}
       style={{ aspectRatio }}
+      onMouseMove={onMouseMove}
     >
       <video
         ref={videoRef}
@@ -166,6 +216,7 @@ export default function SmartVideo({
         controls={false}
         preload="metadata"
         className="h-full w-full object-cover"
+        onClick={onVideoClick}
       >
         {sources.map((s) => (
           <source key={s.src} src={s.src} type={s.type} />
@@ -173,18 +224,22 @@ export default function SmartVideo({
         Your browser does not support HTML5 video.
       </video>
 
-      {/* centralni Play overlay */}
-      {!isPlaying && (
+      {/* centralni Play overlay (sakrij kad je UI sakriven) */}
+      {!isPlaying && uiVisible && (
         <button
           onClick={play}
           aria-label="Pusti"
-          className="absolute inset-0 m-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/20 backdrop-blur hover:bg-white/30">
+          className="absolute inset-0 m-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/20 backdrop-blur transition-opacity hover:bg-white/30"
+        >
           <Play className="h-8 w-8 text-white" />
         </button>
       )}
 
       {/* kontrole: scrub + play/pause + mute/volume + fullscreen */}
-      <div className="absolute bottom-0 left-0 right-0 flex flex-col gap-2 bg-gradient-to-t from-black/60 to-transparent p-3">
+      <div
+        className={`absolute bottom-0 left-0 right-0 flex flex-col gap-2 bg-gradient-to-t from-black/60 to-transparent p-3 transition-opacity ${uiVisible ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        aria-hidden={!uiVisible}
+      >
         <div className="flex items-center gap-2">
           <span className="w-10 text-right text-xs text-white/80">{fmt(current)}</span>
           <input
