@@ -259,14 +259,14 @@ export default function MeetPage() {
               ))}
             </motion.div>
 
-            {/* VSL */}
+       
             <VSLPlayer
-              poster="/vsl2-poster.jpg"
-              sources={[
-                { src: "/vsl2.webm", type: "video/webm" },
-                { src: "/vsl2.mp4",  type: "video/mp4"  },
-              ]}
-            />
+                    poster="/thumb1.png"
+                    sources={[
+                      { src: "/vsl2.webm", type: "video/webm" }, // opcionalno
+                      { src: "/vsl2.mp4",  type: "video/mp4"  },
+                    ]}
+                  />
 
             <motion.div key={`end-${replayKey}`} variants={item}>
               <MeetBento />

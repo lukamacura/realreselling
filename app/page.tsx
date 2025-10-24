@@ -36,7 +36,7 @@ export default function Home() {
       <SocialProofBuy />
       <Hero />
       <VSLPlayer
-        poster="/vsl1-poster.jpg"
+        poster="/thumb1.png"
         sources={[
           { src: "/vsl1.webm", type: "video/webm" }, // opcionalno
           { src: "/vsl1.mp4",  type: "video/mp4"  },
