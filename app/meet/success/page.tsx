@@ -1,7 +1,7 @@
 // app/meet/success/page.tsx
 "use client";
 
-import { CheckCircle2, MessageCircle, Phone, Users, ArrowLeftCircle } from "lucide-react";
+import { CheckCircle2, MessageCircle, Phone, Users, ArrowLeftCircle,  } from "lucide-react";
 import Link from "next/link";
 
 export default function MeetSuccessPage() {
@@ -34,6 +34,12 @@ export default function MeetSuccessPage() {
 
           <ul className="mt-6 grid gap-3 text-sm text-white/80">
             <li className="mx-auto flex max-w-[520px] items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+              <Users className="h-8 w-8 text-amber-300" />
+              <span>
+              <b>Preko ovog linka pristupite WA grupi: </b><a className="text-yellow-500 font-bold" href="https://whatsapp.com/channel/0029Vb6Z3ta30LKVLnYf7A0A">Grupa</a>
+              </span>
+            </li>
+            <li className="mx-auto flex max-w-[520px] items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
               <Phone className="h-8 w-8 text-amber-300" />
               <span>
               <b>Držite telefon pri ruci</b> (može stići poruka ili poziv).
@@ -46,14 +52,7 @@ export default function MeetSuccessPage() {
               </span>
               
             </li>
-            <li className="mx-auto flex max-w-[520px] items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-            <Users className="h-8 w-8 text-amber-300" />
-
-            <span>
-              Bonus: dobijate pristup našoj WhatsApp grupi - <b>Reselling Room.</b>
-            </span>
-              
-            </li>
+       
           </ul>
 
           <div className="mt-8 flex flex-col justify-center gap-3">

@@ -110,6 +110,9 @@ export default function OfferHeroOneScreen({ onOpenQuiz }: { onOpenQuiz?: () => 
 
             {/* CTA */}
             <div className="space-y-1">
+              <p id="cta-desc" className="text-center text-xs text-zinc-300">
+                👇 Klikni na dugme kako bi pristupio programu 👇
+              </p>
               <button
                 id="start-quiz"
                 onClick={handleCTA}

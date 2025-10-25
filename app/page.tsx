@@ -10,6 +10,7 @@ import ForYou from "@/components/ForYou";
 import ThreeSteps from "@/components/ThreeSteps";
 import GuaranteeSection from "@/components/GuaranteeSection";
 import OfferHero from "@/components/OfferHero";
+import PriceComparison from "@/components/PriceComparison";
 import Faq from "@/components/Faq";
 import SocialProofBuy from "@/components/SocialProofBuy";
 import QuizDiscountPopup from "@/components/QuizDiscountPopup";
@@ -77,6 +78,18 @@ export default function Home() {
       <GuaranteeSection />
       <OfferHero onOpenQuiz={() => setQuizOpen(true)}/>
       <Faq />
+        <PriceComparison
+  currency="EUR"
+  WhatsAppUrl="https://whatsapp.com/channel/0029Vb6Z3ta30LKVLnYf7A0A"
+  groupUrl="#cena"
+  intervalMs={3000} // npr. 3000ms = 3s
+  products={[
+    { image: "/p1.png", priceRegular: 65,  priceWithGroup: 25 },
+    { image: "/p2.png", priceRegular: 100, priceWithGroup: 50 },
+    { image: "/p3.png", priceRegular: 50,  priceWithGroup: 20 },
+    { image: "/p4.png", priceRegular: 85,    priceWithGroup: 50 },
+  ]}
+/>
 
   
       <QuizDiscountPopup
