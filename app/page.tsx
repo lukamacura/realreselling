@@ -13,17 +13,16 @@ import Youtube from "@/components/Youtube"; // vidi dole
 export default function Page() {
   return (
     <>
-      <Navigation />
+      {/* <Navigation />
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         
         <SocialProofBuy />
         <Hero />
-        {/* sve ostalo što ti je već lazy – prebačeno u ClientHome */}
         <Youtube videoId="YHgKyEFUQeE" title="VSL" />
 
         <ClientHome />
         <Footer />
-      </main>
+      </main> */}
     </>
   );
 }
