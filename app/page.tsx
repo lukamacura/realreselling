@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import SocialProofBuy from "@/components/SocialProofBuy";
 import ClientHome from "@/components/client-home"; // vidi dole
-import VSLPlayer from "@/components/VSLPlayer"; // vidi dole
+import Youtube from "@/components/Youtube"; // vidi dole
 
 
 export default function Page() {
@@ -19,7 +19,7 @@ export default function Page() {
         <SocialProofBuy />
         <Hero />
         {/* sve ostalo što ti je već lazy – prebačeno u ClientHome */}
-        <VSLPlayer src="/vsl1.mp4" poster="/thumb1.png" />
+        <Youtube videoId="YHgKyEFUQeE" title="VSL" />
 
         <ClientHome />
         <Footer />

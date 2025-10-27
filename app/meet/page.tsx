@@ -25,7 +25,7 @@ import {
   cubicBezier,
   type Variants,
 } from "framer-motion";
-import VSLPlayer from "@/components/VSLPlayer";
+import Youtube from "@/components/Youtube";
 // import { redirect } from "next/navigation";
 
 const easeStandard = cubicBezier(0.22, 1, 0.36, 1);
@@ -260,7 +260,7 @@ export default function MeetPage() {
             </motion.div>
 
        
-            <VSLPlayer src="/vsl2.mp4" poster="/thumb1.png" />
+            <Youtube videoId="qGZy5O4kI2k" title="VSL" />
 
             <motion.div key={`end-${replayKey}`} variants={item}>
               <MeetBento />
