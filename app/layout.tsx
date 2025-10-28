@@ -5,7 +5,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import PixelTracker from "../components/PixelTracker"; // ⬅ direktan import klijentske komponente
 import { Analytics } from "@vercel/analytics/next"
-import MaintancePage from "@/components/MaintancePage";
+// import MaintancePage from "@/components/MaintancePage";
 
 
 export const metadata: Metadata = {
@@ -51,8 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </noscript>
       </head>
       <body className={`${inter.variable} ${bebas.variable} font-sans bg-brand-dark text-white overflow-x-hidden`}>
-        <MaintancePage />
-        {/* {children} */}
+        {children}
         <Analytics />
         <PixelTracker />
       </body>

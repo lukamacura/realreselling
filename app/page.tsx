@@ -13,7 +13,7 @@ import Youtube from "@/components/Youtube"; // vidi dole
 export default function Page() {
   return (
     <>
-      {/* <Navigation />
+      <Navigation />
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         
         <SocialProofBuy />
@@ -22,7 +22,7 @@ export default function Page() {
 
         <ClientHome />
         <Footer />
-      </main> */}
+      </main>
     </>
   );
 }
