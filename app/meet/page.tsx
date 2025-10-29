@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/meet/page.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import SocialProofMeet from "@/components/SocialProofMeet";
 import MeetBento from "@/components/MeetBento";
 import {
@@ -26,7 +26,7 @@ import {
   type Variants,
 } from "framer-motion";
 import Youtube from "@/components/Youtube";
-// import { redirect } from "next/navigation";
+import { trackCustom } from "@/lib/pixel"; // ✅ PIXEL
 
 const easeStandard = cubicBezier(0.22, 1, 0.36, 1);
 
@@ -55,8 +55,6 @@ const listItem: Variants = {
 };
 
 export default function MeetPage() {
-        // redirect("/odrzavanje");
-
   const pathname = usePathname();
 
   // ➊ Preloader tačno 900 ms
@@ -84,7 +82,7 @@ export default function MeetPage() {
         const visible = e.isIntersecting && e.intersectionRatio >= 0.6;
         if (visible && !loading && now - lastPlayRef.current > MIN_GAP) {
           lastPlayRef.current = now;
-          setReplayKey(k => k + 1);
+          setReplayKey((k) => k + 1);
         }
       },
       { threshold: [0, 0.6] }
@@ -97,7 +95,7 @@ export default function MeetPage() {
   // Ponovno okidanje i pri promeni rute (SPA povratak)
   useEffect(() => {
     if (!loading) {
-      setReplayKey(k => k + 1);
+      setReplayKey((k) => k + 1);
       lastPlayRef.current = performance.now();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -107,8 +105,6 @@ export default function MeetPage() {
 
   return (
     <>
-   
-
       {/* Ako želiš da poštuješ sistemske postavke, promeni na reducedMotion="user" */}
       <MotionConfig reducedMotion="never">
         <motion.main
@@ -155,18 +151,12 @@ export default function MeetPage() {
                   kako!
                 </motion.h1>
 
-                <motion.p
-                  variants={item}
-                  className="mt-4 max-w-[56ch] text-white/80"
-                >
+                <motion.p variants={item} className="mt-4 max-w-[56ch] text-white/80">
                   Na ovom <b className="text-white">uvodnom online meetu</b> otkrićeš da li je reselling
                   za tebe, koje korake da uradiš i kako najbrže dođeš do prve zarade.
                 </motion.p>
 
-                <motion.ul
-                  variants={item}
-                  className="mt-4 space-y-2 text-sm text-white/80"
-                >
+                <motion.ul variants={item} className="mt-4 space-y-2 text-sm text-white/80">
                   <motion.li variants={listItem} className="flex flex-row items-start gap-1">
                     <MessageCircle className="h-4 w-4 mt-[2px] text-amber-300" />
                     <div className="text-left">
@@ -199,7 +189,6 @@ export default function MeetPage() {
                       <span className="absolute -left-8 top-1/2 h-10 w-1 -translate-y-1/2 rotate-[18deg] bg-white/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     </span>
                   </button>
-                  
 
                   <motion.p variants={item} className="mt-2 font-extrabold text-xs text-white">
                     Ostalo još 2 mesta
@@ -208,12 +197,11 @@ export default function MeetPage() {
                     Brzo je, traje oko 45 min i sve je besplatno.
                   </motion.p>
                   <a
-                  href="https://www.youtube.com/watch?v=qGZy5O4kI2k"
-                  className="group mt-4 font-display font-bold text-xl inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-4 text-center text-white border shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60 sm:w-auto"
+                    href="https://www.youtube.com/watch?v=qGZy5O4kI2k"
+                    className="group mt-4 font-display font-bold text-xl inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-4 text-center text-white border shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-amber-300/60 sm:w-auto"
                   >
                     <PlayCircle className="h-6 w-6 mb-[2px]" />
                     Pogledaj video
-                    
                   </a>
                 </motion.div>
               </motion.div>
@@ -259,7 +247,6 @@ export default function MeetPage() {
               ))}
             </motion.div>
 
-       
             <Youtube videoId="qGZy5O4kI2k" title="VSL" />
 
             <motion.div key={`end-${replayKey}`} variants={item}>
@@ -275,7 +262,7 @@ export default function MeetPage() {
   );
 }
 
-/* ---------------- Modal (ostaje isto) ---------------- */
+/* ---------------- Modal ---------------- */
 
 function SignupModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
@@ -288,6 +275,9 @@ function SignupModal({ onClose }: { onClose: () => void }) {
 
   type ApiResponse = { ok: true } | { ok: false; error?: string };
 
+  // ✅ zaštita od duplog eventa (Strict Mode, remount, back/forward)
+  const firedRef = useRef(false);
+
   async function submit() {
     if (!valid) return;
     setBusy(true);
@@ -298,8 +288,30 @@ function SignupModal({ onClose }: { onClose: () => void }) {
         body: JSON.stringify({ name, phone }),
       });
 
-      const data: ApiResponse = await res.json();
-      if (!res.ok || !data.ok) throw new Error(("error" in data && data.error) || "Greška pri slanju");
+      // robustno parsiranje: ako nije JSON, pročitaj text
+      let data: ApiResponse | null = null;
+      const ct = res.headers.get("content-type") || "";
+      if (ct.includes("application/json")) {
+        data = (await res.json()) as ApiResponse;
+      } else {
+        const txt = await res.text();
+        throw new Error(txt || "Neočekivan odgovor servera");
+      }
+
+      if (!res.ok || !data?.ok) {
+        const msg = (data && "error" in data && (data as any).error) || "Greška pri slanju";
+        throw new Error(msg);
+      }
+
+      // ✅ PIXEL: "Zakazan meet" — jednom (ref + sessionStorage)
+      if (!firedRef.current && !sessionStorage.getItem("meet_booked_fired")) {
+        firedRef.current = true;
+        sessionStorage.setItem("meet_booked_fired", "1");
+        void trackCustom("Zakazan meet", {
+          source: "meet-page",
+          method: "whatsapp",
+        });
+      }
 
       setDone(true);
       setTimeout(() => {
