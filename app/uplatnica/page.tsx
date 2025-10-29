@@ -45,7 +45,7 @@ function readLeadFromStorage():
       name: parsed.name,
       email: parsed.email,
       code: parsed.code,
-      price: FIXED_PRICE, // ✅ čak i ako postoji stara vrednost, forsiramo 50
+      price: FIXED_PRICE,
       method: parsed.method,
     };
   } catch {
@@ -62,7 +62,6 @@ function refreshLeadInStorage(partial: {
 }) {
   try {
     const current = readLeadFromStorage() || {};
-    // ✅ uvek upisujemo 50
     const next = { ...current, ...partial, price: FIXED_PRICE, exp: Date.now() + 72 * 60 * 60 * 1000 };
     localStorage.setItem(LEAD_KEY, JSON.stringify(next));
   } catch {}
@@ -119,22 +118,20 @@ function UplatnicaClient() {
       email: sp.get("email") ?? undefined,
     };
 
-    // Query ima prednost za identitet/kod (ne za cenu)
     if (qp.code || qp.name || qp.email) {
       const normalized = {
-        price: FIXED_PRICE, // ✅ fiksno
+        price: FIXED_PRICE,
         code: qp.code?.trim() || undefined,
         name: qp.name?.trim() || undefined,
         email: qp.email?.trim() || undefined,
       };
       setLead(normalized);
-      refreshLeadInStorage(normalized); // ✅ upiši 50 u LS
+      refreshLeadInStorage(normalized);
       if (qp.name) setFallbackName(qp.name);
       if (qp.email) setFallbackEmail(qp.email);
       return;
     }
 
-    // Inače probaj localStorage (ali i tu je cena 50€)
     const stored = readLeadFromStorage();
     if (stored) {
       setLead({
@@ -148,7 +145,6 @@ function UplatnicaClient() {
       return;
     }
 
-    // Ako nema ničega, ostaje default sa 50€
     setLead((prev) => ({ ...prev, price: FIXED_PRICE }));
   }, [sp]);
 
@@ -172,7 +168,6 @@ function UplatnicaClient() {
     const f = e.target.files?.[0] ?? null;
     setFile(f);
 
-    // očisti prethodni ObjectURL (Safari ume da curi)
     if (lastUrlRef.current) {
       URL.revokeObjectURL(lastUrlRef.current);
       lastUrlRef.current = null;
@@ -192,10 +187,9 @@ function UplatnicaClient() {
   }
 
   async function handleConfirm() {
-    if (!agreed || busy || sent) return; // spreči dupli klik
-    if (!file) return; // mora postojati dokaz (slika)
+    if (!agreed || busy || sent) return;
+    if (!file) return;
 
-    // Osiguraj da imamo ime/email
     const finalName = (lead.name ?? fallbackName).trim();
     const finalEmail = (lead.email ?? fallbackEmail).trim();
 
@@ -204,7 +198,6 @@ function UplatnicaClient() {
       return;
     }
 
-    // Osveži storage (uvek 50€)
     refreshLeadInStorage({
       name: finalName,
       email: finalEmail,
@@ -218,7 +211,7 @@ function UplatnicaClient() {
       const fd = new FormData();
       fd.append("event", "bank_transfer_proof_submitted");
       fd.append("method", "uplatnica");
-      fd.append("price", String(FIXED_PRICE)); // ✅ uvek šaljemo 50
+      fd.append("price", String(FIXED_PRICE));
       fd.append("ts", new Date().toISOString());
       fd.append("name", finalName);
       fd.append("email", finalEmail);
@@ -237,7 +230,7 @@ function UplatnicaClient() {
       }
 
       setSaved(true);
-      setSent(true); // trajno zaključaj
+      setSent(true);
 
       router.replace("/uplatnica/success");
 
@@ -330,22 +323,20 @@ function UplatnicaClient() {
               id="proof-input"
               type="file"
               accept="image/*,.heic,.heif,.jpeg,.jpg,.png"
-              capture="environment"
               onChange={onFileChange}
-              // vizuelno sakriven ali NIJE display:none (iOS traži da element postoji)
               className="absolute w-px h-px overflow-hidden whitespace-nowrap border-0 p-0 -m-px"
             />
 
             <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3">
               {!preview ? (
                 <div className="grid place-items-center gap-2 py-8 text-center text-white/70">
-                  <UploadCloud className="h-6 w-6 text-amber-300" />
-                  <p className="text-sm">Ovde će se pojaviti fotografija uplatnice nakon slikanja.</p>
+                  <UploadCloud className="h-6 w-6" />
+                  <p className="text-sm">Ovde će se pojaviti fotografija uplatnice nakon slikanja ili izbora iz galerije.</p>
                 </div>
               ) : (
                 <div className="grid gap-2">
                   <img src={preview} alt="Fotografija uplatnice (preview)" className="h-auto w-full rounded-md" />
-                  <p className="text-xs text-white/60">Ako je slika nejasna, ponovi fotografisanje.</p>
+                  <p className="text-xs text-white/60">Ako je slika nejasna, ponovi fotografisanje ili izaberi novu iz galerije.</p>
                 </div>
               )}
             </div>
