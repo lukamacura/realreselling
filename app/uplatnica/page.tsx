@@ -26,9 +26,9 @@ export const dynamic = "force-dynamic";
 const LEAD_KEY = "rrs_lead_v1";
 const FIXED_PRICE = 50; // ✅ UVEK 50€
 
-// -----------------------------
-// LocalStorage helpers
-// -----------------------------
+/** -----------------------------
+ * LocalStorage helpers
+ * ----------------------------- */
 function readLeadFromStorage():
   | { name?: string; email?: string; code?: string; price?: number; method?: "uplatnica" | "kartica" }
   | null {
@@ -87,7 +87,6 @@ function UplatnicaClient() {
   const router = useRouter();
   const firedRef = useRef(false);
 
-
   // Lead state (uvek će imati price=50)
   const [lead, setLead] = useState<{ price: number; code?: string; name?: string; email?: string }>(
     { price: FIXED_PRICE }
@@ -102,6 +101,7 @@ function UplatnicaClient() {
   const fileInput = useRef<HTMLInputElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const lastUrlRef = useRef<string | null>(null);
 
   // UI state
   const [agreed, setAgreed] = useState(false);
@@ -152,16 +152,35 @@ function UplatnicaClient() {
     setLead((prev) => ({ ...prev, price: FIXED_PRICE }));
   }, [sp]);
 
+  // Cleanup za preview URL (bez curenja u Safari-ju)
+  useEffect(() => {
+    return () => {
+      if (lastUrlRef.current) URL.revokeObjectURL(lastUrlRef.current);
+    };
+  }, []);
+
   // Handleri
   function openCamera() {
-    fileInput.current?.click();
+    const el = fileInput.current;
+    if (!el) return;
+    // dozvoli da korisnik izabere ISTU sliku i drugi put (iOS inače neće okinuti onChange)
+    el.value = "";
+    el.click();
   }
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
     setFile(f);
+
+    // očisti prethodni ObjectURL (Safari ume da curi)
+    if (lastUrlRef.current) {
+      URL.revokeObjectURL(lastUrlRef.current);
+      lastUrlRef.current = null;
+    }
+
     if (f) {
       const url = URL.createObjectURL(f);
+      lastUrlRef.current = url;
       setPreview(url);
     } else {
       setPreview(null);
@@ -174,6 +193,7 @@ function UplatnicaClient() {
 
   async function handleConfirm() {
     if (!agreed || busy || sent) return; // spreči dupli klik
+    if (!file) return; // mora postojati dokaz (slika)
 
     // Osiguraj da imamo ime/email
     const finalName = (lead.name ?? fallbackName).trim();
@@ -207,16 +227,14 @@ function UplatnicaClient() {
 
       await postRRSWebhook(fd);
       if (!firedRef.current) {
-      firedRef.current = true;
-      void trackCustom("Closed - kupio uplatnicom", {
-        value: FIXED_PRICE,
-        currency: "EUR",
-        method: "uplatnica",
-        code: lead.code,
-      });
-
+        firedRef.current = true;
+        void trackCustom("Closed - kupio uplatnicom", {
+          value: FIXED_PRICE,
+          currency: "EUR",
+          method: "uplatnica",
+          code: lead.code,
+        });
       }
-
 
       setSaved(true);
       setSent(true); // trajno zaključaj
@@ -309,12 +327,15 @@ function UplatnicaClient() {
             {/* upload zona / preview */}
             <input
               ref={fileInput}
+              id="proof-input"
               type="file"
-              accept="image/*"
+              accept="image/*,.heic,.heif,.jpeg,.jpg,.png"
               capture="environment"
-              className="hidden"
               onChange={onFileChange}
+              // vizuelno sakriven ali NIJE display:none (iOS traži da element postoji)
+              className="absolute w-px h-px overflow-hidden whitespace-nowrap border-0 p-0 -m-px"
             />
+
             <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3">
               {!preview ? (
                 <div className="grid place-items-center gap-2 py-8 text-center text-white/70">
@@ -381,7 +402,7 @@ function UplatnicaClient() {
           </label>
 
           <button
-            disabled={!agreed || busy || sent}
+            disabled={!agreed || busy || sent || !file}
             onClick={handleConfirm}
             className="mt-4 w-full font-display rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-4 text-center text-xl font-bold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed"
           >
