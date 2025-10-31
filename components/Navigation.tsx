@@ -92,7 +92,7 @@ useEffect(() => {
           aria-label="Početna"
         >
           <Image
-            src="/favicon.ico"          // stavi fajl u /public/logo.svg
+            src="/logo.png"          // stavi fajl u /public/logo.svg
             alt="RealReselling logo"
             width={120}              // prilagodi dimenzije po želji
             height={32}
