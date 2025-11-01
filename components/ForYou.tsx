@@ -2,16 +2,17 @@
 
 export default function ForYou() {
   const left = [
-    "Ako imaš preko 12 godina",
-    "Ako si spreman da prošetaš do pošte",
-    "Ako imaš telefon",
+    "Ako tražiš pasivni prihod",
+    "Ako nećeš da radiš apsolutno ništa",
+    "Ako želiš da radiš za nekoga",
+    
 
   ];
 
   const right = [
-    "Ako tražiš pasivni prihod",
-    "Ako nećeš da radiš apsolutno ništa",
-    "Ako želiš da radiš za nekoga",
+    "Ako imaš preko 12 godina",
+    "Ako si spreman da prošetaš do pošte",
+    "Ako imaš telefon",
   ];
 
   return (
