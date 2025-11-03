@@ -11,6 +11,10 @@ import { postRRSWebhook } from "@/lib/webhook";
 import { track } from "@/lib/pixel";
 
 const LEAD_KEY = "rrs_lead_v1";
+// helper (case-insensitive "contains")
+const containsCoupon = (input?: string, coupon?: string) =>
+  (input?.trim().toUpperCase() ?? "").includes((coupon?.trim().toUpperCase() ?? ""));
+
 
 function saveLeadToStorage(lead: {
   name: string;
@@ -110,21 +114,24 @@ export default function DiscountSection({
     [applied, basePrice, couponValue]
   );
 
-  function applyCode() {
-    const normalized = normCode(code);
-    const ok = normalized === normCode(couponCode);
-    setApplied(ok);
-    setError(ok ? "" : "Netačan kod. Pokušaj ponovo.");
-    if (!ok) { inputRef.current?.focus(); return; }
-    setMissingCodeWarn(false);
-    upsertLead({
-      code: normalized,
-      price: Math.max(0, basePrice - couponValue),
-      name: name?.trim() || undefined,
-      email: email?.trim() || undefined,
-      method,
-    });
-  }
+function applyCode() {
+  const ok = containsCoupon(code, couponCode); // e.g. "rrs25luka" passes, "luka" fails
+  setApplied(ok);
+  setError(ok ? "" : "Ne postoji taj kod. Pokušaj ponovo.");
+  if (!ok) { inputRef.current?.focus(); return; }
+
+  setMissingCodeWarn(false);
+  upsertLead({
+    // i dalje čuvamo bazni kupon, ne ceo unos
+    code: normCode(couponCode),
+    price: Math.max(0, basePrice - couponValue),
+    name: name?.trim() || undefined,
+    email: email?.trim() || undefined,
+    method,
+  });
+}
+
+
 
   async function copyCodeToInput() {
     setCode(couponCode);
@@ -272,7 +279,7 @@ export default function DiscountSection({
                 id="promo"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder={`Unesi kod (npr. ${couponCode})`}
+                placeholder={`Unesi kod ovde`}
                 className={`min-w-0 flex-1 rounded-xl border bg-[#0E1319] px-3 py-3 text-white/90 placeholder:text-white/40 focus:outline-none focus:ring-2 ${
                   missingCodeWarn ? "border-rose-400/50 focus:ring-rose-400/60" : "border-amber-300/30 focus:ring-amber-400/60"
                 }`}
