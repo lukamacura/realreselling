@@ -3,7 +3,7 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
-  Sparkles, CreditCard, Landmark, CheckCircle2, AlertTriangle, ClipboardCheck
+  Sparkles, CreditCard, Landmark, CheckCircle2, AlertTriangle
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -68,7 +68,6 @@ export default function DiscountSection({
   const [code, setCode] = useState("");
   const [applied, setApplied] = useState(false);
   const [method, setMethod] = useState<"uplatnica" | "kartica">("uplatnica");
-  const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
   const [missingCodeWarn, setMissingCodeWarn] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -133,12 +132,7 @@ function applyCode() {
 
 
 
-  async function copyCodeToInput() {
-    setCode(couponCode);
-    try { await navigator.clipboard.writeText(couponCode); setCopied(true); setTimeout(() => setCopied(false), 1200); } catch {}
-    inputRef.current?.focus();
-  }
-
+ 
   // Validacija i side-effects (lead + tracking + LS). Vraća payload ili null.
   function validateAndPrepare() {
     if (!applied) {
@@ -264,13 +258,6 @@ function applyCode() {
               <p className="text-lg font-semibold text-amber-200">
                 <span className="text-white">Unesi kod i odmah ostvari</span> 10€
               </p>
-              <button
-                onClick={copyCodeToInput}
-                className="inline-flex items-center gap-1 rounded-lg border border-amber-300/40 bg-amber-300/10 px-2.5 py-1.5 text-xs font-semibold text-amber-200 hover:brightness-110"
-                title={`Kopiraj ${couponCode}`}
-              >
-                <ClipboardCheck className="h-4 w-4" /> {copied ? "Kopirano!" : couponCode}
-              </button>
             </div>
 
             <div className="mt-3 flex flex-col gap-2 sm:flex-row">

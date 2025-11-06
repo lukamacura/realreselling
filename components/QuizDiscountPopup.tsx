@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -14,9 +15,16 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-type Step = 0 | 1 | 2 | 3; // 3 = Congrats screen
+type Step = 0 | 1 | 2 | 3;
+type Answers = { age: string; goal: string; phone: string };
 
-type Answers = { age: string; goal: string; mentor: string };
+function isValidPhone(v: string) {
+  const s = v.trim();
+  if (!s) return false;
+  if (!/^[+\d\s().-]{7,20}$/.test(s)) return false;
+  const digits = s.replace(/\D/g, "");
+  return digits.length >= 7;
+}
 
 export default function QuizDiscountPopup({
   open,
@@ -33,17 +41,16 @@ export default function QuizDiscountPopup({
   couponCode?: string;
   priceBefore?: number;
   priceAfter?: number;
-  /** Ako je true, na redirect dodajemo odgovore kao query parametre */
   attachAnswersAsQuery?: boolean;
 }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>(0);
-  const [answers, setAnswers] = useState<Answers>({ age: "", goal: "", mentor: "" });
+  const [answers, setAnswers] = useState<Answers>({ age: "", goal: "", phone: "" });
   const [copied, setCopied] = useState(false);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const firstInteractiveRef = useRef<HTMLButtonElement | null>(null);
+  const phoneInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Lock scroll + fokus prvi element
   useEffect(() => {
     if (!open) return;
     setStep(0);
@@ -56,62 +63,56 @@ export default function QuizDiscountPopup({
       clearTimeout(t);
     };
   }, [open]);
-const logQuiz = useCallback(async () => {
-  try {
-    await fetch("/api/quiz", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        age: answers.age,
-        goal: answers.goal,
-        mentor: answers.mentor,
-        code: couponCode,
-        priceBefore,
-        priceAfter,
-        source: "quiz-popup",
-      }),
-      cache: "no-store",
-    });
-  } catch {}
-}, [answers, couponCode, priceBefore, priceAfter]);
+
+  const logQuiz = useCallback(async () => {
+    try {
+      await fetch("/api/quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          age: answers.age,
+          goal: answers.goal,
+          phone: answers.phone,
+          code: couponCode,
+          priceBefore,
+          priceAfter,
+          source: "quiz-popup",
+        }),
+        cache: "no-store",
+      });
+    } catch {}
+  }, [answers, couponCode, priceBefore, priceAfter]);
+
   const canNext = useMemo(() => {
     if (step === 0) return !!answers.age;
     if (step === 1) return !!answers.goal;
-    if (step === 2) return !!answers.mentor;
-    if (step === 3) return true; // finish
+    if (step === 2) return isValidPhone(answers.phone);
+    if (step === 3) return true;
     return false;
   }, [step, answers]);
 
-  const prev = useCallback(() => {
-    setStep((s) => (s === 0 ? 0 : ((s - 1) as Step)));
-  }, []);
-
+  const prev = useCallback(() => setStep((s) => (s === 0 ? 0 : ((s - 1) as Step))), []);
   const goToCongrats = useCallback(() => {
-  setStep(3);
-  logQuiz(); // zabeleži odmah
-}, [logQuiz]);
-const loggedOnceRef = useRef(false);
-
-// reset flag kad se popup otvori
-useEffect(() => {
-  if (open) loggedOnceRef.current = false;
-}, [open]);
-
-useEffect(() => {
-  if (step === 3 && !loggedOnceRef.current) {
-    loggedOnceRef.current = true;
-    // fire-and-forget, bez await
+    setStep(3);
     logQuiz();
-  }
-}, [step, logQuiz]);
+  }, [logQuiz]);
 
+  const loggedOnceRef = useRef(false);
+  useEffect(() => {
+    if (open) loggedOnceRef.current = false;
+  }, [open]);
+  useEffect(() => {
+    if (step === 3 && !loggedOnceRef.current) {
+      loggedOnceRef.current = true;
+      logQuiz();
+    }
+  }, [step, logQuiz]);
 
   const next = useCallback(() => {
     if (!canNext) return;
     setStep((s) => {
       if (s < 2) return ((s + 1) as Step);
-      if (s === 2) return 3; // show congrats screen
-      // s === 3 → continue action
+      if (s === 2) return 3;
       return s;
     });
   }, [canNext]);
@@ -122,60 +123,54 @@ useEffect(() => {
     if (attachAnswersAsQuery) {
       if (answers.age) params.set("age", answers.age);
       if (answers.goal) params.set("goal", answers.goal);
-      if (answers.mentor) params.set("mentor", answers.mentor);
+      // namerno ne šaljemo phone u query
     }
-    const url = `${redirectTo}?${params.toString()}`;
-    router.push(url);
+    router.push(`${redirectTo}?${params.toString()}`);
     onClose();
   }, [answers, attachAnswersAsQuery, couponCode, onClose, redirectTo, router]);
 
- const copyCode = useCallback(async () => {
-  try {
-    await navigator.clipboard.writeText(couponCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
-  } catch { // <- bez parametra
-    // noop
-  }
-}, [couponCode]);
+  const copyCode = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(couponCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {}
+  }, [couponCode]);
 
-
-  // Tastatura: ESC / levo / desno / Enter
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowLeft") prev();
-    if (e.key === "ArrowRight") {
-    if (step < 3) next();
-    }
+      if (e.key === "ArrowRight") if (step < 3) next();
       if (e.key === "Enter") {
         if (step < 2) next();
-        else if (step === 2) goToCongrats();
+        else if (step === 2) isValidPhone(answers.phone) && goToCongrats();
         else continueToDiscount();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose, prev, next, step, goToCongrats, continueToDiscount]);
+  }, [open, onClose, prev, next, step, goToCongrats, continueToDiscount, answers.phone]);
 
   const Dot = ({ i }: { i: number }) => (
     <span className={`h-2.5 w-2.5 rounded-full transition ${step >= i ? "bg-amber-400" : "bg-white/20"}`} />
   );
 
-  if (!open) return null;
+  useEffect(() => {
+    if (step === 2) setTimeout(() => phoneInputRef.current?.focus(), 50);
+  }, [step]);
 
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-[80]">
-      {/* Overlay */}
       <button
         aria-label="Zatvori"
         className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-100 animate-[fadeIn_.18s_ease-out]"
         onClick={onClose}
       />
 
-      {/* Panel */}
       <div
         ref={panelRef}
         role="dialog"
@@ -196,12 +191,11 @@ useEffect(() => {
             </button>
           </div>
 
-          {/* Progress */}
           <div className="mt-3 flex items-center gap-2">
             <Dot i={0} /> <Dot i={1} /> <Dot i={2} />
           </div>
 
-          {/* Content */}
+          {/* <<<<<<  OVO JE BILO POGREŠNO  >>>>>> */}
           <div className="relative mt-4 min-h-[220px]">
             {step === 0 && (
               <div className="animate-[fadeSlide_.22s_ease-out]">
@@ -258,30 +252,30 @@ useEffect(() => {
             {step === 2 && (
               <div className="animate-[fadeSlide_.22s_ease-out]">
                 <h3 className="flex items-center gap-2 text-lg font-semibold text-white/90">
-                  <Sparkles className="h-5 w-5 text-amber-300" /> Da li vam je potreban mentor?
+                  <Sparkles className="h-5 w-5 text-amber-300" /> Unesite svoj broj telefona
                 </h3>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  {[
-                    { v: "da", label: "Da" },
-                    { v: "ne", label: "Ne" },
-                  ].map((o) => (
-                    <button
-                      key={o.v}
-                      onClick={() => setAnswers((a) => ({ ...a, mentor: o.v }))}
-                      className={`rounded-xl border px-4 py-3 text-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 ${
-                        answers.mentor === o.v ? "border-amber-400 bg-amber-400/15" : "border-white/10 hover:bg-white/5"
-                      }`}
-                    >
-                      {o.label}
-                    </button>
-                  ))}
+                <p className="mt-1 text-white/60 text-sm">
+                  Koristimo ga samo za slanje detalja o popustu i podršku. Ne delimo sa trećim licima.
+                </p>
+                <div className="mt-4">
+                  <input
+                    ref={phoneInputRef}
+                    inputMode="tel"
+                    aria-label="Broj telefona"
+                    placeholder="+381 60 123 4567"
+                    value={answers.phone}
+                    onChange={(e) => setAnswers((a) => ({ ...a, phone: e.target.value }))}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none ring-2 ring-transparent focus:ring-amber-400/60"
+                  />
+                  {!answers.phone ? null : isValidPhone(answers.phone) ? (
+                    <p className="mt-1 text-xs text-emerald-400/90">✓ Izgleda dobro</p>
+                  ) : (
+                    <p className="mt-1 text-xs text-rose-400/90">Unesite validan broj telefona.</p>
+                  )}
                 </div>
-
-               
               </div>
             )}
 
-            {/* STEP 3: Čestitamo + kod */}
             {step === 3 && (
               <div className="animate-[fadeSlide_.22s_ease-out] text-center">
                 <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-amber-400/20 text-amber-300">
@@ -328,7 +322,6 @@ useEffect(() => {
             )}
           </div>
 
-          {/* Footer (skrivamo na step 3) */}
           {step < 3 && (
             <div className="mt-4 flex items-center justify-between">
               <button
@@ -340,7 +333,7 @@ useEffect(() => {
               </button>
 
               <button
-                onClick={next}
+                onClick={step === 2 ? goToCongrats : next}
                 disabled={!canNext}
                 className="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-4 py-2 font-semibold text-black shadow-[0_10px_30px_rgba(212,160,32,0.35)] transition hover:brightness-95 disabled:opacity-60"
               >
@@ -359,7 +352,6 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* keyframes */}
       <style>{`
         @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
         @keyframes popIn { from { opacity: 0; transform: scale(.98) } to { opacity: 1; transform: scale(1) } }
