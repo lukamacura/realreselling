@@ -122,7 +122,7 @@ function applyCode() {
   setMissingCodeWarn(false);
   upsertLead({
     // i dalje čuvamo bazni kupon, ne ceo unos
-    code: normCode(couponCode),
+    code: normCode(code),
     price: Math.max(0, basePrice - couponValue),
     name: name?.trim() || undefined,
     email: email?.trim() || undefined,
@@ -150,7 +150,7 @@ function applyCode() {
     const payload = {
       method,
       codeApplied: applied,
-      code: applied ? normCode(couponCode) : undefined,
+      code: applied ? normCode(code) : undefined,
       priceToPay,
       name,
       email,
@@ -163,7 +163,7 @@ function applyCode() {
       num_items: 1,
       contents: [{ id: "RRS_PROGRAM", quantity: 1, item_price: priceToPay }],
       content_type: "product",
-      coupon: applied ? normCode(couponCode) : undefined,
+       coupon: applied ? normCode(code) : undefined,
       payment_method: method,
     });
 
@@ -173,7 +173,7 @@ function applyCode() {
       email,
       name,
       price: priceToPay,
-      code: applied ? normCode(couponCode) : undefined,
+      code: applied ? normCode(code) : undefined,
       method,
       ts: new Date().toISOString(),
       utm: {
@@ -186,7 +186,7 @@ function applyCode() {
     saveLeadToStorage({
       name,
       email,
-      code: applied ? normCode(couponCode) : undefined,
+      code: applied ? normCode(code) : undefined,
       price: priceToPay,
       method,
     });
