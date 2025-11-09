@@ -1,4 +1,3 @@
-// app/api/leads/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 
@@ -42,8 +41,7 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Napravi token nad stabilnim stringom polja (bez binarnog sadržaja)
-      // – uskladi verifikaciju u n8n-u da računa isto:
+      // Token nad stabilnim stringom polja (bez binarnog sadržaja)
       const tokenPayload = JSON.stringify({
         event: inForm.get("event"),
         email: inForm.get("email"),
@@ -52,16 +50,22 @@ export async function POST(req: NextRequest) {
         price: inForm.get("price"),
         method: inForm.get("method"),
         ts: inForm.get("ts"),
-        proof: inForm.get("proof") instanceof File
-          ? { filename: (inForm.get("proof") as File).name, size: (inForm.get("proof") as File).size, type: (inForm.get("proof") as File).type }
-          : undefined,
+        proof:
+          inForm.get("proof") instanceof File
+            ? {
+                filename: (inForm.get("proof") as File).name,
+                size: (inForm.get("proof") as File).size,
+                type: (inForm.get("proof") as File).type,
+              }
+            : undefined,
       });
       const token = sha256Hex(tokenPayload + secret);
 
       const upstream = await fetch(url, {
         method: "POST",
-        body: outForm,                   // ⚠️ ne postavljati content-type ručno
-        headers: { "x-rrs-token": token }
+        body: outForm, // ⚠️ ne postavljati content-type ručno
+        headers: { "x-rrs-token": token },
+        cache: "no-store",
       });
 
       const txt = await upstream.text();
@@ -72,7 +76,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ====== B) JSON (bez fajla) ======
-    const bodyText = await req.text();          // raw body za stari način potpisivanja
+    const bodyText = await req.text(); // raw body za stari način potpisivanja
     const token = sha256Hex(bodyText + secret);
 
     const upstream = await fetch(url, {
@@ -82,6 +86,7 @@ export async function POST(req: NextRequest) {
         "x-rrs-token": token,
       },
       body: bodyText,
+      cache: "no-store",
     });
 
     const txt = await upstream.text();

@@ -64,7 +64,9 @@ function refreshLeadInStorage(partial: {
     const current = readLeadFromStorage() || {};
     const next = { ...current, ...partial, price: FIXED_PRICE, exp: Date.now() + 72 * 60 * 60 * 1000 };
     localStorage.setItem(LEAD_KEY, JSON.stringify(next));
-  } catch {}
+  } catch {
+    // ignore
+  }
 }
 
 // -----------------------------
@@ -155,6 +157,18 @@ function UplatnicaClient() {
     };
   }, []);
 
+  // Guard — spreči odlazak sa strane dok upload traje
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (busy) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [busy]);
+
   // Handleri
   function openCamera() {
     const el = fileInput.current;
@@ -207,6 +221,7 @@ function UplatnicaClient() {
     });
 
     setBusy(true);
+    setFallbackErr("");
     try {
       const fd = new FormData();
       fd.append("event", "bank_transfer_proof_submitted");
@@ -216,25 +231,48 @@ function UplatnicaClient() {
       fd.append("name", finalName);
       fd.append("email", finalEmail);
       if (lead.code) fd.append("code", lead.code);
-      if (file) fd.append("proof", file);
+      if (file) fd.append("proof", file, file.name); // ➕ filename
 
-      await postRRSWebhook(fd);
+      const res: Response = await postRRSWebhook(fd);
+      if (!res.ok) {
+        let txt = "";
+        try {
+          txt = await res.text();
+        } catch {
+          // ignore
+        }
+        throw new Error(txt || `Webhook nije prihvatio upload (status ${res.status}).`);
+      }
+
       if (!firedRef.current) {
         firedRef.current = true;
-        void trackCustom("Closed - kupio uplatnicom", {
-          value: FIXED_PRICE,
-          currency: "EUR",
-          method: "uplatnica",
-          code: lead.code,
-        });
+        try {
+          // fire-and-forget
+          void trackCustom("Closed - kupio uplatnicom", {
+            value: FIXED_PRICE,
+            currency: "EUR",
+            method: "uplatnica",
+            code: lead.code,
+          });
+        } catch {
+          // ignore
+        }
       }
 
       setSaved(true);
       setSent(true);
-
       router.replace("/uplatnica/success");
 
       setTimeout(() => setSaved(false), 1600);
+    } catch (err: unknown) {
+      console.error(err);
+      setSent(false);
+      setSaved(false);
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Došlo je do greške pri slanju. Proveri internet i pokušaj ponovo.";
+      setFallbackErr(message);
     } finally {
       setBusy(false);
     }
@@ -255,8 +293,11 @@ function UplatnicaClient() {
 
       <div className="container mx-auto max-w-[920px] px-4 py-8 sm:py-12">
         <button
-          onClick={() => router.back()}
-          className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-white/80 transition hover:bg-white/5"
+          onClick={() => {
+            if (!busy) router.back();
+          }}
+          disabled={busy}
+          className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-white/80 transition hover:bg-white/5 disabled:opacity-50"
         >
           <ArrowLeft className="h-4 w-4" /> Nazad
         </button>
@@ -323,6 +364,7 @@ function UplatnicaClient() {
               id="proof-input"
               type="file"
               accept="image/*,.heic,.heif,.jpeg,.jpg,.png"
+              capture="environment" // ➕ iOS hint za zadnju kameru
               onChange={onFileChange}
               className="absolute w-px h-px overflow-hidden whitespace-nowrap border-0 p-0 -m-px"
             />
@@ -331,7 +373,7 @@ function UplatnicaClient() {
               {!preview ? (
                 <div className="grid place-items-center gap-2 py-8 text-center text-white/70">
                   <UploadCloud className="h-6 w-6" />
-                  <p className="text-sm">Ovde će se pojaviti fotografija uplatnice nakon slikanja ili izbora iz galerije.</p>
+                  <p className="text-sm">Ovde će se pojaviti fotografija uplatnice nakon slikanja ili iz izbora iz galerije.</p>
                 </div>
               ) : (
                 <div className="grid gap-2">
@@ -345,7 +387,7 @@ function UplatnicaClient() {
           {/* Ako nemamo ime/email, traži ih ovde */}
           {(!lead.name || !lead.email) && (
             <div className="mt-6 rounded-xl border border-white/10 bg-[#0E1319] p-4">
-              <p className="font-semibold text-white mb-2">Unesi svoje podatke da bismo povezali uplatu:</p>
+              <p className="mb-2 font-semibold text-white">Unesi svoje podatke da bismo povezali uplatu:</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-semibold text-white/70">Ime</label>
@@ -395,7 +437,7 @@ function UplatnicaClient() {
           <button
             disabled={!agreed || busy || sent || !file}
             onClick={handleConfirm}
-            className="mt-4 w-full font-display rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-4 text-center text-xl font-bold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="mt-4 w-full rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-5 py-4 text-center font-display text-xl font-bold text-black shadow-[0_14px_40px_rgba(212,160,32,0.45)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {sent ? "Poslato ✅" : busy ? "Šaljem…" : "Potvrđujem kupovinu i slažem se sa uslovima"}
           </button>
