@@ -19,6 +19,11 @@ export type BasePayload = {
   proof?: { filename?: string; size?: number; type?: string };
 };
 
+/**
+ * Napomena:
+ * - `keepalive` NIKAD za FormData (iOS/Chrome limit ~64KB).
+ * - Vraćamo uvek `Response` (UI može da proveri .ok / .status / .text()).
+ */
 export async function postRRSWebhook(payload: BasePayload | FormData): Promise<Response> {
   const isFormData = typeof FormData !== "undefined" && payload instanceof FormData;
   const isServer = typeof window === "undefined";
@@ -33,7 +38,9 @@ export async function postRRSWebhook(payload: BasePayload | FormData): Promise<R
       method: "POST",
       headers: isFormData ? undefined : { "content-type": "application/json" },
       body: isFormData ? payload : JSON.stringify(payload),
-      ...(isServer ? {} : { keepalive: true }), // keepalive samo na klijentu
+      // ✅ keepalive koristimo SAMO za male JSON pingove, nikad za FormData
+      ...(isServer ? {} : (!isFormData ? { keepalive: true } : {})),
+      // opciono: credentials: "same-origin",
     });
 
     if (!res.ok) {
@@ -42,7 +49,6 @@ export async function postRRSWebhook(payload: BasePayload | FormData): Promise<R
     return res;
   } catch (e) {
     console.warn("[RRS] proxy error", e);
-    // Synthetic Response da UI uvek ima šta da proveri
     return new Response("proxy error", { status: 499 });
   }
 }
