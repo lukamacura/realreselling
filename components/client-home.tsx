@@ -47,14 +47,13 @@ export default function ClientHome() {
 
       <PriceComparison
         currency="EUR"
-        WhatsAppUrl="https://whatsapp.com/channel/0029Vb6Z3ta30LKVLnYf7A0A"
         groupUrl="#cena"
         intervalMs={3000}
         products={[
-          { image: "/p1.png", priceRegular: 65,  priceWithGroup: 25 },
-          { image: "/p2.png", priceRegular: 100, priceWithGroup: 50 },
-          { image: "/p3.png", priceRegular: 50,  priceWithGroup: 20 },
-          { image: "/p4.png", priceRegular: 85,  priceWithGroup: 50 },
+          { image: "/p1.png", priceRegular: 70,  priceWithGroup: 25 },
+          { image: "/p2.png", priceRegular: 250, priceWithGroup: 50 },
+          { image: "/p3.png", priceRegular: 150,  priceWithGroup: 20 },
+          { image: "/p4.png", priceRegular: 150,  priceWithGroup: 50 },
         ]}
       />
 

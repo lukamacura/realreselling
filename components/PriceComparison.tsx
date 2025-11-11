@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Check, Info } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Transition } from "framer-motion";
@@ -20,7 +20,6 @@ export type PriceItem = {
 export type PriceComparisonProps = {
   products?: PriceItem[]; // Ako ne proslediš, koristi default p1..p4
   currency?: string; // npr. "EUR" ili "EUR"
-  WhatsAppUrl: string; // link do FREE WhatsApp grupe (poručivanje van grupe)
   groupUrl?: string; // opcioni link ka "grupi" (ako želiš CTA)
   className?: string;
   featuresOutside?: string[]; // benefiti van grupe
@@ -59,13 +58,12 @@ const fadeMotion = {
 const PriceComparison: React.FC<PriceComparisonProps> = ({
   products,
   currency = "EUR",
-  WhatsAppUrl,
   groupUrl = "#cena",
   className = "",
   featuresOutside = [
-    "Poručivanje kroz FREE WhatsApp grupu",
-    "Plaćanje po dogovoru",
-    "Osnovna podrška",
+    "Plaćaš puno više",
+    "Sporija dostava",
+    "Nema podrške",
   ],
   featuresWithGroup = [
     "Niža nabavna cena",
@@ -129,8 +127,7 @@ const PriceComparison: React.FC<PriceComparisonProps> = ({
             </div>
 
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Van grupe</h3>
-              {badge("FREE WhatsApp grupa", "bg-white/10 text-white border border-white/15")}
+              <h3 className="text-lg font-semibold">Cena u radnji</h3>
             </div>
 
             <div className="mb-6 flex items-end gap-2 min-h-[2.75rem]">
@@ -147,20 +144,8 @@ const PriceComparison: React.FC<PriceComparisonProps> = ({
               ))}
             </ul>
 
-            <a
-              href={WhatsAppUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-flex w-full items-center justify-center font-display text-xl gap-2 rounded-xl bg-white text-black px-4 py-3 font-medium hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
-            >
-              Poruči VAN grupe
-              <ArrowRight className="h-4 w-4" />
-            </a>
+          
 
-            <div className="mt-4 flex items-start gap-2 text-xs text-white/60">
-              <Info className="mt-0.5 h-4 w-4" />
-              <p>Poručivanje preko FREE WhatsApp grupe za korisnike koji nisu u plaćenoj/grupnoj nabavci.</p>
-            </div>
           </div>
 
           {/* Sa grupom */}
@@ -182,7 +167,7 @@ const PriceComparison: React.FC<PriceComparisonProps> = ({
             </div>
 
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Sa grupom</h3>
+              <h3 className="text-lg font-semibold">Ako uđeš u program</h3>
               {saving > 0 && badge(`Ušteda ${fmt(saving, currency)} · ${savingPct}%`)}
             </div>
 
