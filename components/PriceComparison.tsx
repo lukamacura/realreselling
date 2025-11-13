@@ -61,9 +61,9 @@ const PriceComparison: React.FC<PriceComparisonProps> = ({
   groupUrl = "#cena",
   className = "",
   featuresOutside = [
-    "Plaćaš puno više",
-    "Sporija dostava",
-    "Nema podrške",
+    "Skriveni dodatni troškovi",
+    "Neprovjeren kvalitet usluge",
+    "Ograničene mogućnosti povrata",
   ],
   featuresWithGroup = [
     "Niža nabavna cena",

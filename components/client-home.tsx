@@ -52,7 +52,7 @@ export default function ClientHome() {
         products={[
           { image: "/p1.png", priceRegular: 70,  priceWithGroup: 25 },
           { image: "/p2.png", priceRegular: 250, priceWithGroup: 50 },
-          { image: "/p3.png", priceRegular: 150,  priceWithGroup: 20 },
+          { image: "/p3.png", priceRegular: 250,  priceWithGroup: 20 },
           { image: "/p4.png", priceRegular: 150,  priceWithGroup: 50 },
         ]}
       />
