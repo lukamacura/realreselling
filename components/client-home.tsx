@@ -56,6 +56,7 @@ export default function ClientHome() {
           { image: "/p4.png", priceRegular: 150,  priceWithGroup: 50 },
         ]}
       />
+      {/* Kviz popup */}
 
       <QuizDiscountPopup
         open={quizOpen}
