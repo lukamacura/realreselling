@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import dynamic from "next/dynamic";
 import OfferHero from "@/components/OfferHero";
 import Faq from "@/components/Faq";
@@ -12,12 +11,11 @@ const ForYou = dynamic(() => import("@/components/ForYou"));
 const ThreeSteps = dynamic(() => import("@/components/ThreeSteps"));
 const GuaranteeSection = dynamic(() => import("@/components/GuaranteeSection"));
 const PriceComparison = dynamic(() => import("@/components/PriceComparison"), { ssr: false });
-const QuizDiscountPopup = dynamic(() => import("@/components/QuizDiscountPopup"), { ssr: false });
+// const QuizDiscountPopup = dynamic(() => import("@/components/QuizDiscountPopup"), { ssr: false });
 const TestimonialsYTVideos = dynamic(() => import("@/components/Testimonials").then(m => m.default));
 const ResultsImagesSection = dynamic(() => import("@/components/Testimonials").then(m => m.ResultsImagesSection), { ssr: false });
 
 export default function ClientHome() {
-  const [quizOpen, setQuizOpen] = useState(false);
 
   return (
     <>
@@ -42,7 +40,7 @@ export default function ClientHome() {
       <ForYou />
       <ThreeSteps />
       <GuaranteeSection />
-      <OfferHero onOpenQuiz={() => setQuizOpen(true)} />
+      <OfferHero/>
       <Faq />
 
       <PriceComparison
@@ -58,15 +56,7 @@ export default function ClientHome() {
       />
       {/* Kviz popup */}
 
-      <QuizDiscountPopup
-        open={quizOpen}
-        onClose={() => setQuizOpen(false)}
-        redirectTo="/discount"
-        couponCode="RRS25"
-        priceBefore={60}
-        priceAfter={50}
-        attachAnswersAsQuery
-      />
+
     </>
   );
 }
