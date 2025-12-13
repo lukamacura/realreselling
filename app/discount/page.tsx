@@ -243,6 +243,7 @@ function applyCode() {
 
   return (
     <section className="relative overflow-hidden bg-[#0B0F13] text-white">
+      <SnowCanvas className="pointer-events-none absolute inset-0 z-0 opacity-80" />
       <div className="container mx-auto max-w-[1000px] px-4 py-10 sm:py-14">
         <div className="relative rounded-2xl border border-white/10 bg-[#12171E]/80 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)] sm:p-6 md:p-7">
           <div className="absolute inset-x-0 top-0 h-[10px] rounded-t-2xl bg-gradient-to-r from-amber-500 via-amber-300 to-amber-600" />
@@ -345,7 +346,7 @@ function applyCode() {
               alt=""
               width={1600}
               height={900}
-              className="h-auto mx-auto w-full rounded-md object-contain"
+              className="h-auto mx-auto w-[60%] rounded-md object-contain"
             />
             <p className="mt-3 text-center text-sm text-white/70">
               Popust neće važiti još dugo
@@ -382,6 +383,8 @@ function applyCode() {
           </button>
         </div>
       </div>
+
+      
     </section>
   );
 }
@@ -420,5 +423,131 @@ function PaymentOption({
       </span>
       <span className={active ? "text-amber-300 font-semibold" : "text-white/70"}>{label}</span>
     </button>
+  );
+}
+function SnowCanvas({
+  className = "",
+  density = 140,          // number of flakes (tweak)
+  speed = 0.6,            // overall speed multiplier (tweak)
+}: {
+  className?: string;
+  density?: number;
+  speed?: number;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let w = 0;
+    let h = 0;
+
+    const DPR = Math.min(2, window.devicePixelRatio || 1);
+
+    type Flake = {
+      x: number;
+      y: number;
+      r: number;
+      vx: number;
+      vy: number;
+      a: number; // alpha
+      tw: number; // twinkle phase
+    };
+
+    let flakes: Flake[] = [];
+
+    const resize = () => {
+      const parent = canvas.parentElement;
+      const rect = parent ? parent.getBoundingClientRect() : { width: window.innerWidth, height: window.innerHeight };
+      w = Math.max(1, Math.floor(rect.width));
+      h = Math.max(1, Math.floor(rect.height));
+
+      canvas.width = Math.floor(w * DPR);
+      canvas.height = Math.floor(h * DPR);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+      // rebuild on resize so density feels consistent
+      flakes = Array.from({ length: density }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 0.8 + Math.random() * 2.4,
+        vx: (-0.15 + Math.random() * 0.3) * 60 * speed,
+        vy: (0.25 + Math.random() * 0.85) * 60 * speed,
+        a: 0.25 + Math.random() * 0.55,
+        tw: Math.random() * Math.PI * 2,
+      }));
+    };
+
+    const tick = (t: number) => {
+      ctx.clearRect(0, 0, w, h);
+
+      // subtle glow
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+
+      for (const f of flakes) {
+        f.tw += 0.02;
+        const twinkle = 0.75 + 0.25 * Math.sin(f.tw);
+
+        f.x += f.vx / 60;
+        f.y += f.vy / 60;
+
+        // wrap
+        if (f.y - f.r > h) {
+          f.y = -f.r;
+          f.x = Math.random() * w;
+        }
+        if (f.x < -10) f.x = w + 10;
+        if (f.x > w + 10) f.x = -10;
+
+        ctx.beginPath();
+        ctx.globalAlpha = f.a * twinkle;
+
+        // soft white with a tiny warm tint to match your amber theme
+        ctx.fillStyle = "rgba(255, 250, 240, 1)";
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    const onVis = () => {
+      // pause when hidden to save CPU
+      if (document.hidden) {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      } else if (!rafRef.current) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    };
+
+    resize();
+    rafRef.current = requestAnimationFrame(tick);
+
+    window.addEventListener("resize", resize);
+    document.addEventListener("visibilitychange", onVis);
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVis);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [density, speed]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className={className}
+      aria-hidden="true"
+    />
   );
 }
