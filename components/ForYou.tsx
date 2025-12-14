@@ -35,7 +35,7 @@ export default function ForYou() {
               {left.map((t) => (
                 <div
                   key={t}
-                  className="rounded-[2.2rem] bg-red-500/90 px-2 py-4 text-center text-md font-semibold text-brand-dark shadow-soft md:text-2xl"
+                  className="rounded-lg uppercase font-bold border-2 border-orange-800 bg-orange-300 px-2 py-2 text-center text-md  text-orange-800 shadow-soft md:text-lg"
                 >
                   {t}
                 </div>
@@ -53,7 +53,7 @@ export default function ForYou() {
               {right.map((t) => (
                 <div
                   key={t}
-                  className="rounded-[2.2rem] bg-green-500/90 px-2 py-4 text-center text-md font-semibold text-brand-dark shadow-soft md:text-2xl"
+                  className="rounded-lg uppercase font-bold bg-green-300 px-2 py-2 text-center text-md  text-green-800 shadow-soft md:text-lg"
                 >
                   {t}
                 </div>

@@ -8,6 +8,7 @@ import Hero from "@/components/Hero";
 import SocialProofBuy from "@/components/SocialProofBuy";
 import ClientHome from "@/components/client-home"; // vidi dole
 import Youtube from "@/components/Youtube"; // vidi dole
+import SnowCanvas from "@/components/SnowCanvas";
 
 
 export default function Page() {
@@ -15,7 +16,8 @@ export default function Page() {
     <>
       <Navigation />
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        
+        <SnowCanvas className="pointer-events-none absolute inset-0 z-0 opacity-80" />
+
         <SocialProofBuy />
         <Hero />
         <Youtube videoId="YHgKyEFUQeE" title="VSL" />

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useMemo, useState, useRef, useEffect } from "react";
@@ -10,6 +9,7 @@ import type { LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { postRRSWebhook } from "@/lib/webhook";
 import { track } from "@/lib/pixel";
+import SnowCanvas from "@/components/SnowCanvas";
 
 const LEAD_KEY = "rrs_lead_v1";
 // helper (case-insensitive "contains")
@@ -60,10 +60,10 @@ type Props = {
 };
 
 export default function DiscountSection({
-  basePrice = 60,
+  basePrice = 50,
   regularPrice = 230,
-  couponCode = "RRS25",
-  couponValue = 10,
+  couponCode = "popust",
+  couponValue = 5,
   onContinue,
 }: Props) {
   const [code, setCode] = useState("");
@@ -137,12 +137,10 @@ function applyCode() {
   // Validacija i side-effects (lead + tracking + LS). Vraća payload ili null.
   function validateAndPrepare() {
     if (!applied) {
-      setMissingCodeWarn(true);
+      setMissingCodeWarn(false); // ne blokiramo kupovinu bez koda
       setError("");
-      inputRef.current?.focus();
-      couponPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return null;
     }
+
     let ok = true;
     if (name.trim().length < 3) { setNameErr("Unesi ime."); nameInputRef.current?.focus(); ok = false; }
     if (!validateEmail(email)) { setEmailErr("Unesi validan email."); if (ok) emailInputRef.current?.focus(); ok = false; }
@@ -203,7 +201,11 @@ function applyCode() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ price: payload.priceToPay, email: payload.email }),
+        body: JSON.stringify({
+        email: payload.email,
+        code: payload.code,          // <-- dodato
+        codeApplied: payload.codeApplied, // <-- dodato (opciono ali korisno)
+      }),
       });
       const data = await res.json();
       if (data?.url) {
@@ -258,7 +260,7 @@ function applyCode() {
           >
             <div className="flex items-center justify-between gap-3">
               <p className="text-lg font-semibold text-amber-200">
-                <span className="text-white">Unesi kod i odmah ostvari</span> 10€
+                <span className="text-white">Unesi promo kod:</span>
               </p>
             </div>
 
@@ -292,7 +294,7 @@ function applyCode() {
               <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-300/30 bg-amber-300/10 p-2.5 text-amber-200">
                 <AlertTriangle className="h-4 w-4" />
                 <p className="text-sm">
-                  <b>Nisi uneo kod</b> kojim ostvaruješ 10€ popusta.
+                  <b>Nisi uneo kod</b> kojim ostvaruješ 5€ popusta.
                 </p>
               </div>
             )}
@@ -424,131 +426,5 @@ function PaymentOption({
       </span>
       <span className={active ? "text-amber-300 font-semibold" : "text-white/70"}>{label}</span>
     </button>
-  );
-}
-function SnowCanvas({
-  className = "",
-  density = 140,          // number of flakes (tweak)
-  speed = 0.6,            // overall speed multiplier (tweak)
-}: {
-  className?: string;
-  density?: number;
-  speed?: number;
-}) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let w = 0;
-    let h = 0;
-
-    const DPR = Math.min(2, window.devicePixelRatio || 1);
-
-    type Flake = {
-      x: number;
-      y: number;
-      r: number;
-      vx: number;
-      vy: number;
-      a: number; // alpha
-      tw: number; // twinkle phase
-    };
-
-    let flakes: Flake[] = [];
-
-    const resize = () => {
-      const parent = canvas.parentElement;
-      const rect = parent ? parent.getBoundingClientRect() : { width: window.innerWidth, height: window.innerHeight };
-      w = Math.max(1, Math.floor(rect.width));
-      h = Math.max(1, Math.floor(rect.height));
-
-      canvas.width = Math.floor(w * DPR);
-      canvas.height = Math.floor(h * DPR);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-
-      // rebuild on resize so density feels consistent
-      flakes = Array.from({ length: density }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        r: 0.8 + Math.random() * 2.4,
-        vx: (-0.15 + Math.random() * 0.3) * 60 * speed,
-        vy: (0.25 + Math.random() * 0.85) * 60 * speed,
-        a: 0.25 + Math.random() * 0.55,
-        tw: Math.random() * Math.PI * 2,
-      }));
-    };
-
-    const tick = (t: number) => {
-      ctx.clearRect(0, 0, w, h);
-
-      // subtle glow
-      ctx.save();
-      ctx.globalCompositeOperation = "lighter";
-
-      for (const f of flakes) {
-        f.tw += 0.02;
-        const twinkle = 0.75 + 0.25 * Math.sin(f.tw);
-
-        f.x += f.vx / 60;
-        f.y += f.vy / 60;
-
-        // wrap
-        if (f.y - f.r > h) {
-          f.y = -f.r;
-          f.x = Math.random() * w;
-        }
-        if (f.x < -10) f.x = w + 10;
-        if (f.x > w + 10) f.x = -10;
-
-        ctx.beginPath();
-        ctx.globalAlpha = f.a * twinkle;
-
-        // soft white with a tiny warm tint to match your amber theme
-        ctx.fillStyle = "rgba(255, 250, 240, 1)";
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      ctx.restore();
-      rafRef.current = requestAnimationFrame(tick);
-    };
-
-    const onVis = () => {
-      // pause when hidden to save CPU
-      if (document.hidden) {
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      } else if (!rafRef.current) {
-        rafRef.current = requestAnimationFrame(tick);
-      }
-    };
-
-    resize();
-    rafRef.current = requestAnimationFrame(tick);
-
-    window.addEventListener("resize", resize);
-    document.addEventListener("visibilitychange", onVis);
-
-    return () => {
-      window.removeEventListener("resize", resize);
-      document.removeEventListener("visibilitychange", onVis);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [density, speed]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className={className}
-      aria-hidden="true"
-    />
   );
 }

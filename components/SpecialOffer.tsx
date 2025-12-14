@@ -33,7 +33,7 @@ export default function SpecialOffer() {
         <h2 className="font-display leading-tight text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
           Ovo bi ukupno platio
           <br />
-          <span className="inline-block mt-2">250€ sa bonusima</span>
+          <span className="inline-block mt-2">230€ sa bonusima</span>
         </h2>
 
         <div className="mt-8 font-display text-brand-gold text-5xl sm:text-6xl md:text-7xl">
@@ -46,7 +46,6 @@ export default function SpecialOffer() {
           ponudu za tebe
         </p>
 
-        <div className="mt-6 text-4xl sm:text-5xl">🤝🤝</div>
 
         <div className="mt-10 ">
           <Link

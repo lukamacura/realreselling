@@ -14,11 +14,14 @@ const PriceComparison = dynamic(() => import("@/components/PriceComparison"), { 
 // const QuizDiscountPopup = dynamic(() => import("@/components/QuizDiscountPopup"), { ssr: false });
 const TestimonialsYTVideos = dynamic(() => import("@/components/Testimonials").then(m => m.default));
 const ResultsImagesSection = dynamic(() => import("@/components/Testimonials").then(m => m.ResultsImagesSection), { ssr: false });
+import SnowCanvas from "@/components/SnowCanvas";
 
 export default function ClientHome() {
 
   return (
     <>
+            <SnowCanvas className="pointer-events-none absolute inset-0 z-0 opacity-80" />
+    
       <BentoGrid />
       <BonusSection />
       <SpecialOffer />
@@ -45,7 +48,6 @@ export default function ClientHome() {
 
       <PriceComparison
         currency="EUR"
-        groupUrl="#cena"
         intervalMs={3000}
         products={[
           { image: "/p1.png", priceRegular: 70,  priceWithGroup: 25 },

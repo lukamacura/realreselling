@@ -4,10 +4,17 @@ import Stripe from "stripe";
 import { NextResponse } from "next/server";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-const UNIT_AMOUNT_EUR = 5000; // 50€ u centima
+const BASE_AMOUNT_EUR = 5000;   // 50€
+const DISCOUNT_AMOUNT_EUR = 4500; // 45€
+const COUPON_CODE = "POPUST";   // validan kod
 
 export async function POST(req: Request) {
-  const { email, code } = await req.json(); // price IGNORIŠEMO
+  const { email, code, codeApplied } = await req.json();
+
+  const norm = (v?: string) => (v ? String(v).trim().toUpperCase() : "");
+  const isValidCode = !!codeApplied && norm(code) === COUPON_CODE;
+
+  const unitAmount = isValidCode ? DISCOUNT_AMOUNT_EUR : BASE_AMOUNT_EUR;
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -24,7 +31,7 @@ export async function POST(req: Request) {
                 "Dobijaš proizvode, uputstva i “copy-paste” šablone da napraviš prvu prodaju za 30 dana, a ako ne uspeš VRATIĆEMO TI NOVAC.",
               images: ["https://realreselling.com/hero.png"],
             },
-            unit_amount: UNIT_AMOUNT_EUR,
+            unit_amount: unitAmount,
           },
           quantity: 1,
         },
@@ -33,7 +40,9 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
       metadata: {
         method: "kartica",
-        code: code ?? "",
+        code: norm(code),
+        codeApplied: String(!!codeApplied),
+        unitAmount: String(unitAmount),
       },
     });
 

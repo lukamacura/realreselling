@@ -58,7 +58,7 @@ const fadeMotion = {
 const PriceComparison: React.FC<PriceComparisonProps> = ({
   products,
   currency = "EUR",
-  groupUrl = "#cena",
+  groupUrl = "/discount",
   className = "",
   featuresOutside = [
     "Skriveni dodatni troškovi",
