@@ -27,7 +27,7 @@ export default function ForYou() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
           {/* NIJE */}
           <div>
-            <h3 className="text-center font-display text-3xl text-red-500 md:text-4xl">
+            <h3 className="text-center font-display text-3xl text-amber-300  md:text-4xl">
               NIJE
             </h3>
 
@@ -35,7 +35,7 @@ export default function ForYou() {
               {left.map((t) => (
                 <div
                   key={t}
-                  className="rounded-lg uppercase font-bold border-2 border-orange-800 bg-orange-300 px-2 py-2 text-center text-md  text-orange-800 shadow-soft md:text-lg"
+                  className="rounded-lg uppercase font-bold border-2 border-amber-400/60 text-center  bg-amber-400/10 px-2 py-2 text-sm text-amber-300 shadow-soft md:text-lg"
                 >
                   {t}
                 </div>
@@ -53,7 +53,7 @@ export default function ForYou() {
               {right.map((t) => (
                 <div
                   key={t}
-                  className="rounded-lg uppercase font-bold bg-green-300 px-2 py-2 text-center text-md  text-green-800 shadow-soft md:text-lg"
+                  className="rounded-lg uppercase font-bold border-2 border-green-400/60 text-center  bg-green-400/10 px-2 py-2 text-sm text-green-300 shadow-soft md:text-lg"
                 >
                   {t}
                 </div>
