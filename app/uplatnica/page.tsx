@@ -109,6 +109,10 @@ function UplatnicaClient() {
   }, [lead.code]);
 
   const priceText = useMemo(() => `${finalPrice}€`, [finalPrice]);
+// ✅ iznad return-a, negde pored priceText
+const hasPromo = Boolean(lead.code);
+const exampleImageSrc = hasPromo ? "/popust.jpeg" : "/uplatnica.png";
+const exampleImageAlt = hasPromo ? "Primer uplatnice (popust)" : "Primer uplatnice";
 
   // Load lead
   useEffect(() => {
@@ -250,12 +254,13 @@ function UplatnicaClient() {
 
           <div className="mt-6 flex flex-col items-center">
             <Image
-              src="/uplatnica.png"
-              alt="Primer uplatnice"
+              src={exampleImageSrc}
+              alt={exampleImageAlt}
               width={1400}
               height={900}
               className="w-full max-w-[560px] rounded-md ring-1 ring-white/10"
             />
+
           </div>
 
           <div className="mt-6 rounded-xl bg-[#0E1319] p-4 ring-1 ring-white/5">
@@ -267,12 +272,14 @@ function UplatnicaClient() {
 
             <div className="mt-4 flex flex-col gap-3 md:flex-row">
               <Link
-                href="/uplatnica.png"
+                href={exampleImageSrc}
                 download
                 className="rounded-xl border border-white/10 px-3 py-2 text-sm hover:bg-white/5"
               >
-                <Download className="inline h-4 w-4 mr-1" /> Preuzmi primer uplatnice
+                <Download className="inline h-4 w-4 mr-1" />{" "}
+                {hasPromo ? "Preuzmi primer uplatnice (popust)" : "Preuzmi primer uplatnice"}
               </Link>
+
 
               <button
                 onClick={openCamera}
