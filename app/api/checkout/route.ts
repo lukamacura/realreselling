@@ -6,15 +6,25 @@ import { NextResponse } from "next/server";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const BASE_AMOUNT_EUR = 5000;   // 50€
 const DISCOUNT_AMOUNT_EUR = 4500; // 45€
+const BOZIC_AMOUNT_EUR = 3900; // 39€
 const COUPON_CODE = "POPUST";   // validan kod
+const BOZIC_CODE = "BOZIC";     // Božićni kod
 
 export async function POST(req: Request) {
   const { email, code, codeApplied } = await req.json();
 
   const norm = (v?: string) => (v ? String(v).trim().toUpperCase() : "");
-  const isValidCode = !!codeApplied && norm(code) === COUPON_CODE;
 
-  const unitAmount = isValidCode ? DISCOUNT_AMOUNT_EUR : BASE_AMOUNT_EUR;
+  // Provera za Božićni kod ili standardni kupon
+  const isBozic = !!codeApplied && norm(code) === BOZIC_CODE;
+  const isStandardCoupon = !!codeApplied && norm(code) === COUPON_CODE;
+
+  let unitAmount = BASE_AMOUNT_EUR;
+  if (isBozic) {
+    unitAmount = BOZIC_AMOUNT_EUR;
+  } else if (isStandardCoupon) {
+    unitAmount = DISCOUNT_AMOUNT_EUR;
+  }
 
   try {
     const session = await stripe.checkout.sessions.create({

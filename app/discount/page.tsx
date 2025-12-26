@@ -66,6 +66,9 @@ export default function DiscountSection({
   couponValue = 5,
   onContinue,
 }: Props) {
+  // Specijalni Božićni kod
+  const BOZIC_CODE = "bozic";
+  const BOZIC_PRICE = 39;
   const [code, setCode] = useState("");
   const [applied, setApplied] = useState(false);
   const [method, setMethod] = useState<"uplatnica" | "kartica">("uplatnica");
@@ -93,7 +96,13 @@ export default function DiscountSection({
   useEffect(() => setDisplayPrice(basePrice), [basePrice]);
 
   useEffect(() => {
-    const target = applied ? Math.max(0, basePrice - couponValue) : basePrice;
+    let target = basePrice;
+    if (applied) {
+      // Ako je primenjen Božićni kod, ciljana cena je 39€
+      const isBozic = normCode(code) === normCode(BOZIC_CODE);
+      target = isBozic ? BOZIC_PRICE : Math.max(0, basePrice - couponValue);
+    }
+
     if (animRef.current) { clearInterval(animRef.current); animRef.current = null; }
     if (displayPrice === target) return;
     const TICK_MS = 35;
@@ -107,24 +116,34 @@ export default function DiscountSection({
     }, TICK_MS);
     return () => { if (animRef.current) { clearInterval(animRef.current); animRef.current = null; } };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [applied, basePrice, couponValue]);
+  }, [applied, basePrice, couponValue, code]);
 
-  const priceToPay = useMemo(
-    () => (applied ? Math.max(0, basePrice - couponValue) : basePrice),
-    [applied, basePrice, couponValue]
-  );
+  const priceToPay = useMemo(() => {
+    if (!applied) return basePrice;
+    // Ako je primenjen Božićni kod, vraćamo fiksnu cenu od 39€
+    if (normCode(code) === normCode(BOZIC_CODE)) return BOZIC_PRICE;
+    // Inače primenjujemo standardni popust
+    return Math.max(0, basePrice - couponValue);
+  }, [applied, basePrice, couponValue, code, BOZIC_CODE, BOZIC_PRICE]);
 
 function applyCode() {
-  const ok = containsCoupon(code, couponCode); // e.g. "rrs25luka" passes, "luka" fails
+  // Provera za Božićni kod ili standardni kupon
+  const isBozic = normCode(code) === normCode(BOZIC_CODE);
+  const isStandard = containsCoupon(code, couponCode);
+  const ok = isBozic || isStandard;
+
   setApplied(ok);
   setError(ok ? "" : "Ne postoji taj kod. Pokušaj ponovo.");
   if (!ok) { inputRef.current?.focus(); return; }
 
   setMissingCodeWarn(false);
+
+  // Računamo cenu na osnovu primenjenog koda
+  const discountedPrice = isBozic ? BOZIC_PRICE : Math.max(0, basePrice - couponValue);
+
   upsertLead({
-    // i dalje čuvamo bazni kupon, ne ceo unos
     code: normCode(code),
-    price: Math.max(0, basePrice - couponValue),
+    price: discountedPrice,
     name: name?.trim() || undefined,
     email: email?.trim() || undefined,
     method,

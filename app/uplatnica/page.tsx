@@ -26,6 +26,7 @@ export const dynamic = "force-dynamic";
 const LEAD_KEY = "rrs_lead_v1";
 const BASE_PRICE = 50;
 const DISCOUNT_PRICE = 45;
+const BOZIC_PRICE = 39;
 
 // -----------------------------
 // LocalStorage helpers
@@ -105,7 +106,12 @@ function UplatnicaClient() {
 
   // ✅ FINAL CENA
   const finalPrice = useMemo(() => {
-    return lead.code ? DISCOUNT_PRICE : BASE_PRICE;
+    if (!lead.code) return BASE_PRICE;
+    // Provera za Božićni kod
+    const normalizedCode = lead.code?.trim().toUpperCase();
+    if (normalizedCode === "BOZIC") return BOZIC_PRICE;
+    // Standardni popust kod
+    return DISCOUNT_PRICE;
   }, [lead.code]);
 
   const priceText = useMemo(() => `${finalPrice}€`, [finalPrice]);
