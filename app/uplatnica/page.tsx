@@ -117,8 +117,11 @@ function UplatnicaClient() {
   const priceText = useMemo(() => `${finalPrice}€`, [finalPrice]);
 // ✅ iznad return-a, negde pored priceText
 const hasPromo = Boolean(lead.code);
-const exampleImageSrc = hasPromo ? "/popust.jpeg" : "/uplatnica.png";
-const exampleImageAlt = hasPromo ? "Primer uplatnice (popust)" : "Primer uplatnice";
+const normalizedCode = lead.code?.trim().toUpperCase();
+const isBozicCode = normalizedCode === "BOZIC";
+
+const exampleImageSrc = isBozicCode ? "/uplatnica_39.jpeg" : (hasPromo ? "/popust.jpeg" : "/uplatnica.png");
+const exampleImageAlt = isBozicCode ? "Primer uplatnice (Božićna akcija - 39€)" : (hasPromo ? "Primer uplatnice (popust)" : "Primer uplatnice");
 
   // Load lead
   useEffect(() => {
@@ -283,7 +286,7 @@ const exampleImageAlt = hasPromo ? "Primer uplatnice (popust)" : "Primer uplatni
                 className="rounded-xl border border-white/10 px-3 py-2 text-sm hover:bg-white/5"
               >
                 <Download className="inline h-4 w-4 mr-1" />{" "}
-                {hasPromo ? "Preuzmi primer uplatnice (popust)" : "Preuzmi primer uplatnice"}
+                {isBozicCode ? "Preuzmi primer uplatnice (Božićna akcija - 39€)" : (hasPromo ? "Preuzmi primer uplatnice (popust)" : "Preuzmi primer uplatnice")}
               </Link>
 
 
