@@ -266,6 +266,37 @@ function applyCode() {
   return (
     <section className="relative overflow-hidden bg-[#0B0F13] text-white">
       <SnowCanvas className="pointer-events-none absolute inset-0 z-0 opacity-80" />
+
+      {/* Fiksiran kružni baner za Božićni popust */}
+      <div className="fixed bottom-6 right-6 z-50 animate-bounce-slow">
+        <div className="relative flex h-36 w-36 items-center justify-center rounded-full bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-2xl ring-4 ring-red-400/30">
+          {/* Dekorativni sjaj */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/20"></div>
+
+          <div className="relative z-10 text-center px-3">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-white/90 leading-tight">
+              U toku je
+            </p>
+            <p className="text-xs font-extrabold uppercase text-white leading-tight mt-0.5">
+              Praznični
+            </p>
+            <p className="text-xs font-extrabold uppercase text-white leading-tight">
+              Popust
+            </p>
+            <div className="mt-1 mb-1 h-px bg-white/40"></div>
+            <p className="text-[10px] font-semibold uppercase text-amber-300 tracking-wider">
+              Kod: BOZIC
+            </p>
+            <p className="text-lg font-black text-white leading-none mt-1">
+              22% <span className="text-sm">OFF</span>
+            </p>
+          </div>
+
+          {/* Pulsing ring */}
+          <div className="absolute inset-0 rounded-full ring-2 ring-white/40 animate-ping"></div>
+        </div>
+      </div>
+
       <div className="container mx-auto max-w-[1000px] px-4 py-10 sm:py-14">
         <div className="relative rounded-2xl border border-white/10 bg-[#12171E]/80 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)] sm:p-6 md:p-7">
           <div className="absolute inset-x-0 top-0 h-[10px] rounded-t-2xl bg-gradient-to-r from-amber-500 via-amber-300 to-amber-600" />

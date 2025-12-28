@@ -39,6 +39,9 @@ export default {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         display: ["var(--font-bebas)", "system-ui", "sans-serif"],
       },
+      animation: {
+        "bounce-slow": "bounce 2s infinite",
+      },
     },
   },
   plugins: [typography, forms, aspectRatio],
