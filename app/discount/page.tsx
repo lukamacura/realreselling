@@ -66,9 +66,6 @@ export default function DiscountSection({
   couponValue = 5,
   onContinue,
 }: Props) {
-  // Specijalni Božićni kod
-  const BOZIC_CODE = "bozic";
-  const BOZIC_PRICE = 39;
   const [code, setCode] = useState("");
   const [applied, setApplied] = useState(false);
   const [method, setMethod] = useState<"uplatnica" | "kartica">("uplatnica");
@@ -96,13 +93,7 @@ export default function DiscountSection({
   useEffect(() => setDisplayPrice(basePrice), [basePrice]);
 
   useEffect(() => {
-    let target = basePrice;
-    if (applied) {
-      // Ako je primenjen Božićni kod, ciljana cena je 39€
-      const isBozic = normCode(code) === normCode(BOZIC_CODE);
-      target = isBozic ? BOZIC_PRICE : Math.max(0, basePrice - couponValue);
-    }
-
+    const target = applied ? Math.max(0, basePrice - couponValue) : basePrice;
     if (animRef.current) { clearInterval(animRef.current); animRef.current = null; }
     if (displayPrice === target) return;
     const TICK_MS = 35;
@@ -116,34 +107,24 @@ export default function DiscountSection({
     }, TICK_MS);
     return () => { if (animRef.current) { clearInterval(animRef.current); animRef.current = null; } };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [applied, basePrice, couponValue, code]);
+  }, [applied, basePrice, couponValue]);
 
-  const priceToPay = useMemo(() => {
-    if (!applied) return basePrice;
-    // Ako je primenjen Božićni kod, vraćamo fiksnu cenu od 39€
-    if (normCode(code) === normCode(BOZIC_CODE)) return BOZIC_PRICE;
-    // Inače primenjujemo standardni popust
-    return Math.max(0, basePrice - couponValue);
-  }, [applied, basePrice, couponValue, code, BOZIC_CODE, BOZIC_PRICE]);
+  const priceToPay = useMemo(
+    () => (applied ? Math.max(0, basePrice - couponValue) : basePrice),
+    [applied, basePrice, couponValue]
+  );
 
 function applyCode() {
-  // Provera za Božićni kod ili standardni kupon
-  const isBozic = normCode(code) === normCode(BOZIC_CODE);
-  const isStandard = containsCoupon(code, couponCode);
-  const ok = isBozic || isStandard;
-
+  const ok = containsCoupon(code, couponCode); // e.g. "rrs25luka" passes, "luka" fails
   setApplied(ok);
   setError(ok ? "" : "Ne postoji taj kod. Pokušaj ponovo.");
   if (!ok) { inputRef.current?.focus(); return; }
 
   setMissingCodeWarn(false);
-
-  // Računamo cenu na osnovu primenjenog koda
-  const discountedPrice = isBozic ? BOZIC_PRICE : Math.max(0, basePrice - couponValue);
-
   upsertLead({
+    // i dalje čuvamo bazni kupon, ne ceo unos
     code: normCode(code),
-    price: discountedPrice,
+    price: Math.max(0, basePrice - couponValue),
     name: name?.trim() || undefined,
     email: email?.trim() || undefined,
     method,
@@ -266,37 +247,6 @@ function applyCode() {
   return (
     <section className="relative overflow-hidden bg-[#0B0F13] text-white">
       <SnowCanvas className="pointer-events-none absolute inset-0 z-0 opacity-80" />
-
-      {/* Fiksiran kružni baner za Božićni popust */}
-      <div className="fixed bottom-6 right-6 z-50 animate-bounce-slow">
-        <div className="relative flex h-36 w-36 items-center justify-center rounded-full bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-2xl ring-4 ring-red-400/30">
-          {/* Dekorativni sjaj */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/20"></div>
-
-          <div className="relative z-10 text-center px-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-white/90 leading-tight">
-              U toku je
-            </p>
-            <p className="text-xs font-extrabold uppercase text-white leading-tight mt-0.5">
-              Praznični
-            </p>
-            <p className="text-xs font-extrabold uppercase text-white leading-tight">
-              Popust
-            </p>
-            <div className="mt-1 mb-1 h-px bg-white/40"></div>
-            <p className="text-[10px] font-semibold uppercase text-amber-300 tracking-wider">
-              Kod: BOZIC
-            </p>
-            <p className="text-lg font-black text-white leading-none mt-1">
-              22% <span className="text-sm">OFF</span>
-            </p>
-          </div>
-
-          {/* Pulsing ring */}
-          <div className="absolute inset-0 rounded-full ring-2 ring-white/40 animate-ping"></div>
-        </div>
-      </div>
-
       <div className="container mx-auto max-w-[1000px] px-4 py-10 sm:py-14">
         <div className="relative rounded-2xl border border-white/10 bg-[#12171E]/80 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)] sm:p-6 md:p-7">
           <div className="absolute inset-x-0 top-0 h-[10px] rounded-t-2xl bg-gradient-to-r from-amber-500 via-amber-300 to-amber-600" />

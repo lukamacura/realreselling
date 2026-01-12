@@ -26,7 +26,6 @@ export const dynamic = "force-dynamic";
 const LEAD_KEY = "rrs_lead_v1";
 const BASE_PRICE = 50;
 const DISCOUNT_PRICE = 45;
-const BOZIC_PRICE = 39;
 
 // -----------------------------
 // LocalStorage helpers
@@ -106,22 +105,14 @@ function UplatnicaClient() {
 
   // ✅ FINAL CENA
   const finalPrice = useMemo(() => {
-    if (!lead.code) return BASE_PRICE;
-    // Provera za Božićni kod
-    const normalizedCode = lead.code?.trim().toUpperCase();
-    if (normalizedCode === "BOZIC") return BOZIC_PRICE;
-    // Standardni popust kod
-    return DISCOUNT_PRICE;
+    return lead.code ? DISCOUNT_PRICE : BASE_PRICE;
   }, [lead.code]);
 
   const priceText = useMemo(() => `${finalPrice}€`, [finalPrice]);
 // ✅ iznad return-a, negde pored priceText
 const hasPromo = Boolean(lead.code);
-const normalizedCode = lead.code?.trim().toUpperCase();
-const isBozicCode = normalizedCode === "BOZIC";
-
-const exampleImageSrc = isBozicCode ? "/uplatnica_39.jpeg" : (hasPromo ? "/popust.jpeg" : "/uplatnica.png");
-const exampleImageAlt = isBozicCode ? "Primer uplatnice (Božićna akcija - 39€)" : (hasPromo ? "Primer uplatnice (popust)" : "Primer uplatnice");
+const exampleImageSrc = hasPromo ? "/popust.jpeg" : "/uplatnica.png";
+const exampleImageAlt = hasPromo ? "Primer uplatnice (popust)" : "Primer uplatnice";
 
   // Load lead
   useEffect(() => {
@@ -247,36 +238,6 @@ const exampleImageAlt = isBozicCode ? "Primer uplatnice (Božićna akcija - 39�
     <section className="relative min-h-dvh overflow-hidden bg-[#0B0F13] text-white">
       <SnowCanvas className="pointer-events-none absolute inset-0 z-0 opacity-80" />
 
-      {/* Fiksiran kružni baner za Božićni popust */}
-      <div className="fixed bottom-6 right-6 z-50 animate-bounce-slow">
-        <div className="relative flex h-36 w-36 items-center justify-center rounded-full bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-2xl ring-4 ring-red-400/30">
-          {/* Dekorativni sjaj */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/20"></div>
-
-          <div className="relative z-10 text-center px-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-white/90 leading-tight">
-              U toku je
-            </p>
-            <p className="text-xs font-extrabold uppercase text-white leading-tight mt-0.5">
-              Praznični
-            </p>
-            <p className="text-xs font-extrabold uppercase text-white leading-tight">
-              Popust
-            </p>
-            <div className="mt-1 mb-1 h-px bg-white/40"></div>
-            <p className="text-[10px] font-semibold uppercase text-amber-300 tracking-wider">
-              Kod: BOZIC
-            </p>
-            <p className="text-lg font-black text-white leading-none mt-1">
-              22% <span className="text-sm">OFF</span>
-            </p>
-          </div>
-
-          {/* Pulsing ring */}
-          <div className="absolute inset-0 rounded-full ring-2 ring-white/40 animate-ping"></div>
-        </div>
-      </div>
-
       <div className="container mx-auto max-w-[920px] px-4 py-8 sm:py-12">
         <button
           onClick={() => !busy && router.back()}
@@ -316,7 +277,7 @@ const exampleImageAlt = isBozicCode ? "Primer uplatnice (Božićna akcija - 39�
                 className="rounded-xl border border-white/10 px-3 py-2 text-sm hover:bg-white/5"
               >
                 <Download className="inline h-4 w-4 mr-1" />{" "}
-                {isBozicCode ? "Preuzmi primer uplatnice (Božićna akcija - 39€)" : (hasPromo ? "Preuzmi primer uplatnice (popust)" : "Preuzmi primer uplatnice")}
+                {hasPromo ? "Preuzmi primer uplatnice (popust)" : "Preuzmi primer uplatnice"}
               </Link>
 
 
