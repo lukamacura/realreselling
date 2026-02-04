@@ -67,11 +67,11 @@ useEffect(() => {
   }, [open]);
 
   const links = [
-    { href: "#pocetna", label: "Početna" },
-    { href: "#sta-dobijam", label: "Šta dobijam" },
-    { href: "#recenzije", label: "Recenzije" },
-    { href: "#cena", label: "Cena programa" },
-    { href: "#faq", label: "FAQ" },
+    { href: "/#pocetna", label: "Početna" },
+    { href: "/#sta-dobijam", label: "Šta dobijam" },
+    { href: "/#recenzije", label: "Recenzije" },
+    { href: "/#cena", label: "Cena programa" },
+    { href: "/#faq", label: "FAQ" },
   ];
 
   function closeAndFocus() {
@@ -87,7 +87,7 @@ useEffect(() => {
           aria-label="Glavna navigacija"
         >
           <Link
-          href="#pocetna"
+          href="/#pocetna"
           className="select-none inline-flex items-center gap-2 text-base font-semibold tracking-tight text-white/90 hover:text-white"
           aria-label="Početna"
         >
