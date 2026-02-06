@@ -20,6 +20,7 @@ export async function POST(req: Request) {
     // Minimalna verifikacija
     const paid = session.payment_status === "paid";
     const email = session.customer_email || session.customer_details?.email || null;
+    const name = session.customer_details?.name || null;
     const price = (session.amount_total ?? 0) / 100;
 
     if (!paid || !email) {
@@ -35,10 +36,12 @@ export async function POST(req: Request) {
     const payload = {
       event: "purchase_completed",
       email,
+      name,
       price,
       method: "kartica",
       status: "success",
       orderId: session.id,
+      source: session.metadata?.source || "checkout",
       ts: new Date().toISOString(),
     };
 

@@ -1,8 +1,6 @@
 export type RRSEvent =
   | "lead_checkout_started"
-  | "purchase_completed"
-  | "purchase_abandoned"
-  | "bank_transfer_proof_submitted";
+  | "purchase_completed";
 
 export type BasePayload = {
   event: RRSEvent;
@@ -13,19 +11,11 @@ export type BasePayload = {
   method?: "uplatnica" | "kartica";
   orderId?: string;
   status?: "success" | "error" | "canceled";
-  reason?: string;
   ts?: string;
   utm?: Record<string, string | null | undefined>;
-  proof?: { filename?: string; size?: number; type?: string };
 };
 
-/**
- * Napomena:
- * - `keepalive` NIKAD za FormData (iOS/Chrome limit ~64KB).
- * - Vraćamo uvek `Response` (UI može da proveri .ok / .status / .text()).
- */
-export async function postRRSWebhook(payload: BasePayload | FormData): Promise<Response> {
-  const isFormData = typeof FormData !== "undefined" && payload instanceof FormData;
+export async function postRRSWebhook(payload: BasePayload): Promise<Response> {
   const isServer = typeof window === "undefined";
 
   const base = isServer
@@ -36,11 +26,9 @@ export async function postRRSWebhook(payload: BasePayload | FormData): Promise<R
   try {
     const res = await fetch(`${base}/api/leads`, {
       method: "POST",
-      headers: isFormData ? undefined : { "content-type": "application/json" },
-      body: isFormData ? payload : JSON.stringify(payload),
-      // ✅ keepalive koristimo SAMO za male JSON pingove, nikad za FormData
-      ...(isServer ? {} : (!isFormData ? { keepalive: true } : {})),
-      // opciono: credentials: "same-origin",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+      ...(isServer ? {} : { keepalive: true }),
     });
 
     if (!res.ok) {

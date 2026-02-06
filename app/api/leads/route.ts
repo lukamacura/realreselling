@@ -25,58 +25,7 @@ export async function POST(req: NextRequest) {
   if (!url) return new NextResponse("N8N_WEBHOOK_LEADS_URL missing", { status: 500 });
 
   try {
-    const ct = req.headers.get("content-type") ?? "";
-
-    // ====== A) MULTIPART (sa fajlom) ======
-    if (ct.includes("multipart/form-data")) {
-      const inForm = await req.formData();
-
-      // Rekreiramo FormData (sigurno prosleđivanje fajla i polja)
-      const outForm = new FormData();
-      for (const [k, v] of inForm.entries()) {
-        if (v instanceof File) {
-          outForm.append(k, v, v.name);
-        } else {
-          outForm.append(k, String(v));
-        }
-      }
-
-      // Token nad stabilnim stringom polja (bez binarnog sadržaja)
-      const tokenPayload = JSON.stringify({
-        event: inForm.get("event"),
-        email: inForm.get("email"),
-        name: inForm.get("name"),
-        code: inForm.get("code"),
-        price: inForm.get("price"),
-        method: inForm.get("method"),
-        ts: inForm.get("ts"),
-        proof:
-          inForm.get("proof") instanceof File
-            ? {
-                filename: (inForm.get("proof") as File).name,
-                size: (inForm.get("proof") as File).size,
-                type: (inForm.get("proof") as File).type,
-              }
-            : undefined,
-      });
-      const token = sha256Hex(tokenPayload + secret);
-
-      const upstream = await fetch(url, {
-        method: "POST",
-        body: outForm, // ⚠️ ne postavljati content-type ručno
-        headers: { "x-rrs-token": token },
-        cache: "no-store",
-      });
-
-      const txt = await upstream.text();
-      return new NextResponse(txt || "ok", {
-        status: upstream.status,
-        headers: { "Access-Control-Allow-Origin": "*" },
-      });
-    }
-
-    // ====== B) JSON (bez fajla) ======
-    const bodyText = await req.text(); // raw body za stari način potpisivanja
+    const bodyText = await req.text();
     const token = sha256Hex(bodyText + secret);
 
     const upstream = await fetch(url, {

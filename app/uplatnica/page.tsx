@@ -1,21 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-  Camera,
   Download,
-  UploadCloud,
-  CheckCircle2,
   ArrowLeft,
   Info,
+  MessageCircle,
 } from "lucide-react";
-import { postRRSWebhook } from "@/lib/webhook";
-import { trackCustom } from "@/lib/pixel";
 import SnowCanvas from "@/components/SnowCanvas";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +20,9 @@ export const dynamic = "force-dynamic";
 const LEAD_KEY = "rrs_lead_v1";
 const BASE_PRICE = 50;
 const DISCOUNT_PRICE = 45;
+
+const WHATSAPP_LINK = "https://wa.me/message/SYOT6G5LAW7UC1";
+const INSTAGRAM_LINK = "https://instagram.com/rrealreselling";
 
 // -----------------------------
 // LocalStorage helpers
@@ -53,23 +50,6 @@ function readLeadFromStorage():
   }
 }
 
-function refreshLeadInStorage(partial: {
-  name?: string;
-  email?: string;
-  code?: string;
-  method?: "uplatnica" | "kartica";
-}) {
-  try {
-    const current = readLeadFromStorage() || {};
-    const next = {
-      ...current,
-      ...partial,
-      exp: Date.now() + 72 * 60 * 60 * 1000,
-    };
-    localStorage.setItem(LEAD_KEY, JSON.stringify(next));
-  } catch {}
-}
-
 // -----------------------------
 // Page wrapper
 // -----------------------------
@@ -87,152 +67,32 @@ export default function Page() {
 function UplatnicaClient() {
   const sp = useSearchParams();
   const router = useRouter();
-  const firedRef = useRef(false);
 
-  const [lead, setLead] = useState<{ code?: string; name?: string; email?: string }>({});
-  const [fallbackName, setFallbackName] = useState("");
-  const [fallbackEmail, setFallbackEmail] = useState("");
-  const [fallbackErr, setFallbackErr] = useState("");
+  const [lead, setLead] = useState<{ code?: string }>({});
 
-  const fileInput = useRef<HTMLInputElement | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const lastUrlRef = useRef<string | null>(null);
-
-  const [busy, setBusy] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  // ✅ FINAL CENA
   const finalPrice = useMemo(() => {
     return lead.code ? DISCOUNT_PRICE : BASE_PRICE;
   }, [lead.code]);
 
   const priceText = useMemo(() => `${finalPrice}€`, [finalPrice]);
-// ✅ iznad return-a, negde pored priceText
-const hasPromo = Boolean(lead.code);
-const exampleImageSrc = hasPromo ? "/popust.jpeg" : "/uplatnica.png";
-const exampleImageAlt = hasPromo ? "Primer uplatnice (popust)" : "Primer uplatnice";
+
+  const hasPromo = Boolean(lead.code);
+  const exampleImageSrc = hasPromo ? "/popust.jpeg" : "/uplatnica.png";
+  const exampleImageAlt = hasPromo ? "Primer uplatnice (popust)" : "Primer uplatnice";
 
   // Load lead
   useEffect(() => {
-    const qp = {
-      code: sp.get("code") ?? undefined,
-      name: sp.get("name") ?? undefined,
-      email: sp.get("email") ?? undefined,
-    };
-
-    if (qp.code || qp.name || qp.email) {
-      const normalized = {
-        code: qp.code?.trim() || undefined,
-        name: qp.name?.trim() || undefined,
-        email: qp.email?.trim() || undefined,
-      };
-      setLead(normalized);
-      refreshLeadInStorage(normalized);
-      if (qp.name) setFallbackName(qp.name);
-      if (qp.email) setFallbackEmail(qp.email);
+    const code = sp.get("code")?.trim() || undefined;
+    if (code) {
+      setLead({ code });
       return;
     }
 
     const stored = readLeadFromStorage();
-    if (stored) {
-      setLead({
-        code: stored.code,
-        name: stored.name,
-        email: stored.email,
-      });
-      if (stored.name) setFallbackName(stored.name);
-      if (stored.email) setFallbackEmail(stored.email);
+    if (stored?.code) {
+      setLead({ code: stored.code });
     }
   }, [sp]);
-
-  useEffect(() => {
-    return () => {
-      if (lastUrlRef.current) URL.revokeObjectURL(lastUrlRef.current);
-    };
-  }, []);
-
-  function openCamera() {
-    const el = fileInput.current;
-    if (!el) return;
-    el.value = "";
-    el.click();
-  }
-
-  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0] ?? null;
-    setFile(f);
-
-    if (lastUrlRef.current) URL.revokeObjectURL(lastUrlRef.current);
-
-    if (f) {
-      const url = URL.createObjectURL(f);
-      lastUrlRef.current = url;
-      setPreview(url);
-    } else {
-      setPreview(null);
-    }
-  }
-
-  function validateEmail(v: string) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-  }
-
-  async function handleConfirm() {
-    if (busy || sent || !file) return;
-
-    const finalName = (lead.name ?? fallbackName).trim();
-    const finalEmail = (lead.email ?? fallbackEmail).trim();
-
-    if (!finalName || !validateEmail(finalEmail)) {
-      setFallbackErr("Unesi validno ime i email pre slanja dokaza.");
-      return;
-    }
-
-    refreshLeadInStorage({
-      name: finalName,
-      email: finalEmail,
-      code: lead.code,
-      method: "uplatnica",
-    });
-
-    setBusy(true);
-    setFallbackErr("");
-
-    try {
-      const fd = new FormData();
-      fd.append("event", "bank_transfer_proof_submitted");
-      fd.append("method", "uplatnica");
-      fd.append("price", String(finalPrice));
-      fd.append("name", finalName);
-      fd.append("email", finalEmail);
-      if (lead.code) fd.append("code", lead.code);
-      if (file) fd.append("proof", file, file.name);
-
-      const res = await postRRSWebhook(fd);
-      if (!res.ok) throw new Error("Greška pri slanju dokaza.");
-
-      if (!firedRef.current) {
-        firedRef.current = true;
-        void trackCustom("Closed - kupio uplatnicom", {
-          value: finalPrice,
-          currency: "EUR",
-          method: "uplatnica",
-          code: lead.code,
-        });
-      }
-
-      setSaved(true);
-      setSent(true);
-      router.replace("/uplatnica/success");
-    } catch (err) {
-      setFallbackErr("Došlo je do greške pri slanju. Pokušaj ponovo.");
-      setSent(false);
-    } finally {
-      setBusy(false);
-    }
-  }
 
   return (
     <section className="relative min-h-dvh overflow-hidden bg-[#0B0F13] text-white">
@@ -240,8 +100,7 @@ const exampleImageAlt = hasPromo ? "Primer uplatnice (popust)" : "Primer uplatni
 
       <div className="container mx-auto max-w-[920px] px-4 py-8 sm:py-12">
         <button
-          onClick={() => !busy && router.back()}
-          disabled={busy}
+          onClick={() => router.back()}
           className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
         >
           <ArrowLeft className="h-4 w-4" /> Nazad
@@ -260,7 +119,6 @@ const exampleImageAlt = hasPromo ? "Primer uplatnice (popust)" : "Primer uplatni
               height={900}
               className="w-full max-w-[560px] rounded-md ring-1 ring-white/10"
             />
-
           </div>
 
           <div className="mt-6 rounded-xl bg-[#0E1319] p-4 ring-1 ring-white/5">
@@ -270,59 +128,51 @@ const exampleImageAlt = hasPromo ? "Primer uplatnice (popust)" : "Primer uplatni
               {lead.code && <span className="text-emerald-400">(kod primenjen)</span>}
             </div>
 
-            <div className="mt-4 flex flex-col gap-3 md:flex-row">
+            <div className="mt-4">
               <Link
                 href={exampleImageSrc}
                 download
-                className="rounded-xl border border-white/10 px-3 py-2 text-sm hover:bg-white/5"
+                className="inline-flex items-center rounded-xl border border-white/10 px-3 py-2 text-sm hover:bg-white/5"
               >
                 <Download className="inline h-4 w-4 mr-1" />{" "}
                 {hasPromo ? "Preuzmi primer uplatnice (popust)" : "Preuzmi primer uplatnice"}
               </Link>
-
-
-              <button
-                onClick={openCamera}
-                className="rounded-xl bg-red-100 px-3 py-2 text-sm font-semibold text-red-800"
-              >
-                <Camera className="inline h-4 w-4 mr-1" /> Slikaj uplatnicu
-              </button>
-            </div>
-
-            <input
-              ref={fileInput}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={onFileChange}
-              className="hidden"
-            />
-
-            <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3">
-              {!preview ? (
-                <div className="grid place-items-center gap-2 py-8 text-white/60">
-                  <UploadCloud className="h-6 w-6" />
-                  <p className="text-sm">Dodaj fotografiju uplatnice</p>
-                </div>
-              ) : (
-                <img src={preview} alt="Preview uplatnice" className="rounded-md w-full" />
-              )}
             </div>
           </div>
 
-          <button
-            disabled={busy || sent || !file}
-            onClick={handleConfirm}
-            className="mt-6 w-full font-display rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 py-4 text-xl font-bold text-black disabled:opacity-60"
-          >
-            {sent ? "Poslato ✅" : busy ? "Šaljem…" : "Potvrđujem kupovinu i slažem se sa uslovima"}
-          </button>
-
-          {saved && (
-            <p className="mt-3 text-center text-sm text-emerald-400">
-              <CheckCircle2 className="inline h-4 w-4 mr-1" /> Dokaz je uspešno poslat
+          <div className="mt-6 rounded-xl bg-[#0E1319] p-5 ring-1 ring-white/5">
+            <p className="text-center text-sm text-white/70 mb-4">
+              Nakon uplate, pošalji nam sliku uplatnice putem jednog od kanala:
             </p>
-          )}
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <a
+                href={WHATSAPP_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#25D366] py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
+              >
+                <MessageCircle className="h-5 w-5" />
+                WhatsApp
+              </a>
+
+              <a
+                href={INSTAGRAM_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
+              >
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                </svg>
+                Instagram
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
