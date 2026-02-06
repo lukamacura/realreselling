@@ -50,12 +50,12 @@ function FocusPopup() {
 
               <div className="flex-1 pr-4">
                 <p className="text-white font-semibold text-sm leading-relaxed">
-                  Ako nemaš fokus da pročitaš sve, spadaš u{" "}
+                  Ako nemaš fokus da pročitaš dva minuta teksta, spadaš u{" "}
                   <span className="text-amber-400">88% ljudi</span> kojima je
-                  pažnja nepovratno uništena.
+                  pažnja potpuno uništena.
                 </p>
                 <p className="mt-2 text-neutral-400 text-xs">
-                  Budi drugačiji. Pročitaj do kraja.
+                  Izdvoji dva minuta. Pročitaj do kraja.
                 </p>
               </div>
             </div>
@@ -142,7 +142,7 @@ export default function StorySection() {
             Prava Priča
           </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl mt-3">
-            Od 800 Dinara do{" "}
+            Od Minimalca do{" "}
             <span className="bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
               Slobode
             </span>
@@ -155,199 +155,101 @@ export default function StorySection() {
           <Section>
             <div className="rounded-2xl border border-white/10 bg-[#12171E]/60 p-6 sm:p-8 backdrop-blur">
               <p>
-                Prošlog oktobra sedim kući u <strong className="text-white">3 ujutru</strong> i
-                vrtim TikTok jer ne mogu da zaspim. Devojka me već nedelju dana smara <em>&quot;Kad idemo na večeru?&quot;</em> i nije kriva. Obećao sam joj &quot;normalan
-                izlazak&quot;, a ja imam{" "}
+                Imam <strong className="text-white">23 godine</strong>, završio faks,
+                i radim za{" "}
                 <Highlight>
-                  <strong className="text-white">800 dinara</strong>
+                  <strong className="text-white">45.000 dinara mesečno</strong>
                 </Highlight>
-                . 800.
+                . Posle kirije, režija i hrane - ostane mi toliko da biram:{" "}
+                izlazak ili gorivo za ceo mesec. Devojka me pita{" "}
+                <em>&quot;Kad idemo negde?&quot;</em> i ja se pravim da nisam čuo.
               </p>
               <p className="mt-4">
-                Mama mi daje za užinu 1500din nedeljno i to je to. Ćale, standardno:{" "}
-                <em>&quot;Idi radi nešto.&quot;</em> A ja imam <strong className="text-white">17 godina</strong>{" "}
-                i u glavi jedno pitanje: gde da odem, ko mene uopšte prima?
+                Najgori deo nije bio nedostatak para. Najgore je bilo{" "}
+                <strong className="text-white">
+                  to što sam uradio sve &quot;kako treba&quot; - škola, faks, posao - i opet nisam
+                  imao ništa
+                </strong>
+                .
               </p>
             </div>
           </Section>
 
-          {/* Section 2: Discovery */}
-          <Section>
-            <p>
-              Na tiktoku iskoči mi klip gde lik pokazuje patike koje je našao jeftino, pa
-              ih preprodao za{" "}
-              <Highlight>
-                <strong className="text-white">skoro četiri puta više</strong>
-              </Highlight>
-              . Priča opušteno, kao da je kupio hleb. Meni prvo krene ono:{" "}
-              <em>&quot;Ma ajde, još jedan što prodaje maglu.&quot;</em> Ali ostanem na videu.{" "}
-              <strong className="text-white">
-                Ne zato što verujem, nego zato što mi mozak traži bilo kakav izlaz
-              </strong>{" "}
-              iz tog osećaja da sam zalepljen za mesto.
-            </p>
-            <p className="mt-4">
-              Sutradan opet isti fazon. Novi klipovi, novi ljudi, svi ponavljaju isto:{" "}
-              <strong className="text-white">reselling, preprodaja</strong>,{" "}
-              <em>&quot;kupi za manje - prodaj za više&quot;</em>. Deluje banalno, ali me jede.{" "}
-              <Highlight>
-                Dve nedelje zaredom gledam te stvari više nego što gledam serije.
-              </Highlight>
-            </p>
-          </Section>
-
-          {/* Section 3: Finding Real Reselling */}
+          {/* Section 2: Discovery + Finding Real Reselling */}
           <Section>
             <div className="border-l-4 border-amber-500/50 pl-6 py-2">
               <p>
-                I onda naletim na objavu sa linkom za{" "}
-                <strong className="text-amber-400">Real Reselling</strong>. Uđem iz radoznalosti,
-                očekujem neku besplatnu priču, kad ono cenovnik. Regularna cena{" "}
-                <strong className="text-white">50 evra</strong>, ali ima neka akcija za{" "}
-                <Highlight>
-                  <strong className="text-white">39 evra</strong>
-                </Highlight>
-                . I dalje mi je to bilo mnogo, ali manje nego što sam očekivao.
-              </p>
-              <p className="mt-4">
-                Ipak ne zatvaram odmah. Listam šta tačno piše da dobijaš. U tom trenutku mi je
-                bitno samo da vidim{" "}
-                <Highlight>
-                  da li je konkretno ili je &quot;mindset, motivacija, veruj u sebe&quot;
-                </Highlight>
+                Na mrežama naletim na ljude koji pričaju o preprodaji - kupuju stvari
+                jeftino, prodaju skuplje. Moja prva reakcija:{" "}
+                <em>&quot;Još jedan koji prodaje maglu.&quot;</em> Ali{" "}
+                <strong className="text-white">
+                  ostajem jer mi mozak traži bilo kakav izlaz
+                </strong>
                 .
               </p>
               <p className="mt-4">
-                Piše da vodič pokriva{" "}
+                Onda naletim na{" "}
+                <strong className="text-amber-400">Real Reselling</strong>. Ne
+                zatvaram odmah - listam šta dobijaš. Piše:{" "}
                 <strong className="text-white">
-                  kompletnu edukaciju, zajednicu, alate za prodaju i sistem gde ne moram da imam dodir sa proizvodom
+                  kompletna edukacija, zajednica, alati za prodaju, sistem bez dodira sa
+                  proizvodom
                 </strong>
-                , i ima primere oglasa.{" "}
+                .{" "}
                 <Highlight>
                   <strong className="text-white">
-                    To je prvi put da mi deluje kao nešto što se može pratiti kao recept.
+                    Prvi put mi deluje kao konkretan recept, ne motivacioni govor.
                   </strong>
                 </Highlight>
               </p>
             </div>
           </Section>
 
-          {/* Section 4: Real Testimonials */}
-          <Section>
-            <p>
-              Ne kupujem odmah. Par dana samo pratim njihov besplatan sadržaj i komentare ljudi
-              koji već rade. Ono što mi je zapalo za oko{" "}
-              <strong className="text-white">nisu &quot;milioni za nedelju dana&quot;</strong>, nego sitne
-              stvari: klinac piše da je prodao jaknu i zaradio 3000, neko drugi da mu je prvi
-              kupac tražio popust i da je uspeo da ne spusti cenu previše.
-            </p>
-            <p className="mt-4 text-xl text-white/90 italic">
-              &quot;Te poruke su imale{" "}
-              <Highlight>
-                <strong>smisla</strong>
-              </Highlight>
-              . Nisu zvučale kao reklama, zvučale su kao{" "}
-              <span className="text-amber-400">&apos;evo šta mi se desilo&apos;</span>.&quot;
-            </p>
-          </Section>
-
-          {/* Section 5: Taking the Leap */}
+          {/* Section 3: Taking the Leap */}
           <Section>
             <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 sm:p-8">
               <p>
-                Onda dođe trenutak gde{" "}
+                Cena:{" "}
                 <Highlight>
-                  <strong className="text-white">ili pokušavam ili nastavljam da se vrtim u krug</strong>
+                  <strong className="text-white">39 evra</strong>
                 </Highlight>
-                . Odem kod babe i kažem joj iskreno da hoću da probam da zaradim preko interneta,
-                da mi treba za jednu obuku i da ću joj vratiti od prve prodaje.
+                . Dva dana razmišljam. Onda sebi kažem iskreno:{" "}
+                <Highlight>
+                  <strong className="text-white">
+                    ili pokušavam ili nastavljam da se vrtim u istom krugu
+                  </strong>
+                </Highlight>
+                . Uzmem kurs. Ostane mi dovoljno keša da krenem sa prvom robom.
               </p>
               <p className="mt-4">
-                Gledala me je par sekundi, onim njenim pogledom kao da mi skenira dušu, pa izvadi{" "}
-                <strong className="text-amber-400 text-xl">100 evra</strong> i kaže:{" "}
-                <em>&quot;Nemoj da mi bacaš na gluposti.&quot;</em> Kažem: <em>&quot;Neću, majke mi.&quot;</em>
-              </p>
-              <p className="mt-4 text-white font-medium">
-                I u tom trenutku sam se osećao kao da mi je dala nešto mnogo veće od para.
+                Vodič me nije dočekao sa inspirativnim citatima. Prva lekcija:{" "}
+                <strong className="text-white">
+                  kako da napravim profil koji izgleda profesionalno
+                </strong>
+                . Koje slike, koji opis, kako da komuniciram sa kupcima. Konkretno, korak po
+                korak.
               </p>
             </div>
           </Section>
 
-          {/* Section 6: The Guide */}
-          <Section>
-            <p>
-              Uzmem kurs za{" "}
-              <Highlight>
-                <strong className="text-white">39 evra</strong>
-              </Highlight>
-              . Ostane mi oko 60 evra keša - dovoljno da krenem sa prvom robom. I tad me uhvati panika:{" "}
-              <Highlight>
-                <strong className="text-white">dobro, sada mora da se desi nešto, jer nema nazad.</strong>
-              </Highlight>
-            </p>
-            <p className="mt-4">
-              Vodič me nije dočekao sa motivacionim govorom. Prva stranica bukvalno:{" "}
-              <strong className="text-white">kako da napravim profil koji ne izgleda kao prevara</strong>.
-              Koje slike da stavim, šta da napišem u opis, kako da odgovaram ljudima da ne
-              delujem kao klinac koji pokušava da ih navuče.
-            </p>
-
-            {/* Guide Details Box */}
-            <div className="mt-6 grid sm:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-white/10 bg-[#12171E]/80 p-4">
-                <span className="text-amber-500 font-semibold text-sm">📝 Komunikacija</span>
-                <p className="mt-2 text-base text-neutral-400">
-                  Šablon poruke kad ti neko napiše &quot;poslednja cena?&quot; i šablon kako da kažeš &quot;ne&quot; bez svađe.
-                </p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-[#12171E]/80 p-4">
-                <span className="text-amber-500 font-semibold text-sm">📸 Fotkanje</span>
-                <p className="mt-2 text-base text-neutral-400">
-                  Svetlo pored prozora, bela pozadina, četiri ugla, detalj đona, detalj etikete.
-                </p>
-              </div>
-            </div>
-          </Section>
-
-          {/* Section 7: First Purchase */}
-          <Section>
-            <p>
-              Pošto nisam imao para za ne znam kakvu robu, krenem od onoga što znam da ljudi
-              kupuju stalno: <strong className="text-white">patike</strong>. Nađem oglas na
-              KupujemProdajem za Nike Air Max,{" "}
-              <strong className="text-amber-400">2500 dinara</strong>. Realno, čim vidiš tu cenu
-              odmah pomisliš fejk.
-            </p>
-            <p className="mt-4">
-              I ja sam. Zato{" "}
-              <Highlight>
-                <strong className="text-white">ne kupujem na slepo</strong>
-              </Highlight>
-              . Pitam lika dodatne slike etikete, đona i unutrašnjosti. Nađem se s njim, pogledam
-              uživo, probam da uporedim šavove i materijal sa slikama originala koje sam našao
-              ranije, i uzmem.
-            </p>
-          </Section>
-
-          {/* Section 8: First Sale */}
+          {/* Section 4: First Sale */}
           <Section>
             <div className="rounded-2xl border border-white/10 bg-[#12171E]/60 p-6 sm:p-8">
               <p>
-                Dođem kući i{" "}
-                <strong className="text-white">dva sata ih čistim</strong>. Ne ono &quot;polio vodom i
-                gotovo&quot;, nego četkica, malo deterdženta, krpa, sušenje kako treba. Onda ih fotkam
-                tačno po onom spisku iz vodiča. Napravim oglas, napišem realno stanje, stavim da
-                je moguće lično preuzimanje i slanje. Cenu stavim{" "}
-                <strong className="text-amber-400">5500 dinara</strong>.
+                Nađem Nike Air Max na KupujemProdajem za{" "}
+                <strong className="text-amber-400">2500 dinara</strong>. Proverim
+                autentičnost kako piše u vodiču, očistim ih, fotkam po sistemu, napišem
+                realan oglas. Cenu stavim{" "}
+                <strong className="text-amber-400">5500</strong>.
               </p>
               <p className="mt-4">
-                Prva dva dana niko. I ja već krećem da paničim. Trećeg dana stiže poruka:{" "}
-                <em>&quot;Može za 5000?&quot;</em> I tu mi se desi ono što vodič pominje, a ja nisam
-                verovao.{" "}
+                Trećeg dana stiže poruka: <em>&quot;Može za 5000?&quot;</em>{" "}
                 <Highlight>
-                  <strong className="text-white">Ljudi pregovaraju iz navike.</strong>
+                  <strong className="text-white">
+                    Ljudi pregovaraju iz navike.
+                  </strong>
                 </Highlight>{" "}
-                Prihvatim 5000. Dođe lik, pogleda, uzme, plati.
+                Prihvatim. Dođe čovek, pogleda, uzme, plati.
               </p>
 
               {/* Profit Calculation */}
@@ -370,66 +272,28 @@ export default function StorySection() {
             </div>
           </Section>
 
-          {/* Section 9: The Realization */}
-          <Section>
-            <p className="text-xl text-white leading-relaxed">
-              Tu mi je prvi put u glavi kliknulo da{" "}
-              <Highlight>
-                <strong>nije poenta u jednoj prodaji, nego u ponavljanju</strong>
-              </Highlight>
-              . Nisam se tad osećao kao &quot;biznismen&quot;. Osećao sam se kao neko ko je{" "}
-              <strong>našao kvaku na vratima koja su mu stalno bila zaključana</strong>.
-            </p>
-          </Section>
-
-          {/* Section 10: Growth & Learning */}
+          {/* Section 5: Growth + Community */}
           <Section>
             <p>
-              Posle te prodaje vratim babi deo kako sam obećao, da vidi da nisam bacio. Onda
-              uzmem još jednu stvar za preprodaju, pa još jednu. Jednom sam se zeznuo i uzeo
-              majicu koja je stajala dve nedelje bez ikakve poruke.
-            </p>
-            <p className="mt-4">
-              Tad sam shvatio da{" "}
+              Posle prve prodaje kliknulo mi je:{" "}
               <Highlight>
-                <strong className="text-white">nije svaka &quot;jeftina stvar&quot; dobra stvar</strong>
+                <strong className="text-white">
+                  nije poenta u jednoj prodaji, nego u ponavljanju
+                </strong>
               </Highlight>
-              . Mora da postoji potražnja, mora da ima smisla veličina, stanje, brend, sezona.
-              Počeo sam da vodim belešku: šta se javlja brzo, šta stoji, šta ljudi najčešće
-              pitaju.
+              . Pa još jedna stvar, pa još jedna. Naučio sam šta se traži, šta stoji, koji
+              brendovi idu brzo. Uz kurs sam dobio i{" "}
+              <strong className="text-amber-400">pristup zajednici</strong> - kad zapnem,
+              pitam i dobijem konkretan odgovor umesto da trošim dane na nagađanje.
             </p>
           </Section>
 
-          {/* Section 11: Community */}
-          <Section>
-            <div className="border-l-4 border-amber-500/50 pl-6 py-2">
-              <p>
-                Uz kurs dobio sam i{" "}
-                <strong className="text-amber-400">pristup zajednici</strong>. Tu sam prvi put
-                dobio osećaj da{" "}
-                <Highlight>
-                  <strong className="text-white">nisam sam</strong>
-                </Highlight>
-                . Ne zbog &quot;mentorstva&quot; kao reči, nego zbog toga što kad zapnem, ne trošim tri
-                dana na nagađanje.
-              </p>
-              <p className="mt-4">
-                Napišem konkretno pitanje, ljudi mi odgovore iz svog iskustva. Nekad u 10 minuta,
-                nekad za sat, ali mi odgovore. I više puta su me{" "}
-                <strong className="text-white">spasili od gluposti</strong>, tipa kad mi je jedan
-                kupac pokušao da uvali priču{" "}
-                <em>&quot;poslaću kurira, samo mi pošalji broj kartice&quot;</em>.
-              </p>
-            </div>
-          </Section>
-
-          {/* Section 12: Results */}
+          {/* Section 6: Results */}
           <Section>
             <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-transparent p-6 sm:p-8">
               <p className="text-lg">
-                <strong className="text-white text-xl">Četiri meseca kasnije</strong> nisam
-                postao milioner i neću da glumim da jesam. Ali desilo se nešto što mi je tad
-                delovalo nemoguće:
+                <strong className="text-white text-xl">Četiri meseca kasnije</strong> - nisam
+                dao otkaz niti sam postao milioner. Ali:
               </p>
               <ul className="mt-6 space-y-4">
                 <li className="flex items-start gap-3">
@@ -437,8 +301,7 @@ export default function StorySection() {
                   <span>
                     <Highlight>
                       <strong className="text-white">
-                        Izveo sam devojku u lokal i nisam brojao u glavi koliko mi ostaje posle
-                        računa.
+                        Izveo sam devojku na večeru i nisam brojao u glavi koliko mi ostaje.
                       </strong>
                     </Highlight>
                   </span>
@@ -446,18 +309,16 @@ export default function StorySection() {
                 <li className="flex items-start gap-3">
                   <span className="mt-1 text-amber-500">✓</span>
                   <span>
-                    Kupio sam sebi{" "}
-                    <strong className="text-white">patike koje sam godinama gledao</strong> i
-                    preskakao.
+                    Imam{" "}
+                    <strong className="text-white">dodatni prihod koji ne zavisi od poslodavca</strong>.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="mt-1 text-amber-500">✓</span>
                   <span>
-                    I najbitnije,{" "}
                     <Highlight>
                       <strong className="text-white">
-                        prestao sam da tražim od mojih za svaku sitnicu
+                        Znam da mogu da napravim pare kad zatreba, a ne da čekam platu
                       </strong>
                     </Highlight>
                     .
@@ -467,51 +328,25 @@ export default function StorySection() {
             </div>
           </Section>
 
-          {/* Section 13: The Mindset Shift */}
-          <Section>
-            <p className="text-lg">
-              Najčudniji deo cele priče je što mi nije promenilo život &quot;mnogo para&quot;, nego{" "}
-              <Highlight>
-                <strong className="text-white text-xl">
-                  osećaj da mogu da napravim pare kad mi zatreba, a ne da čekam da mi neko da
-                </strong>
-              </Highlight>
-              .
-            </p>
-            <p className="mt-4">
-              Da me ne ubije ona rečenica <em>&quot;idi radi negde&quot;</em> jer sada imam odgovor:{" "}
-              <strong className="text-amber-400">radim, samo na svoj način</strong>.
-            </p>
-          </Section>
-
-          {/* Section: Best Purchase */}
-          <Section>
-            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 sm:p-8 text-center">
-              <p className="text-xl text-white">
-                Tih{" "}
-                <Highlight>
-                  <strong className="text-amber-400 text-2xl">39 evra</strong>
-                </Highlight>{" "}
-                su mi doneli više nego bilo šta što sam ikad kupio.
-              </p>
-              <p className="mt-4 text-neutral-400">
-                Ne zato što sam odmah obogatio, nego zato što sam{" "}
-                <strong className="text-white">naučio kako da zaradim kad god mi treba</strong>.
-                To je veština koja mi ostaje zauvek.
-              </p>
-            </div>
-          </Section>
-
-          {/* Section 14: Conclusion */}
+          {/* Section 7: Conclusion */}
           <Section>
             <div className="text-center py-8">
-              <p className="text-lg text-neutral-400">
-                I dalje sam klinac, i dalje pravim greške, i dalje me ponekad mrzi da fotkam i
-                pišem oglase.
-              </p>
-              <p className="mt-6 text-2xl sm:text-3xl font-display text-white">
-                Ali više nemam onaj osećaj da sam{" "}
-                <span className="line-through text-neutral-500">bez izbora</span>.
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 sm:p-8 mb-8">
+                <p className="text-xl text-white">
+                  Tih{" "}
+                  <Highlight>
+                    <strong className="text-amber-400 text-2xl">39 evra</strong>
+                  </Highlight>{" "}
+                  su mi doneli više nego bilo koja investicija do sad.
+                </p>
+                <p className="mt-4 text-neutral-400">
+                  Ne zato što sam odmah obogatio, nego zato što sam{" "}
+                  <strong className="text-white">stekao veštinu koja mi ostaje</strong>.
+                </p>
+              </div>
+              <p className="text-2xl sm:text-3xl font-display text-white">
+                Više nemam osećaj da sam{" "}
+                <span className="line-through text-neutral-500">bez opcija</span>.
               </p>
               <p className="mt-4 text-xl">
                 <Highlight>

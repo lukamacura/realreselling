@@ -79,14 +79,14 @@ export default function PostaniClanPage() {
                 Moja Priča
               </span>
               <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight">
-                Od 800 Dinara do{" "}
+                Od Minimalca do{" "}
                 <span className="bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
                   Slobode
                 </span>
               </h1>
               <p className="mt-6 text-lg sm:text-xl text-neutral-400 max-w-2xl mx-auto">
-                Kako sam sa 17 godina, bez posla i sa 800 dinara u džepu,
-                promenio svoju situaciju uz Real Reselling.
+                Kako sam sa 23 godine, platom od 45.000 dinara i nulom na kraju meseca,
+                napravio izlaz uz Real Reselling.
               </p>
             </motion.div>
 
