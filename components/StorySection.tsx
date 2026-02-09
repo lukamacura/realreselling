@@ -5,7 +5,7 @@ import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Brain, X, Zap } from "lucide-react";
 
 // Focus challenge popup component
-function FocusPopup() {
+function FocusPopup({ hide = false }: { hide?: boolean }) {
   const [show, setShow] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -23,9 +23,14 @@ function FocusPopup() {
     setDismissed(true);
   };
 
+  // Auto-hide when swipe bar appears
+  useEffect(() => {
+    if (hide && show) setShow(false);
+  }, [hide, show]);
+
   return (
     <AnimatePresence>
-      {show && (
+      {show && !hide && (
         <motion.div
           initial={{ opacity: 0, x: -100, scale: 0.8 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -122,11 +127,11 @@ function Section({
   );
 }
 
-export default function StorySection() {
+export default function StorySection({ hidePopup = false }: { hidePopup?: boolean }) {
   return (
     <>
       {/* Focus Challenge Popup */}
-      <FocusPopup />
+      <FocusPopup hide={hidePopup} />
 
       <section className="py-2 sm:py-4 bg-[#0B0F13]">
         <div className="container mx-auto max-w-[880px] px-5 sm:px-8">
