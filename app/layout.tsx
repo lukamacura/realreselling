@@ -9,8 +9,28 @@ import { Analytics } from "@vercel/analytics/next"
 
 
 export const metadata: Metadata = {
-  title: "Real Reselling",
-  description: "Prva online zarada od resellinga u 30 dana ili vraćamo novac.",
+  metadataBase: new URL("https://realreselling.com"),
+  title: {
+    default: "Real Reselling — Nauči da zarađuješ od resellinga",
+    template: "%s | Real Reselling",
+  },
+  description:
+    "Prva online zarada od resellinga u 30 dana ili vraćamo novac. Kompletna edukacija, zajednica i alati.",
+  openGraph: {
+    type: "website",
+    locale: "sr_RS",
+    siteName: "Real Reselling",
+    title: "Real Reselling — Nauči da zarađuješ od resellinga",
+    description:
+      "Prva online zarada od resellinga u 30 dana ili vraćamo novac. Kompletna edukacija, zajednica i alati.",
+    url: "https://realreselling.com",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Real Reselling — Nauči da zarađuješ od resellinga",
+    description:
+      "Prva online zarada od resellinga u 30 dana ili vraćamo novac.",
+  },
 };
 
 export const viewport: Viewport = {
