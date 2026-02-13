@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Brain, X, Zap } from "lucide-react";
+import IPhoneMockup from "./IPhoneMockup";
 
 // Focus challenge popup component
 function FocusPopup({ hide = false }: { hide?: boolean }) {
@@ -165,9 +166,9 @@ export default function StorySection({ hidePopup = false }: { hidePopup?: boolea
                 <Highlight>
                   <strong className="text-white">45.000 dinara mesečno</strong>
                 </Highlight>
-                . Posle kirije, režija i hrane - ostane mi toliko da biram:{" "}
+                . Posle kirije i hrane - ostane mi toliko da biram:{" "}
                 izlazak ili gorivo za ceo mesec. Devojka me pita{" "}
-                <em>&quot;Kad idemo negde?&quot;</em> i ja se pravim da nisam čuo.
+                <em>&quot;Kad idemo negde?&quot;</em> a ja se pravim da nisam čuo.
               </p>
               <p className="mt-4">
                 Najgori deo nije bio nedostatak para. Najgore je bilo{" "}
@@ -203,7 +204,7 @@ export default function StorySection({ hidePopup = false }: { hidePopup?: boolea
                 .{" "}
                 <Highlight>
                   <strong className="text-white">
-                    Prvi put mi deluje kao konkretan recept, ne motivacioni govor.
+                    Prvi put mi deluje kao konkretan recept, a ne neko sr***e.
                   </strong>
                 </Highlight>
               </p>
@@ -227,12 +228,11 @@ export default function StorySection({ hidePopup = false }: { hidePopup?: boolea
                 . Uzmem kurs. Ostane mi dovoljno keša da krenem sa prvom robom.
               </p>
               <p className="mt-4">
-                Vodič me nije dočekao sa inspirativnim citatima. Prva lekcija:{" "}
+                Bez inspirativnih citata.{" "}
                 <strong className="text-white">
-                  kako da napravim profil koji izgleda profesionalno
+                  Konkretno, korak po korak - od prvog dana
                 </strong>
-                . Koje slike, koji opis, kako da komuniciram sa kupcima. Konkretno, korak po
-                korak.
+                .
               </p>
             </div>
           </Section>
@@ -257,40 +257,19 @@ export default function StorySection({ hidePopup = false }: { hidePopup?: boolea
                 Prihvatim. Dođe čovek, pogleda, uzme, plati.
               </p>
 
-              {/* Profit Calculation */}
-              <div className="mt-6 flex items-center justify-center gap-4 text-center">
-                <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3">
-                  <div className="text-red-400 text-sm">Kupovina</div>
-                  <div className="text-white font-display text-2xl">2500 RSD</div>
-                </div>
-                <div className="text-2xl text-neutral-500">→</div>
-                <div className="rounded-xl bg-green-500/10 border border-green-500/30 px-4 py-3">
-                  <div className="text-green-400 text-sm">Prodaja</div>
-                  <div className="text-white font-display text-2xl">5000 RSD</div>
-                </div>
-                <div className="text-2xl text-neutral-500">=</div>
-                <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 px-4 py-3">
-                  <div className="text-amber-400 text-sm">Profit</div>
-                  <div className="text-amber-400 font-display text-2xl">2500 RSD</div>
-                </div>
-              </div>
-            </div>
-          </Section>
+              {/* iPhone Mockup Animation */}
+              <IPhoneMockup />
 
-          {/* Section 5: Growth + Community */}
-          <Section>
-            <p>
-              Posle prve prodaje kliknulo mi je:{" "}
-              <Highlight>
-                <strong className="text-white">
-                  nije poenta u jednoj prodaji, nego u ponavljanju
-                </strong>
-              </Highlight>
-              . Pa još jedna stvar, pa još jedna. Naučio sam šta se traži, šta stoji, koji
-              brendovi idu brzo. Uz kurs sam dobio i{" "}
-              <strong className="text-amber-400">pristup zajednici</strong> - kad zapnem,
-              pitam i dobijem konkretan odgovor umesto da trošim dane na nagađanje.
-            </p>
+              <p className="mt-6">
+                Posle toga kliknulo:{" "}
+                <Highlight>
+                  <strong className="text-white">
+                    poenta nije u jednoj prodaji, nego u ponavljanju
+                  </strong>
+                </Highlight>
+                . Pa još jedna stvar, pa još jedna.
+              </p>
+            </div>
           </Section>
 
           {/* Section 6: Results */}
@@ -351,9 +330,7 @@ export default function StorySection({ hidePopup = false }: { hidePopup?: boolea
               </div>
               <p className="text-2xl sm:text-3xl font-display text-white">
                 Više nemam osećaj da sam{" "}
-                <span className="line-through text-neutral-500">bez opcija</span>.
-              </p>
-              <p className="mt-4 text-xl">
+                <span className="line-through text-neutral-500">bez opcija</span>.{" "}
                 <Highlight>
                   <strong className="text-amber-400">To je razlika.</strong>
                 </Highlight>
