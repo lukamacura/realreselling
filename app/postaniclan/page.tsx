@@ -28,8 +28,8 @@ import { BookOpen, Users, Wrench, Smartphone, Wifi } from "lucide-react";
 const VALUE_ITEMS: { icon: LucideIcon; label: string }[] = [
   { icon: BookOpen, label: "Vodiči i edukacija" },
   { icon: Users, label: "Zajednica i podrška" },
-  { icon: Wrench, label: "Alati za prodaju" },
-  { icon: Smartphone, label: "La digitale" },
+  { icon: Wrench, label: "Reselling vodič" },
+  { icon: Smartphone, label: "Pristup proizvodima po niskim cenama" },
   { icon: Wifi, label: "Contactless sistem" },
   { icon: IdCard, label: "Doživotan pristup" },
 ];
