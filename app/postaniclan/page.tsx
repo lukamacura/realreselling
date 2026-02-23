@@ -86,7 +86,7 @@ const PACKAGE_ITEMS: { icon: LucideIcon; label: string; sub: string | null }[] =
   {
     icon: GraduationCap,
     label: "Lekcije korak po korak",
-    sub: "Znaš tačno šta da kupuješ",
+    sub: "Kako najlakše doći do kupaca",
   },
   {
     icon: Package,
