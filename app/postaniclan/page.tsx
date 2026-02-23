@@ -8,6 +8,7 @@ import {
   useTransform,
   animate,
   AnimatePresence,
+  useReducedMotion,
 } from "framer-motion";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -20,18 +21,96 @@ import {
   Shield,
   ArrowRight,
   Lock,
+  Flame,
   type LucideIcon,
-  IdCard,
 } from "lucide-react";
-import { BookOpen, Users, Wrench, Smartphone, Wifi } from "lucide-react";
+import {
+  Users,
+  Wifi,
+  GraduationCap,
+  Package,
+  ListChecks,
+  CalendarDays,
+  BadgeCheck,
+} from "lucide-react";
 
-const VALUE_ITEMS: { icon: LucideIcon; label: string }[] = [
-  { icon: BookOpen, label: "Vodiči i edukacija" },
-  { icon: Users, label: "Zajednica i podrška" },
-  { icon: Wrench, label: "Reselling vodič" },
-  { icon: Smartphone, label: "Pristup proizvodima po niskim cenama" },
-  { icon: Wifi, label: "Contactless sistem" },
-  { icon: IdCard, label: "Doživotan pristup" },
+function useTypewriter({
+  text,
+  speed = 18,
+  startDelay = 120,
+  enabled = true,
+}: {
+  text: string;
+  speed?: number;
+  startDelay?: number;
+  enabled?: boolean;
+}) {
+  const [out, setOut] = useState(enabled ? "" : text);
+  const [done, setDone] = useState(!enabled);
+
+  useEffect(() => {
+    if (!enabled) {
+      setOut(text);
+      setDone(true);
+      return;
+    }
+    let i = 0;
+    let cancelled = false;
+    let typeTimer: ReturnType<typeof setTimeout> | undefined;
+    const kick = setTimeout(function tick() {
+      if (cancelled) return;
+      i += 1;
+      setOut(text.slice(0, i));
+      if (i < text.length) {
+        typeTimer = setTimeout(tick, speed);
+      } else {
+        setDone(true);
+      }
+    }, startDelay);
+    return () => {
+      cancelled = true;
+      clearTimeout(kick);
+      if (typeTimer) clearTimeout(typeTimer);
+    };
+  }, [text, speed, startDelay, enabled]);
+
+  return { out, done } as const;
+}
+
+const PACKAGE_ITEMS: { icon: LucideIcon; label: string; sub: string | null }[] = [
+  {
+    icon: Users,
+    label: "Mentor i zajednica",
+    sub: "Nikad više ne pogrešiš sam",
+  },
+  {
+    icon: GraduationCap,
+    label: "Lekcije korak po korak",
+    sub: "Znaš tačno šta da kupuješ",
+  },
+  {
+    icon: Package,
+    label: "Magacin po nabavnim cenama",
+    sub: "Najniže cene proizvoda",
+  },
+];
+
+const BONUS_ITEMS: { icon: LucideIcon; label: string; sub: string | null }[] = [
+  {
+    icon: Wifi,
+    label: "Contactless sistem",
+    sub: "Roba ide sama, ti brojiš pare",
+  },
+  {
+    icon: ListChecks,
+    label: "Spisak koraka redom",
+    sub: "Ne možeš pogrešiti",
+  },
+  {
+    icon: CalendarDays,
+    label: "Live pozivi sa mentorom",
+    sub: "Imaš problem? Rešiš iste večeri",
+  },
 ];
 
 const container: Variants = {
@@ -61,6 +140,43 @@ function useTomorrowDMY() {
   }, []);
 }
 
+/* ── Spots countdown ── */
+const SPOTS_START_DATE = new Date("2026-02-23");
+const SPOTS_INITIAL = 27;
+
+function useSpots() {
+  const base = useMemo(() => {
+    const diffDays = Math.floor(
+      (Date.now() - SPOTS_START_DATE.getTime()) / 86_400_000
+    );
+    return Math.max(SPOTS_INITIAL - Math.floor(diffDays / 2), 2);
+  }, []);
+
+  const [spots, setSpots] = useState(base);
+  const [dropping, setDropping] = useState(false);
+
+  useEffect(() => {
+    const LS_KEY = "rr_spots_seen";
+    const today = new Date().toDateString();
+    if (localStorage.getItem(LS_KEY) === today) {
+      setSpots(base - 1);
+      return;
+    }
+    setSpots(base);
+    const t = setTimeout(() => {
+      setDropping(true);
+      setTimeout(() => {
+        setSpots(base - 1);
+        localStorage.setItem(LS_KEY, today);
+        setDropping(false);
+      }, 400);
+    }, 1800);
+    return () => clearTimeout(t);
+  }, [base]);
+
+  return { spots, dropping };
+}
+
 /* ── Swipe-to-buy constants ── */
 const THUMB_W = 56;
 const TRACK_PAD = 4;
@@ -69,6 +185,15 @@ export default function PostaniClanPage() {
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const tomorrow = useTomorrowDMY();
+  const { spots, dropping } = useSpots();
+  const reduced = useReducedMotion();
+  const typedHeadline = useMemo(() => "od resellinga u 30 dana ILI VRAĆAMO NOVAC", []);
+  const { out: typedOut, done: typedDone } = useTypewriter({
+    text: typedHeadline,
+    speed: 18,
+    startDelay: 800,
+    enabled: !reduced && !loading,
+  });
 
   /* ── Swipe-to-buy state ── */
   const [showFixedBar, setShowFixedBar] = useState(false);
@@ -175,16 +300,56 @@ export default function PostaniClanPage() {
               <span className="inline-block text-amber-500 font-medium text-sm uppercase tracking-wider mb-4">
                 Moja Priča
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight">
-                Kako je ivan od resellinga{" "}
-                <span className="bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
-                  zaradio novac za 30 dana
+              <h1 className="mb-2 font-display text-[36px] leading-[1.05] tracking-tight text-white md:mb-6 md:text-[64px]">
+                <span className="m-0 block font-display text-[40px] leading-tight text-brand-gold md:text-[64px]">
+                  💸 Prva online zarada
+                  <span className="ml-2 text-white" aria-label={typedHeadline} aria-live="polite">
+                    {typedOut}
+                    {!typedDone && !reduced && (
+                      <motion.span
+                        aria-hidden
+                        className="inline-block w-[0.5ch] translate-y-[0.05em]"
+                        animate={{ opacity: [1, 0, 1] }}
+                        transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        |
+                      </motion.span>
+                    )}
+                  </span>
                 </span>
               </h1>
               <p className="mt-6 text-lg sm:text-xl text-neutral-400 max-w-2xl mx-auto">
                 Kako sam sa 23 godine, platom od 45.000 dinara i nulom na kraju meseca,
                 napravio novac uz Real Reselling.
               </p>
+
+              {/* Spots badge */}
+              <div className="mt-6 flex justify-center">
+                <div className="inline-flex items-center gap-2.5 rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                  </span>
+                  <span className="text-sm text-neutral-300">
+                    Ostalo{" "}
+                    <span className="overflow-hidden inline-block align-middle" style={{ height: "1.25em" }}>
+                      <AnimatePresence mode="popLayout" initial={false}>
+                        <motion.span
+                          key={spots}
+                          initial={{ y: dropping ? 16 : 0, opacity: dropping ? 0 : 1 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -16, opacity: 0 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                          className="inline-block font-bold text-red-400"
+                        >
+                          {spots}
+                        </motion.span>
+                      </AnimatePresence>
+                    </span>{" "}
+                    mesta
+                  </span>
+                </div>
+              </div>
             </motion.div>
 
             {/* Scroll indicator */}
@@ -236,27 +401,127 @@ export default function PostaniClanPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              <p className="text-neutral-400 text-base mb-6 uppercase tracking-wider font-medium">
+              {/* Paketi */}
+              <p className="text-neutral-400 text-base mb-4 uppercase tracking-wider font-medium">
                 Šta dobijaš u paketu
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                {VALUE_ITEMS.map(({ icon: Icon, label }, i) => (
+              <div className="grid grid-cols-3 gap-3">
+                {PACKAGE_ITEMS.map(({ icon: Icon, label, sub }, i) => (
                   <motion.div
                     key={i}
-                    className="group rounded-2xl border border-white/10 bg-[#12171E]/80 p-5 sm:p-6 backdrop-blur text-center transition-colors duration-300 hover:border-amber-500/30 hover:bg-amber-500/5"
+                    className="group rounded-2xl border border-white/10 bg-[#12171E]/80 p-4 sm:p-5 backdrop-blur text-center transition-colors duration-300 hover:border-amber-500/30 hover:bg-amber-500/5"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: 0.15 + i * 0.08 }}
                   >
-                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/20 transition-colors duration-300 group-hover:from-amber-500/25 group-hover:to-amber-600/10">
+                    <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/20 transition-colors duration-300 group-hover:from-amber-500/25 group-hover:to-amber-600/10">
                       <Icon className="h-5 w-5 text-amber-400" />
                     </div>
-                    <span className="text-white text-sm sm:text-base font-medium leading-tight">
+                    <span className="text-white text-sm font-medium leading-tight block">
                       {label}
                     </span>
+                    {sub && (
+                      <span className="text-neutral-500 text-xs leading-tight mt-1 block">
+                        {sub}
+                      </span>
+                    )}
                   </motion.div>
                 ))}
+              </div>
+
+              {/* Doživotan pristup — compact banner */}
+              <motion.div
+                className="mt-3 flex items-center gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 px-5 py-3"
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.4 }}
+              >
+                <BadgeCheck className="h-5 w-5 text-amber-400 shrink-0" />
+                <span className="text-amber-300 text-sm font-medium">
+                  Doživotan pristup svemu navedenom
+                </span>
+              </motion.div>
+
+              {/* Bonusi */}
+              <motion.div
+                className="mt-6"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.45 }}
+              >
+                <p className="text-neutral-400 text-base mb-4 uppercase tracking-wider font-medium">
+                  + Bonusi
+                </p>
+                <div className="grid grid-cols-3 gap-3">
+                  {BONUS_ITEMS.map(({ icon: Icon, label, sub }, i) => (
+                    <motion.div
+                      key={i}
+                      className="group rounded-2xl border border-white/10 bg-[#12171E]/80 p-4 sm:p-5 backdrop-blur text-center transition-colors duration-300 hover:border-amber-500/30 hover:bg-amber-500/5"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: 0.5 + i * 0.08 }}
+                    >
+                      <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/20 transition-colors duration-300 group-hover:from-amber-500/25 group-hover:to-amber-600/10">
+                        <Icon className="h-5 w-5 text-amber-400" />
+                      </div>
+                      <span className="text-white text-sm font-medium leading-tight block">
+                        {label}
+                      </span>
+                      {sub && (
+                        <span className="text-neutral-500 text-xs leading-tight mt-1 block">
+                          {sub}
+                        </span>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Spots urgency */}
+            <motion.div
+              className="mt-10 mx-auto max-w-sm"
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.25 }}
+            >
+              <div className="rounded-2xl border border-red-500/25 bg-red-500/8 px-6 py-4">
+                <div className="flex items-center justify-center gap-3">
+                  <Flame className="h-5 w-5 text-red-400 shrink-0" />
+                  <span className="text-neutral-300 text-sm font-medium">
+                    Preostalo slobodnih mesta:
+                  </span>
+                  <span className="overflow-hidden inline-flex items-center" style={{ height: "2rem" }}>
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      <motion.span
+                        key={spots}
+                        initial={{ y: dropping ? 24 : 0, opacity: dropping ? 0 : 1 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -24, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 28 }}
+                        className="inline-block text-2xl font-bold text-red-400 font-display"
+                      >
+                        {spots}
+                      </motion.span>
+                    </AnimatePresence>
+                  </span>
+                </div>
+                <div className="mt-3 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-500"
+                    initial={{ width: `${((spots + 1) / SPOTS_INITIAL) * 100}%` }}
+                    animate={{ width: `${(spots / SPOTS_INITIAL) * 100}%` }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-neutral-500 text-center">
+                  od {SPOTS_INITIAL} ukupnih mesta
+                </p>
               </div>
             </motion.div>
 
@@ -353,6 +618,31 @@ export default function PostaniClanPage() {
             className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-8 bg-gradient-to-t from-[#0B0F13] via-[#0B0F13]/98 to-transparent pointer-events-none"
           >
             <div className="mx-auto max-w-lg pointer-events-auto">
+              {/* Spots mini-line */}
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500" />
+                </span>
+                <span className="text-neutral-400 text-xs">
+                  Ostalo{" "}
+                  <span className="overflow-hidden inline-block align-middle" style={{ height: "1em" }}>
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      <motion.span
+                        key={spots}
+                        initial={{ y: 12, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -12, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        className="inline-block font-bold text-red-400"
+                      >
+                        {spots}
+                      </motion.span>
+                    </AnimatePresence>
+                  </span>{" "}
+                  mesta
+                </span>
+              </div>
               {/* Swipe Track */}
               <div
                 ref={trackRef}
