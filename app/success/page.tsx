@@ -3,7 +3,7 @@
 
 import { useEffect } from "react";
 import { PackageCheck } from "lucide-react";
-import { trackCustom } from "@/lib/pixel";
+import { track, trackCustom } from "@/lib/pixel";
 
 const FIXED_PRICE = 50; // paritet sa uplatnicom
 
@@ -33,11 +33,13 @@ export default function SuccessPage() {
 
         if (!ok) return;
 
-        // ✅ Pixel event (isto kao za uplatnicu, samo method i naziv)
+        // ✅ Standard Purchase event — isti pattern kao uplatnica, eventID za dedup
+        track("Purchase", { value: FIXED_PRICE, currency: "EUR", eventID: sid });
         trackCustom("Closed - kupio karticom", {
           value: FIXED_PRICE,
           currency: "EUR",
           method: "kartica",
+          eventID: sid,
         });
       } catch {
         // tiho — ne rušimo UX na success stranici

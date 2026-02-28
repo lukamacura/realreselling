@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PackageCheck, AlertCircle, Loader2 } from "lucide-react";
-import { trackCustom } from "@/lib/pixel";
+import { track, trackCustom } from "@/lib/pixel";
 
 type State = "loading" | "valid" | "invalid";
 
@@ -29,18 +29,33 @@ export default function ApprovedPage() {
           return;
         }
 
-        const data: { valid: boolean } = await res.json();
+        const data: { valid: boolean; submissionId?: string } = await res.json();
 
         if (!data.valid) {
           setState("invalid");
           return;
         }
 
-        // Token valid — fire conversion pixel
+        // Token valid — fire conversion pixels.
+        // submissionId matches the event_id sent via CAPI at approval time so
+        // Meta deduplicates and counts the purchase only once even if both
+        // paths fire (same-browser user AND server-side CAPI).
+        const eventId = data.submissionId;
+
+        // Standard Purchase event — what Meta's algorithm optimises on.
+        // event_id deduplicates against the CAPI call made server-side.
+        await track("Purchase", {
+          value: 39,
+          currency: "EUR",
+          eventID: eventId,
+        });
+
+        // Custom event — preserved for internal reporting in Events Manager.
         await trackCustom("Closed - kupio uplatnicom", {
           value: 39,
           currency: "EUR",
           method: "uplatnica",
+          eventID: eventId,
         });
 
         setState("valid");

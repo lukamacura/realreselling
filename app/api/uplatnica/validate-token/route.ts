@@ -23,5 +23,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ valid: false });
   }
 
-  return NextResponse.json({ valid: true });
+  return NextResponse.json({ valid: true, submissionId: data.id });
 }

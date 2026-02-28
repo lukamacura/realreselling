@@ -39,14 +39,23 @@ Dark-theme NextJS 14 App Router marketing/checkout site.
 - `/app/uplatnica/pending/page.tsx` — post-submit confirmation
 - `/app/uplatnica/approved/page.tsx` — token-validated success, fires pixel
 - `/app/api/uplatnica/submit/route.ts` — multipart, uploads to Supabase Storage bucket `uplatnice`, inserts to `uplatnica_submissions`, notifies admin n8n
-- `/app/api/uplatnica/approve/route.ts` — admin GET link, updates status, fires buyer n8n email
-- `/app/api/uplatnica/validate-token/route.ts` — token lookup, always 200
+- `/app/api/uplatnica/approve/route.ts` — admin GET link, updates status, fires buyer n8n email, fires Meta CAPI
+- `/app/api/uplatnica/validate-token/route.ts` — token lookup, always 200, returns `{ valid, submissionId }`
+
+## Meta tracking (implemented 2026-02-28)
+- Browser pixel: `@/lib/pixel.ts` — client-only, uses `react-facebook-pixel`
+- CAPI: inline `sendMetaCAPIEvent` in approve route — server-side, SHA-256 hashed email, `action_source: "email"`
+- Dedup strategy: `event_id = row.id` (submission UUID) used in CAPI and as `eventID` in browser pixel
+- Approved page fires TWO browser events: `track("Purchase", { eventID })` for Meta algo + `trackCustom("Closed - kupio uplatnicom", { eventID })` for internal reporting
+- If `FACEBOOK_CAPI_ACCESS_TOKEN` env var missing, CAPI silently skips (same pattern as n8n webhooks)
 
 ## Env vars in use
 - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` — server-only
 - `NEXT_PUBLIC_BASE_URL` — base URL for approve/access links
 - `N8N_WEBHOOK_UPLATNICA_URL` — new webhook for uplatnica events
 - `N8N_WEBHOOK_LEADS_URL`, `N8N_WEBHOOK_SECRET` — existing leads webhook
+- `NEXT_PUBLIC_FACEBOOK_PIXEL_ID` — pixel ID, also used server-side in CAPI helper
+- `FACEBOOK_CAPI_ACCESS_TOKEN` — server-only, Meta Conversions API system user token
 
 ## Detailed patterns
 See `patterns.md` for file-by-file notes.

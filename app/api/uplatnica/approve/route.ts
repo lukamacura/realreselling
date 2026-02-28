@@ -1,7 +1,61 @@
 import { NextRequest } from "next/server";
-import { randomUUID } from "crypto";
+import { randomUUID, createHash } from "crypto";
 import { supabase } from "@/lib/supabase";
 import { postRRSWebhook } from "@/lib/webhook";
+
+// ─── Meta CAPI helper ────────────────────────────────────────────────────────
+
+interface MetaCAPIPayload {
+  submissionId: string;
+  email: string;
+}
+
+async function sendMetaCAPIEvent({
+  submissionId,
+  email,
+}: MetaCAPIPayload): Promise<void> {
+  const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+  const accessToken = process.env.FACEBOOK_CAPI_ACCESS_TOKEN;
+
+  if (!pixelId || !accessToken) return;
+
+  // SHA-256 hash of lowercase, trimmed email — required by Meta
+  const hashedEmail = createHash("sha256")
+    .update(email.toLowerCase().trim())
+    .digest("hex");
+
+  const body = {
+    data: [
+      {
+        event_name: "Purchase",
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: submissionId,
+        action_source: "email",
+        user_data: {
+          em: hashedEmail,
+        },
+        custom_data: {
+          value: 39,
+          currency: "EUR",
+        },
+      },
+    ],
+  };
+
+  const url = `https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${accessToken}`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(8000),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Meta CAPI responded ${res.status}: ${text}`);
+  }
+}
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -115,7 +169,19 @@ export async function GET(req: NextRequest) {
     console.error("[uplatnica/approve] leads webhook error:", e);
   }
 
-  // ── 5. Return success HTML ───────────────────────────────────────────────
+  // ── 5. Meta CAPI — server-side purchase event ─────────────────────────────
+  // Fired here so Meta receives the conversion even when the buyer opens the
+  // access email link in a different browser (IAB → email client), where the
+  // browser pixel would have no _fbp/_fbc cookies to match against.
+  // event_id matches what the browser pixel sends on /uplatnica/approved so
+  // Meta deduplicates and counts the purchase only once.
+  try {
+    await sendMetaCAPIEvent({ submissionId: id, email: row.email });
+  } catch (e) {
+    console.error("[uplatnica/approve] Meta CAPI error:", e);
+  }
+
+  // ── 6. Return success HTML ───────────────────────────────────────────────
   return html(
     `<h1>&#10003; Odobreno!</h1>
      <p style="margin-top:.5rem">Email je poslat kupcu<br>
