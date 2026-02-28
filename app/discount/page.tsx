@@ -60,7 +60,7 @@ type Props = {
 };
 
 export default function DiscountSection({
-  basePrice = 50,
+  basePrice = 39,
   regularPrice = 230,
   couponCode = "popust",
   couponValue = 5,

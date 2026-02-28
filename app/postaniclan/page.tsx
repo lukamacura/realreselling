@@ -13,6 +13,7 @@ import {
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import StorySection from "@/components/StorySection";
+import Link from "next/link";
 import {
   Sparkles,
   CheckCircle2,
@@ -22,6 +23,7 @@ import {
   ArrowRight,
   Lock,
   Flame,
+  Banknote,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -580,6 +582,43 @@ export default function PostaniClanPage() {
               </button>
             </motion.div>
 
+            {/* Divider */}
+            <motion.div
+              className="mt-6 flex items-center justify-center gap-3 mx-auto max-w-[520px]"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.45 }}
+            >
+              <span className="flex-1 h-px bg-white/10" />
+              <span className="text-neutral-500 text-sm select-none">ili</span>
+              <span className="flex-1 h-px bg-white/10" />
+            </motion.div>
+
+            {/* Secondary — Uplatnica */}
+            <motion.div
+              className="mt-4"
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: 0.5 }}
+            >
+              <Link
+                href="/uplatnica"
+                className="group mx-auto flex items-center justify-center gap-3 w-full max-w-[520px] min-h-[56px] rounded-[28px] border border-white/15 bg-[#12171E] px-8 py-4 transition-all duration-200 hover:border-white/25 hover:bg-white/5 active:scale-[.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60"
+              >
+                <Banknote className="h-5 w-5 text-white/50 shrink-0 transition-colors duration-200 group-hover:text-white/70" />
+                <div className="text-left">
+                  <span className="block text-white/70 text-sm font-medium leading-tight transition-colors duration-200 group-hover:text-white/90">
+                    Plati uplatnicom
+                  </span>
+                  <span className="block text-neutral-500 text-xs leading-tight mt-0.5">
+                    4.600 RSD &bull; Pristup u roku od 30 min
+                  </span>
+                </div>
+              </Link>
+            </motion.div>
+
             {/* Trust Badges */}
             <motion.div
               className="mt-8 flex flex-wrap items-center justify-center gap-6 text-neutral-400 text-sm"
@@ -697,11 +736,21 @@ export default function PostaniClanPage() {
               </div>
 
               {/* Trust line */}
-              <div className="flex items-center justify-center gap-2 mt-2.5 mb-1">
+              <div className="flex items-center justify-center gap-2 mt-2.5">
                 <Lock className="h-3 w-3 text-neutral-500" />
                 <span className="text-neutral-500 text-xs">
                   Sigurno plaćanje &bull; Garancija povrata novca
                 </span>
+              </div>
+
+              {/* Uplatnica fallback link */}
+              <div className="flex justify-center mt-1 mb-1">
+                <Link
+                  href="/uplatnica"
+                  className="text-sm text-neutral-400 underline underline-offset-2 decoration-neutral-600 hover:text-neutral-400 transition-colors duration-150"
+                >
+                  ili plati uplatnicom
+                </Link>
               </div>
             </div>
           </motion.div>
