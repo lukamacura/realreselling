@@ -8,21 +8,40 @@ import { postRRSWebhook } from "@/lib/webhook";
 interface MetaCAPIPayload {
   submissionId: string;
   email: string;
+  phone?: string | null;
 }
 
 async function sendMetaCAPIEvent({
   submissionId,
   email,
+  phone,
 }: MetaCAPIPayload): Promise<void> {
   const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
   const accessToken = process.env.FACEBOOK_CAPI_ACCESS_TOKEN;
 
   if (!pixelId || !accessToken) return;
 
-  // SHA-256 hash of lowercase, trimmed email — required by Meta
-  const hashedEmail = createHash("sha256")
-    .update(email.toLowerCase().trim())
-    .digest("hex");
+  const hash = (val: string) =>
+    createHash("sha256").update(val).digest("hex");
+
+  const normalizedEmail = email.toLowerCase().trim();
+  const hashedEmail = hash(normalizedEmail);
+  const externalId = hash(normalizedEmail); // consistent cross-session ID
+
+  // Normalize phone to E.164 digits-only (no + sign, with country code)
+  // Serbia example: "064 123 4567" → "381641234567", "+381641234567" → "381641234567"
+  let hashedPhone: string | undefined;
+  if (phone) {
+    let digits = phone.replace(/\D/g, "");
+    if (digits.startsWith("0")) digits = "381" + digits.slice(1);
+    if (digits.length >= 9) hashedPhone = hash(digits);
+  }
+
+  const userData: Record<string, string> = {
+    em: hashedEmail,
+    external_id: externalId,
+  };
+  if (hashedPhone) userData.ph = hashedPhone;
 
   const body = {
     data: [
@@ -30,10 +49,8 @@ async function sendMetaCAPIEvent({
         event_name: "Purchase",
         event_time: Math.floor(Date.now() / 1000),
         event_id: submissionId,
-        action_source: "email",
-        user_data: {
-          em: hashedEmail,
-        },
+        action_source: "website",
+        user_data: userData,
         custom_data: {
           value: 39,
           currency: "EUR",
@@ -42,7 +59,7 @@ async function sendMetaCAPIEvent({
     ],
   };
 
-  const url = `https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${accessToken}`;
+  const url = `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${accessToken}`;
 
   const res = await fetch(url, {
     method: "POST",
@@ -176,7 +193,7 @@ export async function GET(req: NextRequest) {
   // event_id matches what the browser pixel sends on /uplatnica/approved so
   // Meta deduplicates and counts the purchase only once.
   try {
-    await sendMetaCAPIEvent({ submissionId: id, email: row.email });
+    await sendMetaCAPIEvent({ submissionId: id, email: row.email, phone: row.phone });
   } catch (e) {
     console.error("[uplatnica/approve] Meta CAPI error:", e);
   }

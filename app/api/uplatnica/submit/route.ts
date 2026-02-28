@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
 
   const name = (formData.get("name") as string | null)?.trim() ?? "";
   const email = (formData.get("email") as string | null)?.trim() ?? "";
+  const phone = (formData.get("phone") as string | null)?.trim() ?? "";
   const imageFile = formData.get("image") as File | null;
 
   // ── 2. Validate ─────────────────────────────────────────────────────────
@@ -81,6 +82,7 @@ export async function POST(req: NextRequest) {
     .insert({
       name,
       email,
+      phone: phone || null,
       image_url: imageUrl,
       status: "pending",
       approve_secret: approveSecret,

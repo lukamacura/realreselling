@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Upload, X, Loader2 } from "lucide-react";
@@ -24,12 +24,20 @@ function UplatnicaClient() {
   // Form state
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const n = params.get("name"); if (n) setName(n);
+    const e = params.get("email"); if (e) setEmail(e);
+    const p = params.get("phone"); if (p) setPhone(p);
+  }, []);
 
   // ── File selection ──────────────────────────────────────────────────────
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -77,6 +85,7 @@ function UplatnicaClient() {
       const formData = new FormData();
       formData.append("name", name.trim());
       formData.append("email", email.trim());
+      if (phone.trim()) formData.append("phone", phone.trim());
       formData.append("image", file);
 
       const res = await fetch("/api/uplatnica/submit", {
@@ -182,6 +191,23 @@ function UplatnicaClient() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="marko@gmail.com"
+                disabled={loading}
+                className="w-full rounded-xl border border-white/10 bg-[#0B0F13] px-4 py-3 text-sm text-white placeholder-white/30 outline-none ring-amber-400/60 transition focus:border-amber-400/60 focus:ring-2 disabled:opacity-50"
+              />
+            </div>
+
+            {/* Phone */}
+            <div>
+              <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-white/80">
+                Broj telefona <span className="text-white/40 text-xs">(opciono)</span>
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+381 64 123 4567"
                 disabled={loading}
                 className="w-full rounded-xl border border-white/10 bg-[#0B0F13] px-4 py-3 text-sm text-white placeholder-white/30 outline-none ring-amber-400/60 transition focus:border-amber-400/60 focus:ring-2 disabled:opacity-50"
               />

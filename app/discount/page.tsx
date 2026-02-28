@@ -20,6 +20,7 @@ const containsCoupon = (input?: string, coupon?: string) =>
 function saveLeadToStorage(lead: {
   name: string;
   email: string;
+  phone?: string;
   code?: string;
   price: number;
   method: "uplatnica" | "kartica";
@@ -83,12 +84,16 @@ export default function DiscountSection({
   const [emailErr, setEmailErr] = useState("");
   const nameInputRef = useRef<HTMLInputElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const [phone, setPhone] = useState("");
+  const [phoneErr, setPhoneErr] = useState("");
+  const phoneInputRef = useRef<HTMLInputElement>(null);
   const submittingRef = useRef(false); // anti-double-click
 
   const router = useRouter();
 
   const normCode = (c?: string) => (c ? String(c).trim().toUpperCase() : undefined);
   const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const validatePhone = (v: string) => /^[0-9+\s\-()]{7,20}$/.test(v.trim());
 
   useEffect(() => setDisplayPrice(basePrice), [basePrice]);
 
@@ -144,6 +149,7 @@ function applyCode() {
     let ok = true;
     if (name.trim().length < 3) { setNameErr("Unesi ime."); nameInputRef.current?.focus(); ok = false; }
     if (!validateEmail(email)) { setEmailErr("Unesi validan email."); if (ok) emailInputRef.current?.focus(); ok = false; }
+    if (!validatePhone(phone)) { setPhoneErr("Unesi ispravan broj telefona."); if (ok) phoneInputRef.current?.focus(); ok = false; }
     if (!ok) return null;
 
     const payload = {
@@ -153,6 +159,7 @@ function applyCode() {
       priceToPay,
       name,
       email,
+      phone,
     };
 
     onContinue?.(payload);
@@ -171,6 +178,7 @@ function applyCode() {
       event: "lead_checkout_started",
       email,
       name,
+      phone,
       price: priceToPay,
       code: applied ? normCode(code) : undefined,
       method,
@@ -185,6 +193,7 @@ function applyCode() {
     saveLeadToStorage({
       name,
       email,
+      phone,
       code: applied ? normCode(code) : undefined,
       price: priceToPay,
       method,
@@ -205,6 +214,7 @@ function applyCode() {
         email: payload.email,
         code: payload.code,          // <-- dodato
         codeApplied: payload.codeApplied, // <-- dodato (opciono ali korisno)
+        phone: payload.phone,
       }),
       });
       const data = await res.json();
@@ -238,6 +248,7 @@ function applyCode() {
       if (prepared.code) qs.set("code", prepared.code);
       qs.set("name", prepared.name);
       qs.set("email", prepared.email);
+      if (prepared.phone) qs.set("phone", prepared.phone);
       router.push(`/uplatnica?${qs.toString()}`);
     } finally {
       submittingRef.current = false;
@@ -330,6 +341,23 @@ function applyCode() {
               />
               {emailErr && <p className="mt-1 text-xs text-rose-400">{emailErr}</p>}
             </div>
+          </div>
+
+          {/* Phone */}
+          <div className="mt-3">
+            <label className="block text-xs font-semibold text-white/70">Broj telefona</label>
+            <input
+              ref={phoneInputRef}
+              type="tel"
+              autoComplete="tel"
+              value={phone}
+              onChange={(e) => { setPhone(e.target.value); setPhoneErr(""); }}
+              placeholder="+381 64 123 4567"
+              className={`mt-1 w-full rounded-xl border bg-[#0E1319] px-3 py-3 text-white/90 placeholder:text-white/40 focus:outline-none focus:ring-2 ${
+                phoneErr ? "border-rose-400/50 focus:ring-rose-400/60" : "border-white/10 focus:ring-amber-400/60"
+              }`}
+            />
+            {phoneErr && <p className="mt-1 text-xs text-rose-400">{phoneErr}</p>}
           </div>
 
           {/* 2) CENA */}

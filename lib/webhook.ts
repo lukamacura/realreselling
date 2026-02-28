@@ -6,6 +6,7 @@ export type BasePayload = {
   event: RRSEvent;
   email?: string;
   name?: string;
+  phone?: string;
   price?: number;
   code?: string;
   method?: "uplatnica" | "kartica";

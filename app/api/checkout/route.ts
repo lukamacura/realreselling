@@ -9,7 +9,7 @@ const DISCOUNT_AMOUNT_EUR = 4500; // 45€
 const COUPON_CODE = "POPUST";   // validan kod
 
 export async function POST(req: Request) {
-  const { email, code, codeApplied } = await req.json();
+  const { email, code, codeApplied, phone } = await req.json();
 
   const norm = (v?: string) => (v ? String(v).trim().toUpperCase() : "");
   const isValidCode = !!codeApplied && norm(code) === COUPON_CODE;
@@ -43,6 +43,7 @@ export async function POST(req: Request) {
         code: norm(code),
         codeApplied: String(!!codeApplied),
         unitAmount: String(unitAmount),
+        phone: phone ? String(phone).trim() : "",
       },
     });
 

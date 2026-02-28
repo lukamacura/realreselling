@@ -2,11 +2,77 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { createHash } from "crypto";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+async function sendMetaCAPIEvent({
+  sessionId,
+  email,
+  phone,
+}: {
+  sessionId: string;
+  email: string;
+  phone?: string | null;
+}): Promise<void> {
+  const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+  const accessToken = process.env.FACEBOOK_CAPI_ACCESS_TOKEN;
+
+  if (!pixelId || !accessToken) return;
+
+  const hash = (val: string) =>
+    createHash("sha256").update(val).digest("hex");
+
+  const normalizedEmail = email.toLowerCase().trim();
+  const hashedEmail = hash(normalizedEmail);
+  const externalId = hash(normalizedEmail);
+
+  let hashedPhone: string | undefined;
+  if (phone) {
+    let digits = phone.replace(/\D/g, "");
+    if (digits.startsWith("0")) digits = "381" + digits.slice(1);
+    if (digits.length >= 9) hashedPhone = hash(digits);
+  }
+
+  const userData: Record<string, string> = {
+    em: hashedEmail,
+    external_id: externalId,
+  };
+  if (hashedPhone) userData.ph = hashedPhone;
+
+  const body = {
+    data: [
+      {
+        event_name: "Purchase",
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: sessionId,
+        action_source: "website",
+        user_data: userData,
+        custom_data: {
+          value: 50,
+          currency: "EUR",
+        },
+      },
+    ],
+  };
+
+  const url = `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${accessToken}`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(8000),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Meta CAPI responded ${res.status}: ${text}`);
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -56,6 +122,15 @@ export async function POST(req: Request) {
       const txt = await res.text().catch(() => "");
       console.warn("[confirm] /api/leads failed:", res.status, txt);
       return NextResponse.json({ error: "leads failed" }, { status: 502 });
+    }
+
+    // Meta CAPI — server-side Purchase event for card payments
+    // event_id = session.id, matches what browser pixel sends on /success for deduplication
+    try {
+      const phone = session.metadata?.phone || null;
+      await sendMetaCAPIEvent({ sessionId: session.id, email, phone });
+    } catch (e: any) {
+      console.error("[confirm] Meta CAPI error:", e?.message || e);
     }
 
     return NextResponse.json({ ok: true, forwarded: true });
