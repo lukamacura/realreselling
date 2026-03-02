@@ -8,7 +8,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { postRRSWebhook } from "@/lib/webhook";
-import { track } from "@/lib/pixel";
+import { trackCustom } from "@/lib/pixel";
 import SnowCanvas from "@/components/SnowCanvas";
 
 const LEAD_KEY = "rrs_lead_v1";
@@ -163,13 +163,13 @@ function applyCode() {
     };
 
     onContinue?.(payload);
-    void track("Lead - prosao discount", {
+    void trackCustom("ProsaoDiscount", {
       value: priceToPay,
       currency: "EUR",
       num_items: 1,
       contents: [{ id: "RRS_PROGRAM", quantity: 1, item_price: priceToPay }],
       content_type: "product",
-       coupon: applied ? normCode(code) : undefined,
+      coupon: applied ? normCode(code) : undefined,
       payment_method: method,
     });
 

@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { PackageCheck } from "lucide-react";
 import { track, trackCustom } from "@/lib/pixel";
 
-const FIXED_PRICE = 50; // paritet sa uplatnicom
+const FIXED_PRICE = 39;
 
 export default function SuccessPage() {
   useEffect(() => {

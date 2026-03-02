@@ -3,7 +3,6 @@ import "./globals.css";
 import { Inter, Bebas_Neue } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import PixelTracker from "../components/PixelTracker"; // ⬅ direktan import klijentske komponente
 import { Analytics } from "@vercel/analytics/next"
 // import MaintancePage from "@/components/MaintancePage";
 
@@ -73,7 +72,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.variable} ${bebas.variable} font-sans bg-brand-dark text-white overflow-x-hidden`}>
         {children}
         <Analytics />
-        <PixelTracker />
       </body>
     </html>
   );
