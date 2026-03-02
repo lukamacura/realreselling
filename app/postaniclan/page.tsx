@@ -35,6 +35,7 @@ import {
   CalendarDays,
   BadgeCheck,
 } from "lucide-react";
+import { trackCustom } from "@/lib/pixel";
 
 function useTypewriter({
   text,
@@ -221,6 +222,10 @@ export default function PostaniClanPage() {
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    void trackCustom("ViewPostaniClan");
   }, []);
 
   /* Show fixed bar after scrolling past the hero */
