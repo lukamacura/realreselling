@@ -269,6 +269,7 @@ export default function PostaniClanPage() {
       });
       const data = await res.json();
       if (data.url) {
+        void trackCustom("InitiatedCheckout", { value: 39, currency: "EUR" });
         window.location.href = data.url;
       }
     } catch (err) {

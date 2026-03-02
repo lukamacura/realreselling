@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PackageCheck, AlertCircle, Loader2 } from "lucide-react";
-import { track, trackCustom } from "@/lib/pixel";
+import { track } from "@/lib/pixel";
 
 type State = "loading" | "valid" | "invalid";
 
@@ -47,14 +47,6 @@ export default function ApprovedPage() {
         await track("Purchase", {
           value: 39,
           currency: "EUR",
-          eventID: eventId,
-        });
-
-        // Custom event — preserved for internal reporting in Events Manager.
-        await trackCustom("Closed - kupio uplatnicom", {
-          value: 39,
-          currency: "EUR",
-          method: "uplatnica",
           eventID: eventId,
         });
 

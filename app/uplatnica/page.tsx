@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Upload, X, Loader2 } from "lucide-react";
 import SnowCanvas from "@/components/SnowCanvas";
+import { trackCustom } from "@/lib/pixel";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,10 @@ function UplatnicaClient() {
     const n = params.get("name"); if (n) setName(n);
     const e = params.get("email"); if (e) setEmail(e);
     const p = params.get("phone"); if (p) setPhone(p);
+  }, []);
+
+  useEffect(() => {
+    void trackCustom("ViewUplatnica", { value: 39, currency: "EUR" });
   }, []);
 
   // ── File selection ──────────────────────────────────────────────────────
@@ -300,7 +305,7 @@ function UplatnicaClient() {
         <div className="mt-4 rounded-2xl border border-white/10 bg-[#12171E]/80 p-5 text-center">
           <p className="text-sm text-white/50 mb-3">Imaš pitanje? Kontaktiraj nas direktno.</p>
           <a
-            href="https://wa.me/381658371013"
+            href="https://wa.me/381649119579"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 px-5 py-3 text-sm font-semibold text-[#25D366] transition-all hover:bg-[#25D366]/20 hover:border-[#25D366]/50 active:scale-[.98]"

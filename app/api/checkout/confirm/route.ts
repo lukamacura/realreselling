@@ -52,7 +52,7 @@ async function sendMetaCAPIEvent({
         action_source: "website",
         user_data: userData,
         custom_data: {
-          value: 50,
+          value: 39,
           currency: "EUR",
         },
       },

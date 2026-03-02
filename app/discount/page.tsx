@@ -219,6 +219,7 @@ function applyCode() {
       });
       const data = await res.json();
       if (data?.url) {
+        void trackCustom("InitiatedCheckout", { value: priceToPay, currency: "EUR" });
         window.location.href = data.url;
       } else {
         setError("Došlo je do greške pri povezivanju sa Stripe-om.");
