@@ -9,7 +9,6 @@ const SpecialOffer = dynamic(() => import("@/components/SpecialOffer"));
 const BonusSection = dynamic(() => import("@/components/BonusSection"));
 const ForYou = dynamic(() => import("@/components/ForYou"));
 const ThreeSteps = dynamic(() => import("@/components/ThreeSteps"));
-const GuaranteeSection = dynamic(() => import("@/components/GuaranteeSection"));
 const PriceComparison = dynamic(() => import("@/components/PriceComparison"), { ssr: false });
 // const QuizDiscountPopup = dynamic(() => import("@/components/QuizDiscountPopup"), { ssr: false });
 const TestimonialsYTVideos = dynamic(() => import("@/components/Testimonials").then(m => m.default));
@@ -42,8 +41,7 @@ export default function ClientHome() {
 
       <ForYou />
       <ThreeSteps />
-      <GuaranteeSection />
-      <OfferHero/>
+<OfferHero/>
       <Faq />
 
       <PriceComparison

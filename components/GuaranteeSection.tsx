@@ -52,7 +52,7 @@ export default function GuaranteeSection() {
             id="guarantee-title"
             className="mt-3 text-3xl font-bold leading-tight text-zinc-100 sm:text-4xl md:text-6xl"
           >
-            <span className="font-display block"><span className="text-[#D4A020]">No sell – No pay</span></span>
+            <span className="font-display block"><span className="text-[#D4A020]">Garancija rezultata</span></span>
           </h1>
         </header>
 
@@ -87,7 +87,7 @@ export default function GuaranteeSection() {
         {/* BIG PROMISE */}
         <div className="mt-8 text-center md:mt-10">
           <p className="mx-auto font-display inline-block border-b-4 border-white/70 pb-2 text-3xl font-extrabold tracking-wide text-white sm:text-4xl md:text-6xl">
-            VRAĆAMO TI SVAKI DINAR
+            Tvoj novac je zaštićen
           </p>
         </div>
       </div>
