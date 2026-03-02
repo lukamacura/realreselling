@@ -100,7 +100,7 @@ const PACKAGE_ITEMS: { icon: LucideIcon; label: string; sub: string | null }[] =
 const BONUS_ITEMS: { icon: LucideIcon; label: string; sub: string | null }[] = [
   {
     icon: Wifi,
-    label: "Contactless sistem",
+    label: "Sistem bez kontakta robe",
     sub: "Roba ide sama, ti brojiš pare",
   },
   {
@@ -144,7 +144,7 @@ function useTomorrowDMY() {
 
 /* ── Spots countdown ── */
 const SPOTS_START_DATE = new Date("2026-02-23");
-const SPOTS_INITIAL = 27;
+const SPOTS_INITIAL = 30;
 
 function useSpots() {
   const base = useMemo(() => {
@@ -334,7 +334,7 @@ export default function PostaniClanPage() {
                   </span>
                   <span className="text-sm text-neutral-300">
                     Ostalo{" "}
-                    <span className="overflow-hidden inline-block align-middle" style={{ height: "1.25em" }}>
+                    <span className="inline-flex items-center overflow-hidden" style={{ height: "1.25em" }}>
                       <AnimatePresence mode="popLayout" initial={false}>
                         <motion.span
                           key={spots}
@@ -357,7 +357,7 @@ export default function PostaniClanPage() {
             {/* Scroll indicator */}
             <motion.div
               variants={item}
-              className="mt-12 flex justify-center"
+              className="mt-6 flex justify-center"
             >
               <div className="flex flex-col items-center gap-2 text-neutral-500">
                 <span className="text-sm">Pročitaj priču</span>
@@ -383,7 +383,7 @@ export default function PostaniClanPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.6 }}
             >
               <h2 className="font-display leading-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
@@ -400,7 +400,7 @@ export default function PostaniClanPage() {
               className="mt-12 max-w-3xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               {/* Paketi */}
@@ -414,7 +414,7 @@ export default function PostaniClanPage() {
                     className="group rounded-2xl border border-white/10 bg-[#12171E]/80 p-4 sm:p-5 backdrop-blur text-center transition-colors duration-300 hover:border-amber-500/30 hover:bg-amber-500/5"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, amount: 0.1 }}
                     transition={{ duration: 0.4, delay: 0.15 + i * 0.08 }}
                   >
                     <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/20 transition-colors duration-300 group-hover:from-amber-500/25 group-hover:to-amber-600/10">
@@ -437,7 +437,7 @@ export default function PostaniClanPage() {
                 className="mt-3 flex items-center gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 px-5 py-3"
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, amount: 0.1 }}
                 transition={{ duration: 0.4, delay: 0.4 }}
               >
                 <BadgeCheck className="h-5 w-5 text-amber-400 shrink-0" />
@@ -451,7 +451,7 @@ export default function PostaniClanPage() {
                 className="mt-6"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, amount: 0.1 }}
                 transition={{ duration: 0.4, delay: 0.45 }}
               >
                 <p className="text-neutral-400 text-base mb-4 uppercase tracking-wider font-medium">
@@ -464,7 +464,7 @@ export default function PostaniClanPage() {
                       className="group rounded-2xl border border-white/10 bg-[#12171E]/80 p-4 sm:p-5 backdrop-blur text-center transition-colors duration-300 hover:border-amber-500/30 hover:bg-amber-500/5"
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
+                      viewport={{ once: true, amount: 0.1 }}
                       transition={{ duration: 0.4, delay: 0.5 + i * 0.08 }}
                     >
                       <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/20 transition-colors duration-300 group-hover:from-amber-500/25 group-hover:to-amber-600/10">
@@ -489,7 +489,7 @@ export default function PostaniClanPage() {
               className="mt-10 mx-auto max-w-sm"
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.4, delay: 0.25 }}
             >
               <div className="rounded-2xl border border-red-500/25 bg-red-500/8 px-6 py-4">
@@ -532,7 +532,7 @@ export default function PostaniClanPage() {
               className="mt-10"
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
               <p className="text-neutral-400 text-lg mb-2">Sve ovo bi koštalo</p>
@@ -548,7 +548,7 @@ export default function PostaniClanPage() {
               <div className="mt-4 inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-full px-4 py-2">
                 <Gift className="h-4 w-4 text-amber-400" />
                 <span className="text-amber-400 text-sm font-medium">
-                  Specijalna ponuda za čitaoce
+                  Specijalna ponuda - ograničena mesta
                 </span>
               </div>
             </motion.div>
@@ -558,7 +558,7 @@ export default function PostaniClanPage() {
               className="mt-10"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               <button
@@ -587,7 +587,7 @@ export default function PostaniClanPage() {
               className="mt-6 flex items-center justify-center gap-3 mx-auto max-w-[520px]"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.4, delay: 0.45 }}
             >
               <span className="flex-1 h-px bg-white/10" />
@@ -600,7 +600,7 @@ export default function PostaniClanPage() {
               className="mt-4"
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.45, delay: 0.5 }}
             >
               <Link
@@ -624,7 +624,7 @@ export default function PostaniClanPage() {
               className="mt-8 flex flex-wrap items-center justify-center gap-6 text-neutral-400 text-sm"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
               <div className="flex items-center gap-2">
@@ -665,7 +665,7 @@ export default function PostaniClanPage() {
                 </span>
                 <span className="text-neutral-400 text-xs">
                   Ostalo{" "}
-                  <span className="overflow-hidden inline-block align-middle" style={{ height: "1em" }}>
+                  <span className="inline-flex items-center overflow-hidden" style={{ height: "1em" }}>
                     <AnimatePresence mode="popLayout" initial={false}>
                       <motion.span
                         key={spots}
@@ -699,7 +699,7 @@ export default function PostaniClanPage() {
                   style={{ opacity: textOpacity }}
                 >
                   <span className="text-amber-400/70 font-medium text-[15px] tracking-wide pl-12">
-                    Prevuci za kupovinu &bull; 39&euro;
+                    💳 Kartica &bull; Prevuci za kupovinu &bull; 39&euro;
                   </span>
                 </motion.div>
 
@@ -743,15 +743,17 @@ export default function PostaniClanPage() {
                 </span>
               </div>
 
-              {/* Uplatnica fallback link */}
-              <div className="flex justify-center mt-1 mb-1">
-                <Link
-                  href="/uplatnica"
-                  className="text-sm text-neutral-400 underline underline-offset-2 decoration-neutral-600 hover:text-neutral-400 transition-colors duration-150"
-                >
-                  ili plati uplatnicom
-                </Link>
-              </div>
+              {/* Uplatnica secondary button */}
+              <Link
+                href="/uplatnica"
+                className="mt-2 mx-auto flex items-center justify-center gap-2.5 w-full rounded-2xl border border-white/10 bg-[#12171E] px-5 py-3 transition-all hover:border-white/20 hover:bg-white/5 active:scale-[.98]"
+              >
+                <Banknote className="h-4 w-4 text-white/50 shrink-0" />
+                <div className="text-left">
+                  <span className="block text-white/70 text-sm font-medium leading-tight">Plati uplatnicom</span>
+                  <span className="block text-neutral-500 text-xs leading-tight mt-0.5">4.600 RSD · Pristup u roku od 30 min</span>
+                </div>
+              </Link>
             </div>
           </motion.div>
         )}
