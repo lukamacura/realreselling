@@ -16,7 +16,7 @@ export default function PendingPage() {
 
         <p className="mt-4 text-sm leading-relaxed text-white/70">
           Proveravamo vašu uplatu. Pristup ćete dobiti u roku od{" "}
-          <span className="font-semibold text-white">30 minuta</span> — poslaćemo vam email
+          <span className="font-semibold text-white">10 minuta</span> — poslaćemo vam email
           sa uputstvima.
         </p>
 

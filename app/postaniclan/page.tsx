@@ -295,7 +295,15 @@ export default function PostaniClanPage() {
   return (
     <>
       <Navigation />
-      <main className="min-h-screen bg-[#0B0F13] text-white pb-28">
+      <main
+        className="min-h-screen text-white pb-28"
+        style={{
+          backgroundColor: "#0B0F13",
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+        }}
+      >
         {/* Hero Section */}
         <motion.section
           className="relative overflow-hidden pt-32 pb-16"
@@ -303,13 +311,23 @@ export default function PostaniClanPage() {
           initial="hidden"
           animate={loading ? "hidden" : "visible"}
         >
+          {/* Ambient glow */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212,160,32,0.07) 0%, transparent 65%)",
+            }}
+          />
+
           <div className="container mx-auto max-w-[1200px] px-4">
             <motion.div variants={item} className="text-center">
               <span className="inline-block text-amber-500 font-medium text-sm uppercase tracking-wider mb-4">
                 Moja Priča
               </span>
               <h1 className="mb-2 font-display text-[36px] leading-[1.05] tracking-tight text-white md:mb-6 md:text-[64px]">
-                <span className="m-0 block font-display text-[40px] leading-tight text-brand-gold md:text-[64px]">
+                <span className="m-0 block font-display text-[28px] leading-tight text-brand-gold md:text-[64px]">
                   💸 Prva online zarada
                   <span className="ml-2 text-white" aria-label={typedHeadline} aria-live="polite">
                     {typedOut}
@@ -326,7 +344,7 @@ export default function PostaniClanPage() {
                   </span>
                 </span>
               </h1>
-              <p className="mt-6 text-lg sm:text-xl text-neutral-400 max-w-2xl mx-auto">
+              <p className="mt-6 text-sm sm:text-xl text-neutral-400 max-w-2xl mx-auto">
                 Kako sam sa 23 godine, platom od 45.000 dinara i nulom na kraju meseca,
                 napravio novac uz Real Reselling.
               </p>
@@ -383,7 +401,7 @@ export default function PostaniClanPage() {
         <StorySection hidePopup={swipeBarVisible} />
 
         {/* Final CTA Section - Value Stack */}
-        <section ref={ctaRef} className="bg-brand-dark py-16 md:py-24 mx-auto">
+        <section ref={ctaRef} className="py-16 md:py-24 mx-auto">
           <div className="container mx-auto max-w-[980px] px-4 text-center">
             {/* Main Headline */}
             <motion.div
@@ -392,7 +410,7 @@ export default function PostaniClanPage() {
               viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className="font-display leading-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+              <h2 className="font-display leading-tight text-white text-2xl sm:text-4xl md:text-5xl lg:text-6xl">
                 Spreman da Napišeš
                 <br />
                 <span className="inline-block mt-2 bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
@@ -543,11 +561,11 @@ export default function PostaniClanPage() {
             >
               <p className="text-neutral-400 text-lg mb-2">Sve ovo bi koštalo</p>
               <div className="flex items-center justify-center gap-4">
-                <span className="text-4xl sm:text-5xl text-neutral-500 line-through font-display">
+                <span className="text-3xl sm:text-5xl text-neutral-500 line-through font-display">
                   50€
                 </span>
                 <span className="text-amber-500 font-bold text-xl">→</span>
-                <span className="text-5xl sm:text-6xl md:text-7xl font-display text-amber-400">
+                <span className="text-4xl sm:text-6xl md:text-7xl font-display text-amber-400">
                   39€
                 </span>
               </div>
@@ -619,7 +637,7 @@ export default function PostaniClanPage() {
                     Plati uplatnicom
                   </span>
                   <span className="block text-neutral-500 text-xs leading-tight mt-0.5">
-                    4.600 RSD &bull; Pristup u roku od 30 min
+                    4.600 RSD &bull; Pristup u roku od 10 min
                   </span>
                 </div>
               </Link>
@@ -757,7 +775,7 @@ export default function PostaniClanPage() {
                 <Banknote className="h-4 w-4 text-white/50 shrink-0" />
                 <div className="text-left">
                   <span className="block text-white/70 text-sm font-medium leading-tight">Plati uplatnicom</span>
-                  <span className="block text-neutral-500 text-xs leading-tight mt-0.5">4.600 RSD · Pristup u roku od 30 min</span>
+                  <span className="block text-neutral-500 text-xs leading-tight mt-0.5">4.600 RSD · Pristup u roku od 10 min</span>
                 </div>
               </Link>
             </div>

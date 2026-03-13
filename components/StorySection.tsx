@@ -134,7 +134,7 @@ export default function StorySection({ hidePopup = false }: { hidePopup?: boolea
       {/* Focus Challenge Popup */}
       <FocusPopup hide={hidePopup} />
 
-      <section className="py-2 sm:py-4 bg-[#0B0F13]">
+      <section className="py-2 sm:py-4">
         <div className="container mx-auto max-w-[880px] px-5 sm:px-8">
           {/* Header */}
           <motion.div
@@ -147,7 +147,7 @@ export default function StorySection({ hidePopup = false }: { hidePopup?: boolea
           <span className="text-amber-500 font-medium text-sm uppercase tracking-wider">
             Prava Priča
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl mt-3">
+          <h2 className="font-display text-2xl sm:text-4xl md:text-5xl mt-3">
             Od Minimalca do{" "}
             <span className="bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
               Slobode
@@ -156,7 +156,7 @@ export default function StorySection({ hidePopup = false }: { hidePopup?: boolea
         </motion.div>
 
         {/* Story Content */}
-        <div className="space-y-14 text-neutral-300 text-xl leading-[1.8] tracking-wide">
+        <div className="space-y-14 text-neutral-300 text-sm sm:text-base leading-[1.75] tracking-wide">
           {/* Section 1: The Struggle */}
           <Section>
             <div className="rounded-2xl border border-white/10 bg-[#12171E]/60 p-6 sm:p-8 backdrop-blur">
@@ -275,8 +275,8 @@ export default function StorySection({ hidePopup = false }: { hidePopup?: boolea
           {/* Section 6: Results */}
           <Section>
             <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-transparent p-6 sm:p-8">
-              <p className="text-lg">
-                <strong className="text-white text-xl">Četiri meseca kasnije</strong> - nisam
+              <p className="text-sm sm:text-base">
+                <strong className="text-white text-base sm:text-lg">Četiri meseca kasnije</strong> - nisam
                 dao otkaz niti sam postao milioner. Ali:
               </p>
               <ul className="mt-6 space-y-4">
@@ -316,10 +316,10 @@ export default function StorySection({ hidePopup = false }: { hidePopup?: boolea
           <Section>
             <div className="text-center py-8">
               <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 sm:p-8 mb-8">
-                <p className="text-xl text-white">
+                <p className="text-sm sm:text-base text-white">
                   Tih{" "}
                   <Highlight>
-                    <strong className="text-amber-400 text-2xl">39 evra</strong>
+                    <strong className="text-amber-400 text-base sm:text-xl">39 evra</strong>
                   </Highlight>{" "}
                   su mi doneli više nego bilo koja investicija do sad.
                 </p>
@@ -328,7 +328,7 @@ export default function StorySection({ hidePopup = false }: { hidePopup?: boolea
                   <strong className="text-white">stekao veštinu koja mi ostaje</strong>.
                 </p>
               </div>
-              <p className="text-2xl sm:text-3xl font-display text-white">
+              <p className="text-lg sm:text-3xl font-display text-white">
                 Više nemam osećaj da sam{" "}
                 <span className="line-through text-neutral-500">bez opcija</span>.{" "}
                 <Highlight>

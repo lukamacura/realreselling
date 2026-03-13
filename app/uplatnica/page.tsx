@@ -139,7 +139,7 @@ function UplatnicaClient() {
             <span className="text-amber-400">uplatnicom</span>
           </h1>
           <p className="mt-2 text-sm text-white/60">
-            Popuni uplatnicu, fotografiši je i pošalji nam. Pristup dobijate za 30 minuta.
+            Popuni uplatnicu, fotografiši je i pošalji nam. Pristup dobijate za 10 minuta.
           </p>
         </div>
 
@@ -295,7 +295,7 @@ function UplatnicaClient() {
 
             {/* Trust line */}
             <p className="text-center text-xs text-white/40">
-              Pristup dobijate u roku od 30 minuta od verifikacije
+              Pristup dobijate u roku od 10 minuta od verifikacije
             </p>
 
           </form>

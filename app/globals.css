@@ -12,5 +12,5 @@
 }
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
-  html, body { width: 100%; min-width: 0; margin: 0; scroll-behavior: smooth;}
+  html, body { width: 100%; min-width: 0; margin: 0; scroll-behavior: smooth; background-color: #0B0F13; }
 }
