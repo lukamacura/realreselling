@@ -26,6 +26,7 @@ function UplatnicaClient() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [uplatnicaImg, setUplatnicaImg] = useState("/uplatnica_39.jpeg");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,7 @@ function UplatnicaClient() {
     const n = params.get("name"); if (n) setName(n);
     const e = params.get("email"); if (e) setEmail(e);
     const p = params.get("phone"); if (p) setPhone(p);
+    if (params.get("img") === "50") setUplatnicaImg("/uplatnica.png");
   }, []);
 
   useEffect(() => {
@@ -149,7 +151,7 @@ function UplatnicaClient() {
             Primer popunjene uplatnice
           </p>
           <Image
-            src="/uplatnica_39.jpeg"
+            src={uplatnicaImg}
             alt="Primer popunjene uplatnice"
             width={1400}
             height={900}

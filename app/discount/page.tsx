@@ -61,7 +61,7 @@ type Props = {
 };
 
 export default function DiscountSection({
-  basePrice = 39,
+  basePrice = 50,
   regularPrice = 230,
   couponCode = "popust",
   couponValue = 5,
@@ -250,6 +250,7 @@ function applyCode() {
       qs.set("name", prepared.name);
       qs.set("email", prepared.email);
       if (prepared.phone) qs.set("phone", prepared.phone);
+      qs.set("img", "50");
       router.push(`/uplatnica?${qs.toString()}`);
     } finally {
       submittingRef.current = false;

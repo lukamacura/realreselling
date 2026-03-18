@@ -628,7 +628,7 @@ export default function PostaniClanPage() {
               transition={{ duration: 0.45, delay: 0.5 }}
             >
               <Link
-                href="/uplatnica"
+                href="/uplatnica?img=39"
                 className="group mx-auto flex items-center justify-center gap-3 w-full max-w-[520px] min-h-[56px] rounded-[28px] border border-white/15 bg-[#12171E] px-8 py-4 transition-all duration-200 hover:border-white/25 hover:bg-white/5 active:scale-[.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60"
               >
                 <Banknote className="h-5 w-5 text-white/50 shrink-0 transition-colors duration-200 group-hover:text-white/70" />
@@ -769,7 +769,7 @@ export default function PostaniClanPage() {
 
               {/* Uplatnica secondary button */}
               <Link
-                href="/uplatnica"
+                href="/uplatnica?img=39"
                 className="mt-2 mx-auto flex items-center justify-center gap-2.5 w-full rounded-2xl border border-white/10 bg-[#12171E] px-5 py-3 transition-all hover:border-white/20 hover:bg-white/5 active:scale-[.98]"
               >
                 <Banknote className="h-4 w-4 text-white/50 shrink-0" />
