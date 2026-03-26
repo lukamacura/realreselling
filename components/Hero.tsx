@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Banknote, Users, BadgeCheck, Rocket, PlayCircle } from "lucide-react";
+import { Banknote, Users, BadgeCheck, Rocket } from "lucide-react";
+import YouTube from "./Youtube";
 import {
   motion,
   LazyMotion,
@@ -226,16 +227,6 @@ export default function Hero() {
                   </Link>
                 </motion.div>
 
-                <motion.div variants={fadeUp} className="relative mt-4 w-full max-w-[640px]">
-                  <Link
-                    href="https://www.youtube.com/watch?v=YHgKyEFUQeE"
-                    className="group relative inline-flex w-full items-center justify-center rounded-[28px] border px-4 py-6 font-display text-xl font-bold text-white transition md:text-2xl hover:bg-brand-goldDark"
-                  >
-                    <PlayCircle className="mb-[3px] mr-[4px] h-9 w-9 text-white transition-transform group-hover:scale-110" aria-hidden />
-                    Pogledaj video
-
-                  </Link>
-                </motion.div>
               </motion.div>
             </AnimatePresence>
 
@@ -276,6 +267,21 @@ export default function Hero() {
               </motion.div>
             </AnimatePresence>
           </div>
+
+          {/* VIDEO */}
+          <motion.div
+            className="container mx-auto max-w-[1000px] px-4 mt-10"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ amount: 0.2, once: false }}
+            transition={{ duration: 0.6, ease: easeStandard }}
+          >
+            <YouTube
+              videoId="43H09IN6d2c"
+              title="Prva online zarada od resellinga u 30 dana"
+              className="shadow-2xl"
+            />
+          </motion.div>
 
           {/* FEATURE STRIP */}
           <div className="container mx-auto max-w-[1600px] px-4">
