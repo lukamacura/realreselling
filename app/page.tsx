@@ -20,7 +20,6 @@ import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import SocialProofBuy from "@/components/SocialProofBuy";
 import ClientHome from "@/components/client-home"; // vidi dole
-import Youtube from "@/components/Youtube"; // vidi dole
 import SnowCanvas from "@/components/SnowCanvas";
 
 
@@ -33,7 +32,6 @@ export default function Page() {
 
         <SocialProofBuy />
         <Hero />
-        <Youtube videoId="YHgKyEFUQeE" title="VSL" />
 
         <ClientHome />
         <Footer />
