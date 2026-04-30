@@ -144,8 +144,8 @@ function useTomorrowDMY() {
 }
 
 /* ── Spots countdown ── */
-const SPOTS_START_DATE = new Date("2026-02-23");
-const SPOTS_INITIAL = 30;
+const SPOTS_START_DATE = new Date("2026-04-30");
+const SPOTS_INITIAL = 21;
 
 function useSpots() {
   const base = useMemo(() => {
