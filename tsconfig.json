@@ -3,6 +3,7 @@
     "target": "ES2017",
     "lib": ["ES2021", "DOM", "DOM.Iterable"],
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
