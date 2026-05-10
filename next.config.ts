@@ -51,9 +51,7 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // 3) (po želji) minify i sl.
   reactStrictMode: true,
-  swcMinify: true,
 };
 
 export default withNextVideo(nextConfig);
