@@ -13,6 +13,7 @@ import {
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import StorySection from "@/components/StorySection";
+import YouTube from "@/components/Youtube";
 import Link from "next/link";
 import {
   Sparkles,
@@ -304,9 +305,24 @@ export default function PostaniClanPage() {
           backgroundSize: "60px 60px",
         }}
       >
+        {/* Video */}
+        <motion.div
+          className="container mx-auto max-w-[1000px] px-4 pt-32 mb-10"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ amount: 0.2, once: false }}
+          transition={{ duration: 0.6 }}
+        >
+          <YouTube
+            videoId="43H09IN6d2c"
+            title="Prva online zarada od resellinga u 30 dana"
+            className="shadow-2xl"
+          />
+        </motion.div>
+
         {/* Hero Section */}
         <motion.section
-          className="relative overflow-hidden pt-32 pb-16"
+          className="relative overflow-hidden pb-16"
           variants={container}
           initial="hidden"
           animate={loading ? "hidden" : "visible"}
@@ -320,7 +336,7 @@ export default function PostaniClanPage() {
                 "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212,160,32,0.07) 0%, transparent 65%)",
             }}
           />
-
+        
           <div className="container mx-auto max-w-[1200px] px-4">
             <motion.div variants={item} className="text-center">
               <span className="inline-block text-amber-500 font-medium text-sm uppercase tracking-wider mb-4">
